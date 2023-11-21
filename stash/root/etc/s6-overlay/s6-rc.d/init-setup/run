@@ -1,0 +1,40 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+
+PUID=${PUID:-911}
+PGID=${PGID:-911}
+
+groupmod -o -g "$PGID" stash
+usermod -o -u "$PUID" stash
+
+cat /etc/s6-overlay/s6-rc.d/init-setup/branding
+
+echo '
+
+To support development visit:
+https://opencollective.com/stashapp
+
+───────────────────────────────────────
+GID/UID
+───────────────────────────────────────'
+echo "
+User UID:    $(id -u stash)
+User GID:    $(id -g stash)
+───────────────────────────────────────
+"
+
+echo "Applying permissions"
+# config
+chmod "=rwx" "/config"
+chown stash:stash "/config"
+# data
+chmod "=rwx" "/data"
+chown stash:stash "/data"
+# app
+chmod "=rwx" "/app"
+chown stash:stash "/app"
+# defaults
+chmod "=rwx" "/defaults"
+chown stash:stash "/defaults"
+
+chown -h stash:stash "/config/.stash"
