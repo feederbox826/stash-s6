@@ -1,8 +1,6 @@
 # syntax=docker/dockerfile:1
 
 FROM alpine:3.18
-# add stash
-COPY --from=s6-builder /root-out/ /
 # OS environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
@@ -43,6 +41,7 @@ RUN \
   echo "**** cleanup ****"
 
 COPY stash/root/ /
+# add stash
 COPY --from=stashapp/stash /usr/bin/stash /app/stash
 
 VOLUME /pip-install
