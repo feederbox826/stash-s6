@@ -111,7 +111,7 @@ jobs:
           cache-to: type=gha,mode=max
       - name: build hwaccel-jf
         # no support for ARMEL
-        if: ${{ matrix.platform !== 'linux/arm/v6' }}
+        if: ${{ matrix.platform != 'linux/arm/v6' }}
         uses: docker/build-push-action@v4
         with:
           push: true
