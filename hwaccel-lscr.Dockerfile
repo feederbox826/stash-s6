@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1
+ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
+
 # take libraries from linuxserver/ffmpeg
 FROM ghcr.io/linuxserver/ffmpeg as lscr-ffmpeg
 
@@ -9,7 +11,6 @@ COPY --from=lscr-ffmpeg /usr/local/lib /buildout/usr/local/lib
 COPY --from=lscr-ffmpeg /etc/OpenCL/vendors /buildout/etc/OpenCL/vendors
 
 # copy and build
-ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
 FROM ${UPSTREAM_IMAGE}:hwaccel-base
 COPY --from=lib-arrange /buildout /
 RUN \
