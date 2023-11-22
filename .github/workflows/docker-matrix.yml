@@ -22,7 +22,7 @@ jobs:
             tag: "amd64"
           - platform: "linux/arm64"
             s6_arch: "aarch64"
-            arch: "aarch64"
+            arch: "arm64"
             tag: "arm64"
           - platform: "linux/arm/v6"
             s6_arch: "arm"
