@@ -137,6 +137,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: setup image names
+        run: |
+          echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
+          echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
       - name: create manifest for GHCR/hwaccel
         run: |
           docker manifest create \
@@ -158,7 +162,6 @@ jobs:
           docker manifest create \
             ${{ env.GHCR_IMAGE }}:hwaccel-jf \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-amd64 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv6 \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv7 \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-arm64
           docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-jf
