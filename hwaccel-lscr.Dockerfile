@@ -9,7 +9,8 @@ COPY --from=lscr-ffmpeg /usr/local/lib /buildout/usr/local/lib
 COPY --from=lscr-ffmpeg /etc/OpenCL/vendors /buildout/etc/OpenCL/vendors
 
 # copy and build
-FROM ghcr.io/feederbox826/stash-s6:hwaccel-base
+ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
+FROM ${UPSTREAM_IMAGE}:hwaccel-base
 COPY --from=lib-arrange /buildout /
 RUN \
   echo "**** installling runtime dependencies ****" && \

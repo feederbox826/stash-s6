@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/feederbox826/stash-s6:hwaccel-base
+ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
+FROM ${UPSTREAM_IMAGE}:hwaccel-base
 
 RUN \
   echo "**** add non-free to sources ****" && \

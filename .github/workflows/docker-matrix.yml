@@ -57,7 +57,7 @@ jobs:
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
-            ${{ env.GHCR_IMAGE }}:hwaccel-base-${{ matrix.tag }}
+            localhost:5000/stash/stash-s6:hwaccel-base
       - name: check if hwaccel-base exists
         run: docker images
       - name: build hwaccel
@@ -67,6 +67,7 @@ jobs:
           file: hwaccel.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+            UPSTREAM_IMAGE: localhost:5000/stash/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
@@ -77,6 +78,7 @@ jobs:
           file: hwaccel-lscr.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+            UPSTREAM_IMAGE: localhost:5000/stash/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
@@ -87,6 +89,7 @@ jobs:
           file: hwaccel-jf.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+            UPSTREAM_IMAGE: localhost:5000/stash/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
