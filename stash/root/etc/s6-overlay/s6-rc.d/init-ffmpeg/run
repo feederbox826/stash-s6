@@ -3,8 +3,8 @@
 
 # link download libraries
 if [[ ! -e "$/config/.stash/ffmpeg" ]]; then
-    ln -s "/usr/local/bin" "/config/.stash/ffmpeg"
+    ln -s "$(command -v ffmpeg)" "/config/.stash/ffmpeg"
 fi
 if [[ ! -e "/config/.stash/ffprobe" ]]; then
-    ln -s "/usr/local/bin/ffprobe" "/config/.stash/ffprobe"
+    ln -s "$(command -v ffprobe)" "/config/.stash/ffprobe"
 fi

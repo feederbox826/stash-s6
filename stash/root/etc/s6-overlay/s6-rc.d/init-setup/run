@@ -24,17 +24,25 @@ User GID:    $(id -g stash)
 "
 
 echo "Applying permissions"
-# config
-chmod "=rwx" "/config"
-chown stash:stash "/config"
-# data
-chmod "=rwx" "/data"
-chown stash:stash "/data"
 # app
-chmod "=rwx" "/app"
+chmod -R "=rwx" "/app"
 chown stash:stash "/app"
+# config
+chmod -R "=rwx" "/config"
+chown -Rh stash:stash "/config"
 # defaults
 chmod "=rwx" "/defaults"
 chown stash:stash "/defaults"
 
-chown -h stash:stash "/config/.stash"
+function mkown {
+  mkdir -p "$1"
+  chown -Rh stash:stash "$1"
+  chmod -R "=rwx" "$1"
+}
+
+echo "Creating Directories"
+mkown "/config/plugins"
+mkown "/config/scrapers"
+mkown "${STASH_GENERATED}"
+mkown "${STASH_CACHE}"
+mkown "${STASH_METADATA}"

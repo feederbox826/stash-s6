@@ -40,6 +40,7 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yaml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
+  PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware env
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
@@ -71,8 +72,6 @@ RUN \
   mkdir -p \
     /app \
     /config \
-    /config/.stash \
-    /data \
     /defaults && \
   echo "**** cleanup ****" && \
   apt-get autoremove && \

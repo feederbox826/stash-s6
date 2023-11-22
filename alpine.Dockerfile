@@ -34,7 +34,8 @@ ENV HOME="/root" \
   STASH_METADATA="/config/metadata" \
   STASH_CONFIG_FILE="/config/config.yaml" \
   # python env
-  PIP_INSTALL_TARGET="/pip-install"
+  PIP_INSTALL_TARGET="/pip-install" \
+  PYTHONPATH=${PIP_INSTALL_TARGET}
 
 RUN \
   echo "**** install packages ****" && \
@@ -55,8 +56,6 @@ RUN \
   mkdir -p \
     /app \
     /config \
-    /config/.stash \
-    /data \
     /defaults && \
   echo "**** cleanup ****"
 
