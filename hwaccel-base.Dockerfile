@@ -16,8 +16,6 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLA
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
-# add nvenc patch
-ADD --chmod=0755 https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh /root-out/usr/local/bin/
 
 FROM debian:bookworm
 # add stash
