@@ -41,9 +41,7 @@ function mkown {
 }
 
 echo "Creating Directories"
-mkown "/config/.stash"
 mkown "/config/plugins"
 mkown "/config/scrapers"
 mkown "${STASH_GENERATED}"
 mkown "${STASH_CACHE}"
-mkown "${STASH_METADATA}"

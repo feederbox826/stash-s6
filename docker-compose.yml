@@ -1,7 +1,8 @@
 version: "3"
 services:
   stash:
-    image: stashapp/stash
+    #image: stashapp/stash
+    image: stash-s6:alpine
     ports:
       - 9999:9999
     volumes:

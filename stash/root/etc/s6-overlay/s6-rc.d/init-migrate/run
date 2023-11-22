@@ -1,6 +1,83 @@
 #!/command/with-contenv bash
 # shellcheck shell=bash
 
+set -e # exit on error
+
+function reown {
+  chown -Rh stash:stash "$1"
+  chmod -R "=rwx" "$1"
+}
+
+function check_migrate {
+    # get value of key
+    KEY="$1"
+    OLD_PATH=$(yq ."$KEY" "${CONFIG_YAML}")
+    NEW_PATH="$2"
+    if [[ "$OLD_PATH" != "null" ]]; then
+        # remove quotes
+        OLD_PATH="${OLD_PATH%\"}"
+        OLD_PATH="${OLD_PATH#\"}"
+        # check if oldpath does not match new path, is absolute and exists
+        if [[ "$OLD_PATH" != "$NEW_PATH" && "$OLD_PATH" == /* && -e "$OLD_PATH" ]]; then
+            # move directory
+            migrate "$KEY" "$OLD_PATH" "$NEW_PATH"
+            echo "migrated $KEY"
+            # update key in config
+            yq -i ".${KEY} = \"${NEW_PATH}\"" "${CONFIG_YAML}"
+        else
+            echo "skipping $KEY"
+        fi
+    fi
+}
+
+function migrate {
+    KEY="$1"
+    OLD_PATH="$2"
+    NEW_PATH="$3"
+    if [[ -e "$OLD_PATH" ]]; then
+        echo "migrating $KEY"
+        mv "$OLD_PATH" "$NEW_PATH"
+        reown "$NEW_PATH"
+    fi
+}
+
 # hotio migration
+if [[ -e /config/.stash ]]; then
+    echo "migrating"
+    # remove .stash at the very end
+    # rm -rf /config/.stash
+fi
 
 # stashapp/stash migration
+# check for /root/.stash
+if [[ -e "/root/.stash" && -f "/root/.stash/config.yml" ]]; then
+    echo "migrating from stashapp/stash"
+    CONFIG_YAML=/root/.stash/config.yml
+    # check for /generated mount
+    if [[ "$(mount | grep '/generated')" -ne 0 ]]; then
+        echo "/generated mounted, moving"
+        echo "moving generated to ${STASH_GENERATED}"
+        check_migrate "generated" "${STASH_GENERATED}"
+        echo "moving cache to ${STASH_CACHE}"
+        check_migrate "cache" "${STASH_CACHE}"\
+    else
+        echo "/generated not mounted, moving to /config"
+        echo "moving generated to /config/generated"
+        check_migrate "generated" "/config/generated"
+        echo "moving cache to /config/generated"
+        check_migrate "cache" "/config/cache"
+    fi
+    echo "moving blobs to /config/blobs"
+    check_migrate "blobs" "/config/blobs"
+    echo "moving plugins to /config/plugins"
+    check_migrate "plugins_path" "/config/plugins"
+    echo "moving scrapers to /config/scrapers"
+    check_migrate "scrapers_path" "/config/scrapers"
+    echo "moving database to /config/stash-go.sqlite"
+    check_migrate "database" "/config/stash-go.sqlite"
+    # migrate all other misc files
+    echo "moving leftover files"
+    mv /root/.stash/* /config/
+    # reown files
+    reown "/config"
+fi
