@@ -86,6 +86,7 @@ jobs:
 
   create-manifests:
     needs: [builds-matrix]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Login to GHCR
