@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM stash-s6:hwaccel-base
+FROM ghcr.io/feederbox826/stash-s6:hwaccel-base
 
 RUN \
   echo "**** add non-free to sources ****" && \

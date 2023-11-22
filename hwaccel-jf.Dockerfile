@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM stash-s6:hwaccel-base
+FROM ghcr.io/feederbox826/stash-s6:hwaccel-base
 ARG ARCHITECTURE="amd64"
 
 COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources

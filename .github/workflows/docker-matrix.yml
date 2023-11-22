@@ -28,6 +28,11 @@ jobs:
           - platform: "linux/arm/v7"
             architecture: "arm"
             tag: "armv7"
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v3
@@ -46,14 +51,13 @@ jobs:
       - name: build hwaccel-base for local use
         uses: docker/build-push-action@v4
         with:
-          push: false
-          load: true
+          push: true
           file: hwaccel-base.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
-            stash-s6:hwaccel-base
+            ${{ env.GHCR_IMAGE }}:hwaccel-base-${{ matrix.tag }}
       - name: check if hwaccel-base exists
         run: docker images
       - name: build hwaccel
@@ -98,6 +102,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: create manifest for GHCR/hwaccel-base
+        run: |
+          docker manifest create \
+            ${{ env.GHCR_IMAGE }}:hwaccel-base \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-base-amd64 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-base-armv6 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-base-armv7 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-base-arm64
+          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-base
       - name: create manifest for GHCR/hwaccel
         run: |
           docker manifest create \
