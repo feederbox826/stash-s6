@@ -45,6 +45,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             localhost:5000/stash-s6:hwaccel-base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: build hwaccel-lscr amd64
         uses: docker/build-push-action@v4
         with:
@@ -56,6 +58,8 @@ jobs:
           platforms: linux/amd64
           tags: |
             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: build hwaccel-lscr arm64
         uses: docker/build-push-action@v4
         with:
@@ -67,8 +71,10 @@ jobs:
           platforms: linux/arm64
           tags: |
             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   create-manifests:
-    needs: [builds-matrix]
+    needs: [build-image]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

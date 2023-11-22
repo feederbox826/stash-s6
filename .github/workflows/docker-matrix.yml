@@ -60,6 +60,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
             localhost:5000/stash-s6:hwaccel-base
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: check if hwaccel-base exists
         run: docker images
       - name: build hwaccel
@@ -73,6 +75,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: build hwaccel-jf
         uses: docker/build-push-action@v4
         with:
@@ -84,6 +88,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   create-manifests:
     needs: [builds-matrix]
