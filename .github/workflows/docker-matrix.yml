@@ -48,8 +48,8 @@ jobs:
         with:
           push: false
           file: hwaccel-base.Dockerfile
-          build-args:
-            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          build-args: |
+            S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
             stash-s6:hwaccel-base
