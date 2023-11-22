@@ -11,6 +11,7 @@ env:
   IMAGE_NAME: stash-s6
 
 jobs:
+  build-image:
     services:
       registry:
         image: registry:2
