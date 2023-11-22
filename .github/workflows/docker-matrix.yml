@@ -62,7 +62,7 @@ jobs:
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
-             ${{ GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
+             ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
       - name: build hwaccel-lscr
         uses: docker/build-push-action@v4
         with:
@@ -72,7 +72,7 @@ jobs:
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
-             ${{ GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
+             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
       - name: build hwaccel-jf
         uses: docker/build-push-action@v4
         with:
@@ -82,7 +82,7 @@ jobs:
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
-             ${{ GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
+             ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
 
   create-manifests:
     needs: [builds-matrix]
@@ -97,27 +97,27 @@ jobs:
       - name: create manifest for GHCR/hwaccel
         run: |
           docker manifest create \
-            ${{ GHCR_IMAGE }}:hwaccel \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-amd64 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-armv6 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-armv7 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-arm64
-          docker manifest push ${{ GHCR_IMAGE }}:hwaccel
+            ${{ env.GHCR_IMAGE }}:hwaccel \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-amd64 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv6 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv7 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-arm64
+          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel
       - name: create manifest for GHCR/hwaccel-lscr
         run: |
           docker manifest create \
-            ${{ GHCR_IMAGE }}:hwaccel-lscr \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-amd64 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-armv6 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-armv7 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-arm64
-          docker manifest push ${{ GHCR_IMAGE }}:hwaccel-lscr
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-armv6 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-armv7 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
+          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-lscr
       - name: create manifest for GHCR/hwaccel-jf
         run: |
           docker manifest create \
-            ${{ GHCR_IMAGE }}:hwaccel-jf \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-amd64 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-armv6 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-armv7 \
-            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-arm64
-          docker manifest push ${{ GHCR_IMAGE }}:hwaccel-jf
+            ${{ env.GHCR_IMAGE }}:hwaccel-jf \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-amd64 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv6 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv7 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-arm64
+          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-jf
