@@ -18,8 +18,6 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLA
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 # add nvenc patch
 ADD --chmod=0755 https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh /root-out/usr/local/bin/
-# add updated sources file
-COPY stash-files/debian.sources /root-out/etc/apt/sources.list.d/debian.sources
 
 FROM debian:bookworm
 # add stash
@@ -47,6 +45,8 @@ ENV HOME="/root" \
   NVIDIA_VISIBLE_DEVICES="all"
 
 RUN \
+  echo "**** add contrib to sources ****" && \
+    sed -i 's/main/main contrib/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install apt-utils and locales ****" && \
     apt-get update && \
     apt-get install -y \

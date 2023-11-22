@@ -3,6 +3,8 @@
 FROM stash-s6:hwaccel-base
 
 RUN \
+  echo "**** add non-free to sources ****" && \
+    sed -i 's/main contrib/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install debian ffmpeg ****" && \
     apt-get update && \
     apt-get install -y \

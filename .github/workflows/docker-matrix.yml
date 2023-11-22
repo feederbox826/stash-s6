@@ -1,0 +1,122 @@
+name: docker-hawccel-matrix-build
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
+
+env:
+  IMAGE_NAME: stash-s6
+
+jobs:
+  builds-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - platform: "linux/amd64"
+            architecture: "x86_64"
+            tag: "amd64"
+          - platform: "linux/arm64"
+            architecture: "aarch64"
+            tag: "arm64"
+          - platform: "linux/arm/v6"
+            architecture: "arm"
+            tag: "armv6"
+          - platform: "linux/arm/v7"
+            architecture: "arm"
+            tag: "armv7"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm,arm64
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        run: |
+          echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ IMAGE_NAME }}" >> "$GITHUB_ENV"
+          echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ IMAGE_NAME }}" >> "$GITHUB_ENV"
+      - name: build hwaccel-base for local use
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          file: hwaccel-base.Dockerfile
+          build-args:
+            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          platforms: ${{ matrix.platform }}
+          tags: |
+            stash-s6:hwaccel-base
+      - name: build hwaccel
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: hwaccel.Dockerfile
+          build-args:
+            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          platforms: ${{ matrix.platform }}
+          tags: |
+             ${{ GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
+      - name: build hwaccel-lscr
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: hwaccel-lscr.Dockerfile
+          build-args:
+            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          platforms: ${{ matrix.platform }}
+          tags: |
+             ${{ GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
+      - name: build hwaccel-jf
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: hwaccel-jf.Dockerfile
+          build-args:
+            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          platforms: ${{ matrix.platform }}
+          tags: |
+             ${{ GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
+
+  create-manifests:
+    needs: [builds-matrix]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          ...
+
+      - name: create manifest for GHCR/hwaccel
+        run: |
+          docker manifest create \
+            ${{ GHCR_IMAGE }}:hwaccel \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-amd64 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-armv6 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-armv7 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-arm64
+          docker manifest push ${{ GHCR_IMAGE }}:hwaccel
+      - name: create manifest for GHCR/hwaccel-lscr
+        run: |
+          docker manifest create \
+            ${{ GHCR_IMAGE }}:hwaccel-lscr \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-amd64 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-armv6 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-armv7 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-lscr-arm64
+          docker manifest push ${{ GHCR_IMAGE }}:hwaccel-lscr
+      - name: create manifest for GHCR/hwaccel-jf
+        run: |
+          docker manifest create \
+            ${{ GHCR_IMAGE }}:hwaccel-jf \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-amd64 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-armv6 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-armv7 \
+            --amend ${{ GHCR_IMAGE }}:hwaccel-jf-arm64
+          docker manifest push ${{ GHCR_IMAGE }}:hwaccel-jf

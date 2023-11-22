@@ -1,7 +1,7 @@
 version: "3"
 services:
   stash:
-    image: stash-s6:hwaccel-jf
+    image: stash-s6:hwaccel
     ports:
       - 9999:9999
     volumes:
