@@ -8,5 +8,5 @@ fi
 
 ## install and upgrade python requirements
 echo "Installing/upgrading python requirements..."
-pip3 install --upgrade --target "$PIP_INSTALL_TARGET" -r /config/requirements.txt
+s6-setuidgid stash pip3 install --upgrade --target "$PIP_INSTALL_TARGET" -r /config/requirements.txt
 export PYTHONPATH="$PYTHONPATH:$PIP_INSTALL_TARGET"

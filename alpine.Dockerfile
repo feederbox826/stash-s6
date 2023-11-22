@@ -2,15 +2,15 @@
 
 FROM alpine:3.18
 # OS environment variables
-ENV HOME="/root" \
+ENV HOME="/config" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
   S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
   # stash environment variables
   STASH_PORT="9999" \
-  STASH_GENERATED="/data/generated" \
-  STASH_CACHE="/data/cache" \
+  STASH_GENERATED="/generated/generated" \
+  STASH_CACHE="/generated/cache" \
   STASH_METADATA="/config/metadata" \
   STASH_CONFIG_FILE="/config/config.yaml" \
   # python env
