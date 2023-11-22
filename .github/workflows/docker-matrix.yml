@@ -17,16 +17,20 @@ jobs:
       matrix:
         include:
           - platform: "linux/amd64"
-            architecture: "x86_64"
+            s6_arch: "x86_64"
+            arch: "amd64"
             tag: "amd64"
           - platform: "linux/arm64"
-            architecture: "aarch64"
+            s6_arch: "aarch64"
+            arch: "aarch64"
             tag: "arm64"
           - platform: "linux/arm/v6"
-            architecture: "arm"
+            s6_arch: "arm"
+            arch: "armhf"
             tag: "armv6"
           - platform: "linux/arm/v7"
-            architecture: "arm"
+            s6_arch: "arm"
+            arch: "armhf"
             tag: "armv7"
     services:
       registry:
@@ -56,7 +60,7 @@ jobs:
           push: true
           file: hwaccel-base.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.architecture }}
+            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
           platforms: ${{ matrix.platform }}
           tags: |
             localhost:5000/stash-s6:hwaccel-base
@@ -68,7 +72,7 @@ jobs:
           push: true
           file: hwaccel.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.architecture }}
+            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
@@ -109,7 +113,8 @@ jobs:
           push: true
           file: hwaccel-jf.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.architecture }}
+            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
+            ARCHITECTURE=${{ matrix.arch }}
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
