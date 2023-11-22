@@ -73,17 +73,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
-      - name: build hwaccel-lscr
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          file: hwaccel-lscr.Dockerfile
-          build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.architecture }}
-            UPSTREAM_IMAGE=localhost:5000/stash-s6
-          platforms: ${{ matrix.platform }}
-          tags: |
-             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
       - name: build hwaccel-jf
         uses: docker/build-push-action@v4
         with:
@@ -116,15 +105,6 @@ jobs:
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv7 \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-arm64
           docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel
-      - name: create manifest for GHCR/hwaccel-lscr
-        run: |
-          docker manifest create \
-            ${{ env.GHCR_IMAGE }}:hwaccel-lscr \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-armv6 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-armv7 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
-          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-lscr
       - name: create manifest for GHCR/hwaccel-jf
         run: |
           docker manifest create \
