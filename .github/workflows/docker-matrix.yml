@@ -60,7 +60,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          load: true
           file: hwaccel.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
@@ -71,7 +70,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          load: true
           file: hwaccel-lscr.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
@@ -82,7 +80,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          load: true
           file: hwaccel-jf.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
