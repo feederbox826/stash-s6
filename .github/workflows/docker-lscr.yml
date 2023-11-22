@@ -12,6 +12,7 @@ env:
 
 jobs:
   build-image:
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
