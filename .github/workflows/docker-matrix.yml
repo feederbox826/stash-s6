@@ -26,7 +26,7 @@ jobs:
             tag: "arm64"
           - platform: "linux/arm/v6"
             s6_arch: "arm"
-            arch: "armhf"
+            arch: "armel"
             tag: "armv6"
           - platform: "linux/arm/v7"
             s6_arch: "arm"
@@ -80,6 +80,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: build hwaccel-lscr amd64
+        # specific to amd64
         if: ${{ matrix.platform == 'linux/amd64' }}
         uses: docker/build-push-action@v4
         with:
@@ -94,6 +95,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: build hwaccel-lscr arm64
+        # specific to ARM64
         if: ${{ matrix.platform == 'linux/arm64' }}
         uses: docker/build-push-action@v4
         with:
@@ -108,6 +110,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: build hwaccel-jf
+        # no support for ARMEL
+        if: ${{ matrix.platform !== 'linux/arm/v6' }}
         uses: docker/build-push-action@v4
         with:
           push: true
