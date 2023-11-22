@@ -85,7 +85,7 @@ RUN \
       /var/log/*
 
 COPY stash/root/ /
-COPY stash-cuda/root/ /
+COPY stash-hwaccel/root/ /
 
 EXPOSE 9999
 ENTRYPOINT ["/init"]
