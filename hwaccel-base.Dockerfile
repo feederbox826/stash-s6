@@ -59,9 +59,7 @@ RUN \
       ca-certificates \
       curl \
       gnupg \
-      intel-gpu-tools \
       libvips-tools \
-      nvtop \
       python3 \
       python3-pip \
       tzdata \
