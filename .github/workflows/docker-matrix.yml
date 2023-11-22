@@ -62,8 +62,6 @@ jobs:
             localhost:5000/stash-s6:hwaccel-base
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: check if hwaccel-base exists
-        run: docker images
       - name: build hwaccel
         uses: docker/build-push-action@v4
         with:
@@ -75,6 +73,34 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: build hwaccel-lscr amd64
+        if: ${{ matrix.platform == 'linux/amd64' }}
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: hwaccel-lscr.Dockerfile
+          build-args: |
+            S6_OVERLAY_ARCH=x86_64
+            UPSTREAM_IMAGE=localhost:5000/stash-s6
+          platforms: linux/amd64
+          tags: |
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: build hwaccel-lscr arm64
+        if: ${{ matrix.platform == 'linux/arm64' }}
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: hwaccel-lscr.Dockerfile.aarch64
+          build-args: |
+            S6_OVERLAY_ARCH=aarch64
+            UPSTREAM_IMAGE=localhost:5000/stash-s6
+          platforms: linux/arm64
+          tags: |
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: build hwaccel-jf
@@ -111,6 +137,13 @@ jobs:
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv7 \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-arm64
           docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel
+      - name: create manifest for GHCR/hwaccel-lscr
+        run: |
+          docker manifest create \
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64 \
+            --amend ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
+          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-lscr
       - name: create manifest for GHCR/hwaccel-jf
         run: |
           docker manifest create \
