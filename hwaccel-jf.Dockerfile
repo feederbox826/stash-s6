@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
+FROM stash-s6:hwaccel-base
 ARG ARCHITECTURE="amd64"
 
-FROM stash-s6:hwaccel-base
 COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
 RUN \
   echo "**** install jellyfin-ffmpeg ****" && \
@@ -11,10 +11,10 @@ RUN \
     curl -fsSL \
       https://repo.jellyfin.org/jellyfin_team.gpg.key | \
       gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg && \
-    sed -i 's@ARCHITECTURE@'"$ARCHITECTURE"'@' /etc/apt/sources.list.d/jellyfin.sources && \
+    sed -i -r "s/ARCHITECTURE/$ARCHITECTURE/g" "/etc/apt/sources.list.d/jellyfin.sources" && \
     apt-get update && \
     apt-get install -y \
-      jellyfin-ffmpeg && \
+      jellyfin-ffmpeg6 && \
   echo "**** linking jellyfin ffmpeg ****" && \
     ln -s \
       /usr/lib/jellyfin-ffmpeg/ffmpeg \

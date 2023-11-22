@@ -1,6 +1,6 @@
 Types: deb
-URIs: https://repo.jellyfin.org/ubuntu
-Suites: jammy
+URIs: https://repo.jellyfin.org/debian
+Suites: bookworm
 Components: main
 Architectures: ARCHITECTURE
 Signed-By: /etc/apt/keyrings/jellyfin.gpg

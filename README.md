@@ -9,9 +9,9 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 ```
 
 ## hwaccel
-- built on ubuntu, hardware acceration support via multiple ffmpeg builds
+- built on debian, hardware acceration support via multiple ffmpeg builds
 - only works on amd64
-- standard ubuntu ffmpeg
+- standard debian ffmpeg
     ```
     docker pull ghcr.io/feederbox826/stash-s6:hwaccel
     ```

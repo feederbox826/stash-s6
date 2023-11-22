@@ -21,7 +21,7 @@ RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 FROM alpine:3.18
 # add stash
 COPY --from=s6-builder /root-out/ /
-# ubuntu environment variables
+# OS environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \

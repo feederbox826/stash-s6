@@ -3,7 +3,7 @@
 FROM stash-s6:hwaccel-base
 
 RUN \
-  echo "**** install ubuntu ffmpeg ****" && \
+  echo "**** install debian ffmpeg ****" && \
     apt-get update && \
     apt-get install -y \
       ffmpeg && \

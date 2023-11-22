@@ -18,13 +18,15 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLA
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 # add nvenc patch
 ADD --chmod=0755 https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh /root-out/usr/local/bin/
+# add updated sources file
+COPY stash-files/debian.sources /root-out/etc/apt/sources.list.d/debian.sources
 
-FROM ubuntu:jammy
+FROM debian:bookworm
 # add stash
 COPY --from=stashapp/stash /usr/bin/stash /app/stash
 COPY --from=s6-builder /root-out/ /
 ARG DEBIAN_FRONTEND="noninteractive"
-# ubuntu environment variables
+# debian environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
