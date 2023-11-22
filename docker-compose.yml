@@ -1,12 +1,13 @@
 version: "3"
 services:
   stash:
-    image: stash-s6:hwaccel
+    image: stashapp/stash
     ports:
       - 9999:9999
     volumes:
       - E:/Workspace/stash-dev-media:/media/stash
-      - config:/config
+      - E:/Workspace/stash-dev/config:/config
+      - E:/Workspace/stash-dev/root:/root/.stash
       - data:/data
       - pip:/pip-install
     deploy:
@@ -17,8 +18,6 @@ services:
               count: 1
               capabilities: [gpu]
 volumes:
-  config:
-    external: true
   data:
     external: true
   pip:

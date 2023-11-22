@@ -53,7 +53,7 @@ jobs:
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: linux/amd64
           tags: |
-             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64
       - name: build hwaccel-lscr arm64
         uses: docker/build-push-action@v4
         with:
@@ -64,8 +64,7 @@ jobs:
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: linux/arm64
           tags: |
-             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
-
+            ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
   create-manifests:
     needs: [builds-matrix]
     runs-on: ubuntu-latest
