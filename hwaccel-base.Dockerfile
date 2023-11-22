@@ -30,6 +30,7 @@ ENV HOME="/root" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
   S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
+  S6_VERBOSITY="1" \
   # stash environment variables
   STASH_PORT="9999" \
   STASH_GENERATED="/generated/generated" \
@@ -38,6 +39,7 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yaml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
+  PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
@@ -63,7 +65,8 @@ RUN \
       python3 \
       python3-pip \
       tzdata \
-      wget && \
+      wget \
+      yq && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** create stash user and make our folders ****" && \

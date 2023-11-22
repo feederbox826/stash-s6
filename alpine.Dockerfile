@@ -2,19 +2,20 @@
 
 FROM alpine:3.18
 # OS environment variables
-ENV HOME="/config" \
+ENV HOME="/root" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
   S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
+  S6_VERBOSITY="1" \
   # stash environment variables
   STASH_PORT="9999" \
   STASH_GENERATED="/generated/generated" \
   STASH_CACHE="/generated/cache" \
-  STASH_METADATA="/config/metadata" \
   STASH_CONFIG_FILE="/config/config.yaml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
+  PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET}
 
 RUN \
@@ -30,7 +31,8 @@ RUN \
     shadow \
     tzdata \
     vips-tools \
-    wget && \
+    wget \
+    yq && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 1000 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
