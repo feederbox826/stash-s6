@@ -58,8 +58,8 @@ jobs:
         with:
           push: true
           file: hwaccel.Dockerfile
-          build-args:
-            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          build-args: |
+            S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
@@ -68,8 +68,8 @@ jobs:
         with:
           push: true
           file: hwaccel-lscr.Dockerfile
-          build-args:
-            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          build-args: |
+            S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ GHCR_IMAGE }}:hwaccel-lscr-${{ matrix.tag }}
@@ -78,8 +78,8 @@ jobs:
         with:
           push: true
           file: hwaccel-jf.Dockerfile
-          build-args:
-            - S6_OVERLAY_ARCH: ${{ matrix.architecture }}
+          build-args: |
+            S6_OVERLAY_ARCH: ${{ matrix.architecture }}
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
