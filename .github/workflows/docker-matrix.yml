@@ -54,6 +54,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
             stash-s6:hwaccel-base
+      - name: check if hwaccel-base exists
+        run: docker images
       - name: build hwaccel
         uses: docker/build-push-action@v4
         with:
