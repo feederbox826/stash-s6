@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM stash-s6:cuda-base
+FROM stash-s6:hwaccel-base
 
 RUN \
   echo "**** install ubuntu ffmpeg ****" && \

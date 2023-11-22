@@ -24,3 +24,6 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
     ```
     docker pull ghcr.io/feederbox826/stash-s6:hwaccel-lscr
     ```
+
+## internal packages
+`hwaccel-base` - shared base image for hardware acceleration

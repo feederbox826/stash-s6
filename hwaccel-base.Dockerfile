@@ -11,13 +11,11 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLA
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-noarch.tar.xz
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz /tmp
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz
-
 # add s6 optional symlinks
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz /tmp
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp
 RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
-
 # add nvenc patch
 ADD --chmod=0755 https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh /root-out/usr/local/bin/
 
@@ -41,7 +39,7 @@ ENV HOME="/root" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
-  # hardware env
+  # hardware acceleration env
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
   NVIDIA_VISIBLE_DEVICES="all"

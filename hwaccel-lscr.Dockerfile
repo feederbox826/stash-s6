@@ -9,7 +9,7 @@ COPY --from=lscr-ffmpeg /usr/local/lib /buildout/usr/local/lib
 COPY --from=lscr-ffmpeg /etc/OpenCL/vendors /buildout/etc/OpenCL/vendors
 
 # copy and build
-FROM stash-s6:ffmpeg-base
+FROM stash-s6:hwaccel-base
 COPY --from=lib-arrange /buildout /
 RUN \
   echo "**** installling runtime dependencies ****" && \

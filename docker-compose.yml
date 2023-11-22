@@ -1,7 +1,7 @@
 version: "3"
 services:
   stash:
-    image: stash-s6:ffmpeg-lscr
+    image: stash-s6:hwaccel-jf
     ports:
       - 9999:9999
     volumes:
