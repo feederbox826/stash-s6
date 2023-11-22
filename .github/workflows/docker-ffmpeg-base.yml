@@ -2,8 +2,8 @@ name: docker-cuda-build
 on:
   push:
     paths:
-      - cuda.Dockerfile
-      - stash-cuda/**
+      - ffmpeg-base.Dockerfile
+      - stash-ffmpeg/**
       - stash/**
   workflow_dispatch:
   schedule:
@@ -23,4 +23,4 @@ jobs:
         with:
           push: true
           file: cuda.Dockerfile
-          tags: ghcr.io/${{ github.repository_owner }}/stash-s6:cuda
+          tags: ghcr.io/${{ github.repository_owner }}/stash-s6:ffmpeg-base

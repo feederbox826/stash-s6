@@ -1,0 +1,25 @@
+version: "3"
+services:
+  stash:
+    image: stash-s6:ffmpeg-lscr
+    ports:
+      - 9999:9999
+    volumes:
+      - E:/Workspace/stash-dev-media:/media/stash
+      - config:/config
+      - data:/data
+      - pip:/pip-install
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+volumes:
+  config:
+    external: true
+  data:
+    external: true
+  pip:
+    external: true

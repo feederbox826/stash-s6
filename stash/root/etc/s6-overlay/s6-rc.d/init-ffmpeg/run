@@ -2,7 +2,7 @@
 # shellcheck shell=bash
 
 # link download libraries
-if [[ ! -e "$/config/.stash/ffmpeg" ]]; then
+if [[ ! -e "/config/.stash/ffmpeg" ]]; then
     ln -s "$(command -v ffmpeg)" "/config/.stash/ffmpeg"
 fi
 if [[ ! -e "/config/.stash/ffprobe" ]]; then

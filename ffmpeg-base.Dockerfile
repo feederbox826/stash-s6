@@ -48,39 +48,41 @@ ENV HOME="/root" \
 
 RUN \
   echo "**** install apt-utils and locales ****" && \
-  apt-get update && \
-  apt-get install -y \
-    apt-utils \
-    locales && \
+    apt-get update && \
+    apt-get install -y \
+      apt-utils \
+      locales && \
   echo "**** install packages ****" && \
-  apt-get install -y \
-    --no-install-recommends \
-    --no-install-suggests \
-    ca-certificates \
-    curl \
-    gnupg \
-    libvips-tools \
-    python3 \
-    python3-pip \
-    tzdata \
-    wget && \
+    apt-get install -y \
+      --no-install-recommends \
+      --no-install-suggests \
+      ca-certificates \
+      curl \
+      gnupg \
+      intel-gpu-tools \
+      libvips-tools \
+      nvtop \
+      python3 \
+      python3-pip \
+      tzdata \
+      wget && \
   echo "**** generate locale ****" && \
-  locale-gen en_US.UTF-8 && \
+    locale-gen en_US.UTF-8 && \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 1000 -U -d /config -s /bin/false stash && \
-  usermod -G users stash && \
-  mkdir -p \
-    /app \
-    /config \
-    /defaults && \
+    useradd -u 1000 -U -d /config -s /bin/false stash && \
+    usermod -G users stash && \
+    mkdir -p \
+      /app \
+      /config \
+      /defaults && \
   echo "**** cleanup ****" && \
-  apt-get autoremove && \
-  apt-get clean && \
-  rm -rf \
-    /tmp/* \
-    /var/lib/apt/lists/* \
-    /var/tmp/* \
-    /var/log/*
+    apt-get autoremove && \
+    apt-get clean && \
+    rm -rf \
+      /tmp/* \
+      /var/lib/apt/lists/* \
+      /var/tmp/* \
+      /var/log/*
 
 COPY stash/root/ /
 COPY stash-cuda/root/ /
