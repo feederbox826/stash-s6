@@ -47,6 +47,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: false
+          load: true
           file: hwaccel-base.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH: ${{ matrix.architecture }}
