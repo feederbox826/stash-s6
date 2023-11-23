@@ -34,8 +34,6 @@ RUN \
       libxfixes3 \
       libxml2 \
       ocl-icd-libopencl1 && \
-  echo "**** trigger ldconfig ****" && \
-    ldconfig && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \

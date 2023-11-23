@@ -1,26 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine:edge as s6-builder
-# https://github.com/just-containers/s6-overlay/releases
-ARG S6_OVERLAY_VERSION="3.1.6.2"
-ARG S6_OVERLAY_ARCH="x86_64"
-WORKDIR /root-out
-
-# add s6 overlay
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
-RUN tar -C /root-out -Jxpf /tmp/s6-overlay-noarch.tar.xz
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz /tmp
-RUN tar -C /root-out -Jxpf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz
-# add s6 optional symlinks
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz /tmp
-RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz /tmp
-RUN tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
-
 FROM debian:bookworm
 # add stash
-COPY --from=stashapp/stash /usr/bin/stash /app/stash
-COPY --from=s6-builder /root-out/ /
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 ARG DEBIAN_FRONTEND="noninteractive"
 # debian environment variables
 ENV HOME="/root" \
@@ -31,15 +13,15 @@ ENV HOME="/root" \
   S6_VERBOSITY="1" \
   # stash environment variables
   STASH_PORT="9999" \
-  STASH_GENERATED="/generated/generated" \
-  STASH_CACHE="/generated/cache" \
-  STASH_METADATA="/config/metadata" \
-  STASH_CONFIG_FILE="/config/config.yaml" \
+  STASH_GENERATED="/config/generated" \
+  STASH_CACHE="/config/cache" \
+  STASH_CONFIG_FILE="/config/config.yml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
+  HWACCEL="true" \
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
   NVIDIA_VISIBLE_DEVICES="all"
@@ -59,12 +41,15 @@ RUN \
       ca-certificates \
       curl \
       gnupg \
+      gosu \
       libvips-tools \
       python3 \
       python3-pip \
       tzdata \
       wget \
       yq && \
+  echo "**** link su-exec to gosu ****" && \
+    ln -s /usr/sbin/gosu /sbin/su-exec && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** create stash user and make our folders ****" && \
@@ -84,7 +69,6 @@ RUN \
       /var/log/*
 
 COPY stash/root/ /
-COPY stash-hwaccel/root/ /
 
 EXPOSE 9999
-ENTRYPOINT ["/init"]
+CMD ["/bin/bash", "/opt/entrypoint.sh"]

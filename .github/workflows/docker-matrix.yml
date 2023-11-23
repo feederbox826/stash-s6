@@ -104,7 +104,7 @@ jobs:
         with:
           push: true
           provenance: false
-          file: hwaccel-lscr.Dockerfile.aarch64
+          file: hwaccel-lscr-aarch64.Dockerfile
           build-args: |
             S6_OVERLAY_ARCH=aarch64
             UPSTREAM_IMAGE=localhost:5000/stash-s6

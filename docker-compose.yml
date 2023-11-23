@@ -2,14 +2,18 @@ version: "3"
 services:
   stash:
     #image: stashapp/stash
-    image: stash-s6:alpine
+    image: stash-s6:hwaccel-lscr
     ports:
       - 9999:9999
+    #user: "1000:1000"
+    environment:
+      - PUID=1000
+      - PGID=1000
     volumes:
       - E:/Workspace/stash-dev-media:/media/stash
       - E:/Workspace/stash-dev/config:/config
       - E:/Workspace/stash-dev/root:/root/.stash
-      - data:/data
+      #- E:/Workspace/stash-dev/pip:/pip-install
       - pip:/pip-install
     deploy:
       resources:
@@ -19,7 +23,4 @@ services:
               count: 1
               capabilities: [gpu]
 volumes:
-  data:
-    external: true
   pip:
-    external: true

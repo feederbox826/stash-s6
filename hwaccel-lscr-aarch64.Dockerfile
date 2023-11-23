@@ -26,8 +26,6 @@ RUN \
       libxcb1 \
       libxext6 \
       libxml2 && \
-  echo "**** trigger ldconfig ****" && \
-    ldconfig && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \

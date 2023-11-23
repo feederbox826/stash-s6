@@ -1,22 +1,24 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine:3.18
+FROM alpine:3
 # OS environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
-  S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
-  S6_VERBOSITY="1" \
   # stash environment variables
   STASH_PORT="9999" \
-  STASH_GENERATED="/generated/generated" \
-  STASH_CACHE="/generated/cache" \
-  STASH_CONFIG_FILE="/config/config.yaml" \
+  STASH_GENERATED="/config/generated" \
+  STASH_CACHE="/config/cache" \
+  STASH_CONFIG_FILE="/config/config.yml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
   PIP_CACHE_DIR="/pip-install/cache" \
-  PYTHONPATH=${PIP_INSTALL_TARGET}
+  PYTHONPATH=${PIP_INSTALL_TARGET} \
+  # hardware acceleration env
+  SKIP_NVIDIA_PATCH="true"
+
+VOLUME /pip-install
 
 RUN \
   echo "**** install packages ****" && \
@@ -27,8 +29,8 @@ RUN \
     ffmpeg \
     python3 \
     py3-pip \
-    s6-overlay \
     shadow \
+    su-exec \
     tzdata \
     vips-tools \
     wget \
@@ -42,11 +44,9 @@ RUN \
     /defaults && \
   echo "**** cleanup ****"
 
-COPY stash/root/ /
+COPY --chmod=755 stash/root/ /
 # add stash
-COPY --from=stashapp/stash /usr/bin/stash /app/stash
-
-VOLUME /pip-install
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 EXPOSE 9999
-ENTRYPOINT ["/init"]
+CMD ["/bin/ash", "/opt/entrypoint.sh"]

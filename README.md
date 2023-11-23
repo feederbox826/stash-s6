@@ -1,4 +1,5 @@
-# stashapp/stash with s6
+# stashapp/stash with(out) s6
+## s6 was removed, will keep the naming for now...
 
 for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
 
@@ -27,3 +28,7 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 
 ## internal packages
 `hwaccel-base` - shared base image for hardware acceleration
+
+## Other environment variables
+`SKIP_CHOWN` - skips chown operations for /config directory  
+`SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc  
