@@ -11,12 +11,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - MIGRATE=TRUE
+    #  - MIGRATE=TRUE
     volumes:
       - E:/Workspace/stash-dev-media:/media/stash
       - E:/Workspace/stash-dev/config:/config
       - E:/Workspace/stash-dev/root:/root/.stash
-      #- E:/Workspace/stash-dev/pip:/pip-install
       - pip:/pip-install
     deploy:
       resources:

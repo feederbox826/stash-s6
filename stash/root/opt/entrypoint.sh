@@ -11,7 +11,6 @@
 # setup UID/GID
 PUID=${PUID:-911}
 PGID=${PGID:-911}
-UMASK=${UMASK:-002}
 
 ###
 # FUNCTIONS
@@ -21,13 +20,20 @@ reown() {
   if [ -n "$SKIP_CHOWN" ]; then
     return
   fi
+  chown stash:stash "$1"
+}
+
+reown_r() {
+  if [ -n "$SKIP_CHOWN" ]; then
+    return
+  fi
   chown -Rh stash:stash "$1"
   chmod -R "=rwx" "$1"
 }
 
 mkown() {
   mkdir -p "$1"
-  reown "$1"
+  reown_r "$1"
 }
 
 ## migration helpers
@@ -39,7 +45,7 @@ migrate_update() {
   # old path doesn't exist, create instead
   if [ -e "$OLD_PATH" ]; then
     mv -n "$OLD_PATH" "$NEW_PATH"
-    reown "$NEW_PATH"
+    reown_r "$NEW_PATH"
   else
     mkown "$NEW_PATH"
   fi
@@ -109,7 +115,7 @@ stashapp_stash_migration() {
   echo "leftover files:"
   ls -la "$CONFIG_ROOT"
   # reown files
-  reown "/config"
+  reown_r "/config"
   # symlink old directory for compatibility
   echo "symlinking $CONFIG_ROOT to /config"
   rmdir "$CONFIG_ROOT" && ln -s "/config" "$CONFIG_ROOT"
@@ -127,6 +133,8 @@ try_migrate() {
   else
     if [ -e "/root/.stash" ]; then
       echo "WARNING: /root/.stash exists, but MIGRATE is not set. This may cause issues."
+      reown "/root/"
+      reown_r "/root/.stash"
       export STASH_CONFIG_FILE="/root/.stash/config.yml"
     fi
   fi
