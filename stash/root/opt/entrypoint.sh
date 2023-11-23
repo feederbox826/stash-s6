@@ -164,7 +164,7 @@ patch_nvidia() {
 check_chown() {
   CHKDIR="$1"
   if [ ! -w "$CHKDIR" ]; then
-    if [ "$(touch ".test" 2>&1 | grep -c "Permission denied")" -eq 1 ]; then
+    if [ "$(touch "$CHKDIR/.test" 2>&1 | grep -c "Permission denied")" -eq 1 ]; then
       if [ -n "$SKIP_CHOWN" ]; then
         echo "WARNING: $CHKDIR is not writable by stash user and SKIP_CHOWN is set"
         echo "Please run 'chown -R $(id -u stash):$(id -g stash) $CHKDIR' to fix this"

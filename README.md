@@ -32,3 +32,4 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 ## Other environment variables
 `SKIP_CHOWN` - skips chown operations for /config directory  
 `SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc  
+`MIGRATE` - automatic migration from stashapp/stash or hotio/stash  
