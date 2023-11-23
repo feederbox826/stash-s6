@@ -1,20 +1,13 @@
 # syntax=docker/dockerfile:1
 
 FROM debian:bookworm
-# add stash
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 ARG DEBIAN_FRONTEND="noninteractive"
 # debian environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
-  S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
-  S6_VERBOSITY="1" \
   # stash environment variables
-  STASH_PORT="9999" \
-  STASH_GENERATED="/config/generated" \
-  STASH_CACHE="/config/cache" \
   STASH_CONFIG_FILE="/config/config.yml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
@@ -56,7 +49,6 @@ RUN \
     useradd -u 1000 -U -d /config -s /bin/false stash && \
     usermod -G users stash && \
     mkdir -p \
-      /app \
       /config \
       /defaults && \
   echo "**** cleanup ****" && \
@@ -69,6 +61,8 @@ RUN \
       /var/log/*
 
 COPY stash/root/ /
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /usr/bin/stash
+VOLUME /pip-install
 
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]

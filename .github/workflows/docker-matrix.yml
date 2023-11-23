@@ -17,19 +17,15 @@ jobs:
       matrix:
         include:
           - platform: "linux/amd64"
-            s6_arch: "x86_64"
             arch: "amd64"
             tag: "amd64"
           - platform: "linux/arm64"
-            s6_arch: "aarch64"
             arch: "arm64"
             tag: "arm64"
           - platform: "linux/arm/v6"
-            s6_arch: "arm"
             arch: "armel"
             tag: "armv6"
           - platform: "linux/arm/v7"
-            s6_arch: "arm"
             arch: "armhf"
             tag: "armv7"
     services:
@@ -60,8 +56,6 @@ jobs:
           push: true
           provenance: false
           file: hwaccel-base.Dockerfile
-          build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
           platforms: ${{ matrix.platform }}
           tags: |
             localhost:5000/stash-s6:hwaccel-base
@@ -74,7 +68,6 @@ jobs:
           provenance: false
           file: hwaccel.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: ${{ matrix.platform }}
           tags: |
@@ -90,7 +83,6 @@ jobs:
           provenance: false
           file: hwaccel-lscr.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=x86_64
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: linux/amd64
           tags: |
@@ -106,7 +98,6 @@ jobs:
           provenance: false
           file: hwaccel-lscr-aarch64.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=aarch64
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: linux/arm64
           tags: |
@@ -122,7 +113,6 @@ jobs:
           provenance: false
           file: hwaccel-jf.Dockerfile
           build-args: |
-            S6_OVERLAY_ARCH=${{ matrix.s6_arch }}
             ARCHITECTURE=${{ matrix.arch }}
             UPSTREAM_IMAGE=localhost:5000/stash-s6
           platforms: ${{ matrix.platform }}

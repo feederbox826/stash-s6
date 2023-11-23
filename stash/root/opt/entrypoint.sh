@@ -1,5 +1,5 @@
-#!/usr/bin/with-contenv ash
-# shellcheck shell=ash
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
 
 ## environment variables
 # MIGRATE
@@ -30,18 +30,19 @@ mkown() {
   reown "$1"
 }
 
-check_path_mounted() {
-  return "$(mount | grep "$1")"
-}
-
 ## migration helpers
 # move and update key to new path
 migrate_update() {
   KEY="$1"
   OLD_PATH="$2"
   NEW_PATH="$3"
-  mv "$OLD_PATH" "$NEW_PATH"
-  reown "$NEW_PATH"
+  # old path doesn't exist, create instead
+  if [ -e "$OLD_PATH" ]; then
+    mv -n "$OLD_PATH" "$NEW_PATH"
+    reown "$NEW_PATH"
+  else
+    mkown "$NEW_PATH"
+  fi
   yq -i ".${KEY} = \"${NEW_PATH}\"" "${CONFIG_YAML}"
 }
 
@@ -54,26 +55,27 @@ check_migrate() {
   # get value of key
   OLD_PATH=$(yq ."$KEY" "${CONFIG_YAML}")
   # remove quotes
-  OLD_PATH="${OLD_PATH%\"#\"}"
+  OLD_PATH="${OLD_PATH%\"}"
+  OLD_PATH="${OLD_PATH#\"}"
   # if not set, skip
   if [ "$OLD_PATH" = "null" ]; then
     echo "not migrating $KEY" as it is not set
     return 1
   # only touch files in OLD_CONFIG_ROOT
-  elif [ "$(test "${OLD_PATH#*"$OLD_CONFIG_ROOT"}" != "$OLD_PATH")" -ne 0 ]; then
+  elif ! [[ "$OLD_PATH" == *"$OLD_CONFIG_ROOT"* ]]; then
     echo "not migrating $KEY as it is not in /root/.stash"
     return 1
   # check if path is a mount
-  elif [ "$(mount | grep "$OLD_PATH")" -eq 0 ]; then
+  elif mountpoint -q "$OLD_PATH"; then
     echo "not migrating $KEY as it is a mount"
     return 1
   # move to path defined in environment variable if it is mounted
-  elif [ -e "$ENV_PATH" ] && [ "$(check_path_mounted "$ENV_PATH")" -eq 0 ]; then
+  elif [ -n "$ENV_PATH" ] && [ -e "$ENV_PATH" ] && mountpoint -q "$ENV_PATH"; then
     echo "migrating $KEY to $ENV_PATH"
     migrate_update "$KEY" "$OLD_PATH" "$ENV_PATH"
     return 0
   # move to /config if /config is mounted
-  elif [ -e "/config" ] && [ "$(check_path_mounted "/config")" -eq 0 ]; then
+  elif [ -e "/config" ] && mountpoint -q "/config"; then
     echo "migrating $KEY to $CONFIG_PATH"
     migrate_update "$KEY" "$OLD_PATH" "$CONFIG_PATH"
     return 0
@@ -96,27 +98,21 @@ stashapp_stash_migration() {
   CONFIG_ROOT="/root/.stash"
   CONFIG_YAML="$CONFIG_ROOT/config.yml"
   # check for /generated mount
-  echo "migrating generated"
   check_migrate "generated" "/config/generated" "$CONFIG_ROOT" "$STASH_GENERATED"
-  echo "migrating cache"
   check_migrate "cache" "/config/cache" "$CONFIG_ROOT" "$STASH_CACHE"
-  echo "migrating blobs"
-  check_migrate "blobs" "/config/blobs" "$CONFIG_ROOT" "$STASH_BLOBS"
-  echo "migrating plugins"
+  check_migrate "blobs_path" "/config/blobs" "$CONFIG_ROOT" "$STASH_BLOBS"
   check_migrate "plugins_path" "/config/plugins" "$CONFIG_ROOT"
-  echo "migrating scrapers"
   check_migrate "scrapers_path" "/config/scrapers" "$CONFIG_ROOT"
-  echo "migrating database"
   check_migrate "database" "/config/stash-go.sqlite" "$CONFIG_ROOT"
+  mv -n "$CONFIG_ROOT/config.yml" "/config/config.yml" "$STASH_CONFIG_FILE"
   # migrate all other misc files
-  echo "moving leftover files"
-  mv "$CONFIG_ROOT/*.*" "/config/"
+  echo "leftover files:"
+  ls -la "$CONFIG_ROOT"
   # reown files
   reown "/config"
   # symlink old directory for compatibility
   echo "symlinking $CONFIG_ROOT to /config"
-  rmdir "$CONFIG_ROOT"
-  ln -s "/config" "$CONFIG_ROOT"
+  rmdir "$CONFIG_ROOT" && ln -s "/config" "$CONFIG_ROOT"
 }
 
 try_migrate() {
@@ -125,11 +121,13 @@ try_migrate() {
       hotio_stash_migration
     elif [ -e "/root/.stash" ] && [ -f "/root/.stash/config.yml" ]; then
       stashapp_stash_migration
+    else
+      echo "MIGRATE is set, but no migration is needed"
     fi
   else
-    if [ -e "/config/.stash" ]; then
-      echo "WARNING: /config/.stash exists, but MIGRATE is not set. This may cause issues."
-      export STASH_CONFIG_FILE="/config/.stash/config.yml"
+    if [ -e "/root/.stash" ]; then
+      echo "WARNING: /root/.stash exists, but MIGRATE is not set. This may cause issues."
+      export STASH_CONFIG_FILE="/root/.stash/config.yml"
     fi
   fi
 }
@@ -139,12 +137,12 @@ patch_nvidia() {
     echo "Skipping nvidia patch as it requires root"
     return 0
   fi
-  wget -qNO /usr/local/bin/patch.sh https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh
-  chmod "+x" /usr/local/bin/patch.sh
+  wget -qNO "/usr/local/bin/patch.sh" "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
+  chmod "+x" "/usr/local/bin/patch.sh"
   # copied from https://github.com/keylase/nvidia-patch/blob/master/docker-entrypoint.sh
   mkdir -p "/patched-lib"
-  echo "/patched-lib" > /etc/ld.so.conf.d/000-patched-lib.conf
-  PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/patch.sh
+  echo "/patched-lib" > "etc/ld.so.conf.d/000-patched-lib.conf"
+  PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/patch.sh -s
   cd /patched-lib || exit
   for f in * ; do
     suffix="${f##*.so}"
@@ -235,5 +233,5 @@ if [ "$(id -u)" -ne 0 ]; then
   /app/stash --nobrowser
 else
   echo "Starting stash as stash ($(id -u stash):$(id -g stash))"
-  su-exec stash /app/stash --nobrowser
+  su-exec stash /usr/bin/stash --nobrowser
 fi

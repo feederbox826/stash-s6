@@ -7,18 +7,14 @@ ENV HOME="/root" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
   # stash environment variables
-  STASH_PORT="9999" \
-  STASH_GENERATED="/config/generated" \
-  STASH_CACHE="/config/cache" \
   STASH_CONFIG_FILE="/config/config.yml" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
+  HWACCEL="false" \
   SKIP_NVIDIA_PATCH="true"
-
-VOLUME /pip-install
 
 RUN \
   echo "**** install packages ****" && \
@@ -39,14 +35,13 @@ RUN \
   useradd -u 1000 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
   mkdir -p \
-    /app \
     /config \
     /defaults && \
   echo "**** cleanup ****"
 
 COPY --chmod=755 stash/root/ /
-# add stash
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /usr/bin/stash
+VOLUME /pip-install
 
 EXPOSE 9999
-CMD ["/bin/ash", "/opt/entrypoint.sh"]
+CMD ["/bin/bash", "/opt/entrypoint.sh"]
