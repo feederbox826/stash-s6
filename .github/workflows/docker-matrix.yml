@@ -50,6 +50,7 @@ jobs:
         run: |
           echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
           echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
+
       - name: build hwaccel-base for local use
         uses: docker/build-push-action@v4
         with:
@@ -61,6 +62,7 @@ jobs:
             localhost:5000/stash-s6:hwaccel-base
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: build hwaccel
         uses: docker/build-push-action@v4
         with:
@@ -74,6 +76,7 @@ jobs:
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: build hwaccel-lscr amd64
         # specific to amd64
         if: ${{ matrix.platform == 'linux/amd64' }}
@@ -89,6 +92,7 @@ jobs:
             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: build hwaccel-lscr arm64
         # specific to ARM64
         if: ${{ matrix.platform == 'linux/arm64' }}
@@ -104,6 +108,7 @@ jobs:
             ${{ env.GHCR_IMAGE }}:hwaccel-lscr-arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: build hwaccel-jf
         # no support for ARMEL
         if: ${{ matrix.platform != 'linux/arm/v6' }}

@@ -1,5 +1,4 @@
 name: docker-alpine-build
-
 on:
   push:
     branches:
