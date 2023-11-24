@@ -9,6 +9,7 @@ ENV HOME="/root" \
   LANGUAGE="en_US:en" \
   # stash environment variables
   STASH_CONFIG_FILE="/config/config.yml" \
+  USER="stash" \
   # python env
   PIP_INSTALL_TARGET="/pip-install" \
   PIP_CACHE_DIR="/pip-install/cache" \
