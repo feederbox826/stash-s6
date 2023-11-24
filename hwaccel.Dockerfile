@@ -12,7 +12,7 @@ RUN \
     apt-get update && \
     apt-get install -y \
       --no-install-recommends \
-      ffmpeg \
+      ffmpeg && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \
