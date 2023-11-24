@@ -9,7 +9,8 @@ FROM ${UPSTREAM_IMAGE}:hwaccel-base
 ENV HWACCEL="LinuxServer-ffmpeg"
 COPY --from=lscr-ffmpeg /usr/local/bin /usr/local/bin
 COPY --from=lscr-ffmpeg /usr/local/lib /usr/local/lib
-COPY --from=lscr-ffmpeg /etc/OpenCL/vendors /etc/OpenCL/vendorsRUN \
+COPY --from=lscr-ffmpeg /etc/OpenCL/vendors /etc/OpenCL/vendors
+RUN \
   echo "**** installling runtime dependencies ****" && \
     apt-get update && \
     apt-get install -y \
