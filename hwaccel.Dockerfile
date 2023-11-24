@@ -12,14 +12,7 @@ RUN \
     apt-get update && \
     apt-get install -y \
       --no-install-recommends \
-      --no-install-suggests \
       ffmpeg \
-      libcuda1 \
-      libnvcuvid1 \
-      libnvidia-encode1 \
-      mesa-opencl-icd \
-      va-driver-all \
-      vdpau-driver-all && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \
