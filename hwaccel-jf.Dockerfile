@@ -3,6 +3,7 @@
 ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
 FROM ${UPSTREAM_IMAGE}:hwaccel-base
 
+ENV HWACCEL="Jellyfin-ffmpeg"
 ARG ARCHITECTURE="amd64"
 
 COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources

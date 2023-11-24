@@ -14,10 +14,12 @@ ENV HOME="/root" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
-  HWACCEL="true" \
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
-  NVIDIA_VISIBLE_DEVICES="all"
+  NVIDIA_VISIBLE_DEVICES="all" \
+  # Logging
+  LOGGER_LEVEL="1" \
+  HWACCEL="NONE"
 
 RUN \
   echo "**** add contrib to sources ****" && \
@@ -61,8 +63,10 @@ RUN \
       /var/log/*
 
 COPY stash/root/ /
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /usr/bin/stash
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
+
 VOLUME /pip-install
+VOLUME /config
 
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]

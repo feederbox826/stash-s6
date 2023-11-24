@@ -12,6 +12,11 @@
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
+# shellcheck disable=SC1091
+source "/opt/shell-logger.sh"
+export LOGGER_COLOR="always"
+export LOGGER_SHOW_FILE="0"
+
 ###
 # FUNCTIONS
 ###
@@ -65,34 +70,34 @@ check_migrate() {
   OLD_PATH="${OLD_PATH#\"}"
   # if not set, skip
   if [ "$OLD_PATH" = "null" ]; then
-    echo "not migrating $KEY" as it is not set
+    info "not migrating $KEY" as it is not set
     return 1
   # only touch files in OLD_CONFIG_ROOT
   elif ! [[ "$OLD_PATH" == *"$OLD_CONFIG_ROOT"* ]]; then
-    echo "not migrating $KEY as it is not in /root/.stash"
+    info "not migrating $KEY as it is not in /root/.stash"
     return 1
   # check if path is a mount
   elif mountpoint -q "$OLD_PATH"; then
-    echo "not migrating $KEY as it is a mount"
+    info "not migrating $KEY as it is a mount"
     return 1
   # move to path defined in environment variable if it is mounted
   elif [ -n "$ENV_PATH" ] && [ -e "$ENV_PATH" ] && mountpoint -q "$ENV_PATH"; then
-    echo "migrating $KEY to $ENV_PATH"
+    info "migrating $KEY to $ENV_PATH"
     migrate_update "$KEY" "$OLD_PATH" "$ENV_PATH"
     return 0
   # move to /config if /config is mounted
   elif [ -e "/config" ] && mountpoint -q "/config"; then
-    echo "migrating $KEY to $CONFIG_PATH"
+    info "migrating $KEY to $CONFIG_PATH"
     migrate_update "$KEY" "$OLD_PATH" "$CONFIG_PATH"
     return 0
   else
-    echo "not migrating $KEY as /config is not mounted"
+    info "not migrating $KEY as /config is not mounted"
     return 1
   fi
 }
 
 hotio_stash_migration() {
-  echo "migrating from hotio/stash"
+  info "migrating from hotio/stash"
   # hotio doesn't need file migrations, just delete symlinks from .stash
   unlink "/config/.stash/ffmpeg"
   unlink "/config/.stash/ffprobe"
@@ -100,7 +105,7 @@ hotio_stash_migration() {
 }
 
 stashapp_stash_migration() {
-  echo "migrating from stashapp/stash"
+  info "migrating from stashapp/stash"
   CONFIG_ROOT="/root/.stash"
   CONFIG_YAML="$CONFIG_ROOT/config.yml"
   # check for /generated mount
@@ -112,12 +117,12 @@ stashapp_stash_migration() {
   check_migrate "database" "/config/stash-go.sqlite" "$CONFIG_ROOT"
   mv -n "$CONFIG_ROOT/config.yml" "/config/config.yml" "$STASH_CONFIG_FILE"
   # migrate all other misc files
-  echo "leftover files:"
+  info "leftover files:"
   ls -la "$CONFIG_ROOT"
   # reown files
   reown_r "/config"
   # symlink old directory for compatibility
-  echo "symlinking $CONFIG_ROOT to /config"
+  info "symlinking $CONFIG_ROOT to /config"
   rmdir "$CONFIG_ROOT" && ln -s "/config" "$CONFIG_ROOT"
 }
 
@@ -128,30 +133,32 @@ try_migrate() {
     elif [ -e "/root/.stash" ] && [ -f "/root/.stash/config.yml" ]; then
       stashapp_stash_migration
     else
-      echo "MIGRATE is set, but no migration is needed"
+      warn "MIGRATE is set, but no migration is needed"
     fi
-  else
-    if [ -e "/root/.stash" ]; then
-      echo "WARNING: /root/.stash exists, but MIGRATE is not set. This may cause issues."
-      reown "/root/"
-      reown_r "/root/.stash"
-      export STASH_CONFIG_FILE="/root/.stash/config.yml"
-    fi
+  elif [ -e "/root/.stash" ]; then
+    warn "/root/.stash exists, but MIGRATE is not set. This may cause issues."
+    reown "/root/"
+    reown_r "/root/.stash"
+    export STASH_CONFIG_FILE="/root/.stash/config.yml"
   fi
 }
 
 patch_nvidia() {
-  if [ "$(id -u)" -ne 0 ]; then
-    echo "Skipping nvidia patch as it requires root"
+  if [ -n "$SKIP_NVIDIA_PATCH" ]; then
+    debug "Skipping nvidia patch because of SKIP_NVIDIA_PATCH"
+    return 0
+  elif [ "$(id -u)" -ne 0 ]; then
+    warn "Skipping nvidia patch as it requires root"
     return 0
   fi
+  debug "Patching nvidia libraries for multi-stream..."
   wget -qNO "/usr/local/bin/patch.sh" "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
   chmod "+x" "/usr/local/bin/patch.sh"
   # copied from https://github.com/keylase/nvidia-patch/blob/master/docker-entrypoint.sh
   mkdir -p "/patched-lib"
   echo "/patched-lib" > "etc/ld.so.conf.d/000-patched-lib.conf"
   PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/patch.sh -s
-  cd /patched-lib || exit
+  cd /patched-lib && \
   for f in * ; do
     suffix="${f##*.so}"
     name="$(basename "$f" "$suffix")"
@@ -161,39 +168,47 @@ patch_nvidia() {
   ldconfig
 }
 
+fix_chown() {
+  CHKDIR="$1"
+  if [ -n "$SKIP_CHOWN" ]; then
+    warn "$CHKDIR is not writable by stash user and SKIP_CHOWN is set"
+    warn "Please run 'chown -R $(id -u stash):$(id -g stash) $CHKDIR' to fix this"
+    exit 1
+  elif [ "$(id -u)" -eq 0 ]; then
+    warn "$CHKDIR is not writable by stash"
+    warn "Attempting to fix permissions..."
+    chown -R stash:stash "$CHKDIR"
+    rm "$CHKDIR/.test" 2> /dev/null
+  else
+    warn "$CHKDIR is not writable by stash"
+    warn "Please run 'chown -R $(id -u stash):$(id -g stash) $CHKDIR' to fix this"
+    exit 1
+  fi
+}
+
 check_chown() {
   CHKDIR="$1"
-  if [ ! -w "$CHKDIR" ]; then
-    if [ "$(touch "$CHKDIR/.test" 2>&1 | grep -c "Permission denied")" -eq 1 ]; then
-      if [ -n "$SKIP_CHOWN" ]; then
-        echo "WARNING: $CHKDIR is not writable by stash user and SKIP_CHOWN is set"
-        echo "Please run 'chown -R $(id -u stash):$(id -g stash) $CHKDIR' to fix this"
-        exit 1
-      elif [ "$(id -u)" -eq 0 ]; then
-        echo "WARNING: $CHKDIR is not writable by stash"
-        echo "Attempting to fix permissions..."
-        chown -R stash:stash "$CHKDIR"
-        rm "$CHKDIR/.test"
-      else
-        echo "WARNING: $CHKDIR is not writable by stash"
-        echo "Please run 'chown -R $(id -u stash):$(id -g stash) $CHKDIR' to fix this"
-        exit 1
-      fi
-    fi
+  # check that stash cannot write to CHKDIR
+  if [ "$(su-exec stash touch "$CHKDIR/.test" 2>&1 | grep -c "Permission denied")" -eq 1 ]; then
+    fix_chown "$CHKDIR"
   fi
 }
 
 install_python_deps() {
-  # copy over default /requirements if it doesn't exist
+  # copy over /defaults/requirements if it doesn't exist
   if [ ! -f "/config/requirements.txt" ]; then
-    echo "Copying default requirements.txt"
+    debug "Copying default requirements.txt"
     chown "stash:stash" "/defaults/requirements.txt"
     cp "/defaults/requirements.txt" "/config/requirements.txt"
   fi
   # fix /pip-install directory
-  echo "Installing/upgrading python requirements..."
+  info "Installing/upgrading python requirements..."
   check_chown "/pip-install" &&
-    su-exec stash pip3 install --upgrade -q --exists-action i --target "$PIP_INSTALL_TARGET" -r /config/requirements.txt
+    su-exec stash pip3 install \
+      --upgrade -q \
+      --exists-action i \
+      --target "$PIP_INSTALL_TARGET" \
+      -r /config/requirements.txt
   export PYTHONPATH="$PYTHONPATH:$PIP_INSTALL_TARGET"
 }
 
@@ -216,30 +231,24 @@ echo "
 User UID:    $(id -u stash)
 User GID:    $(id -g stash)
 ───────────────────────────────────────
+Hardware Acceleration: $HWACCEL
 "
-echo "Hardware Acceleration image support: $HWACCEL"
+printf "entrypoint.sh\\n"
 
-# run migrations if desired
 try_migrate
-
-# set up and install python dependencies
 install_python_deps
+patch_nvidia
 
-# create and own directories
-echo "Creating Directories"
-# check if /config permissions are dubious
+info "Creating /config"
 check_chown "/config"
-
-# download and run nvidia patch
-if [ -z "$SKIP_NVIDIA_PATCH" ]; then
-  patch_nvidia
-fi
 
 # finally start stash
 if [ "$(id -u)" -ne 0 ]; then
-  echo "Starting stash as $(id -u):$(id -g)"
+  info "Starting stash as $(id -u):$(id -g)"
+  printf "\\nstashapp/stash\\n"
   /app/stash --nobrowser
 else
-  echo "Starting stash as stash ($(id -u stash):$(id -g stash))"
-  su-exec stash /usr/bin/stash --nobrowser
+  info "Starting stash as stash ($(id -u stash):$(id -g stash))"
+  printf "\\nstashapp/stash\\n"
+  su-exec stash /app/stash --nobrowser
 fi

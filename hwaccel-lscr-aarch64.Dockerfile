@@ -4,14 +4,11 @@ ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
 # take libraries from linuxserver/ffmpeg
 FROM ghcr.io/linuxserver/ffmpeg as lscr-ffmpeg
 
-# arrange files
-FROM alpine:edge as lib-arrange
-COPY --from=lscr-ffmpeg /usr/local/bin /buildout/usr/local/bin
-COPY --from=lscr-ffmpeg /usr/local/lib /buildout/usr/local/lib
-
 # copy and build
 FROM ${UPSTREAM_IMAGE}:hwaccel-base
-COPY --from=lib-arrange /buildout /
+ENV HWACCEL="LinuxServer-ffmpeg"
+COPY --from=lscr-ffmpeg /usr/local/bin /usr/local/bin
+COPY --from=lscr-ffmpeg /usr/local/lib /usr/local/lib
 RUN \
   echo "**** installling runtime dependencies ****" && \
     apt-get update && \

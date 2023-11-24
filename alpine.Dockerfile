@@ -13,8 +13,10 @@ ENV HOME="/root" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
-  HWACCEL="false" \
-  SKIP_NVIDIA_PATCH="true"
+  HWACCEL="NONE" \
+  SKIP_NVIDIA_PATCH="true" \
+  # Logging
+  LOGGER_LEVEL="1"
 
 RUN \
   echo "**** install packages ****" && \
@@ -40,8 +42,10 @@ RUN \
   echo "**** cleanup ****"
 
 COPY --chmod=755 stash/root/ /
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /usr/bin/stash
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
+
 VOLUME /pip-install
+VOLUME /config
 
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]
