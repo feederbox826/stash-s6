@@ -45,7 +45,6 @@ COPY --chmod=755 stash/root/ /
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 VOLUME /pip-install
-VOLUME /config
 
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]

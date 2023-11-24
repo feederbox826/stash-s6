@@ -152,7 +152,9 @@ patch_nvidia() {
     return 0
   fi
   debug "Patching nvidia libraries for multi-stream..."
-  wget -qNO "/usr/local/bin/patch.sh" "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
+  wget -qNO \
+    "/usr/local/bin/patch.sh" \
+    "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
   chmod "+x" "/usr/local/bin/patch.sh"
   # copied from https://github.com/keylase/nvidia-patch/blob/master/docker-entrypoint.sh
   mkdir -p "/patched-lib"

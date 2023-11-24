@@ -1,22 +1,17 @@
 version: "3"
 services:
   stash:
-    #image: stashapp/stash
     image: stash-s6:alpine
     ports:
       - 9999:9999
-    #user: "1000:1000"
-    tty: TRUE
-    #command: /bin/bash
     environment:
       - PUID=1000
       - PGID=1000
     #  - MIGRATE=TRUE
     volumes:
       - E:/Workspace/stash-dev-media:/media/stash
-      - E:/Workspace/stash-dev/config:/config
-      - E:/Workspace/stash-dev/root:/root/.stash
       - pip:/pip-install
+      - config:/config
     deploy:
       resources:
         reservations:
@@ -26,3 +21,7 @@ services:
               capabilities: [gpu]
 volumes:
   pip:
+    external: true
+  config:
+    external: true
+  
