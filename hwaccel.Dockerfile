@@ -17,7 +17,7 @@ RUN \
       libcuda1 \
       libnvcuvid1 \
       libnvidia-encode1 \
-      opencl-icd \
+      mesa-opencl-icd \
       va-driver-all \
       vdpau-driver-all && \
   echo "**** cleanup ****" && \
