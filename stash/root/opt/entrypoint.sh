@@ -237,8 +237,12 @@ finish() {
 #{{{ main
 trap finish EXIT
 # set UID/GID
-groupmod -o -g "${PGID}" stash
-usermod -o -u "${PUID}" stash
+if [ "$(id -u stash 2>/dev/null)" -ne "${PUID}" ]; then
+  warn "User ID for 'stash' is not ${PUID}. If needed, adjust the user manually on the host system."
+fi
+if [ "$(id -g stash 2>/dev/null)" -ne "${PGID}" ]; then
+  warn "Group ID for 'stash' is not ${PGID}. If needed, adjust the group manually on the host system."
+fi
 # check if running as rootless
 if [ "$(id -u)" -ne 0 ]; then
   ROOTLESS=1
