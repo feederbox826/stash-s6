@@ -29,7 +29,9 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 ## internal packages
 `hwaccel-base` - shared base image for hardware acceleration
 
-## Other environment variables
+## environment variables
+`PUID` - Process User ID  
+`PGID` - Process Group ID  
 `SKIP_CHOWN` - skips chown operations for /config directory  
 `SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc  
 `MIGRATE` - automatic migration from stashapp/stash or hotio/stash  

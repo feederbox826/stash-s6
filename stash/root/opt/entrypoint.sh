@@ -5,13 +5,6 @@
 # Path: /opt/entrypoint.sh
 # Description: Entrypoint script for stash docker container
 
-#{{{ environment variables
-# MIGRATE
-# SKIP_CHOWN
-# SKIP_NVIDIA_PATCH
-# PUID
-# PGID
-#}}}
 #{{{ variables and setup
 # setup UID/GID
 PUID=${PUID:-911}
@@ -32,34 +25,37 @@ runas() {
 }
 # non-recursive chown
 reown() {
-  if [ -n "${SKIP_CHOWN}" ]; then
+  if [ -n "${SKIP_CHOWN}" ] || [ ${ROOTLESS} -eq 1 ]; then
     return
   fi
+  info "reowning $1"
   chown stash:stash "$1"
 }
 # recursive chown
 reown_r() {
-  if [ -n "${SKIP_CHOWN}" ]; then
+  if [ -n "${SKIP_CHOWN}" ] || [ ${ROOTLESS} -eq 1 ]; then
     return
   fi
-  chown -Rh stash:stash "$1"
-  chmod -R "=rwx" "$1"
+  info "reowning_r $1"
+  chown -Rh stash:stash "$1" && \
+    chmod -R "=rwx" "$1"
 }
 # mkdir and chown
 mkown() {
-  mkdir -p "$1"
-  reown_r "$1"
+  runas mkdir -p "$1" || \
+    (mkdir -p "$1" && reown_r "$1")
 }
 ## migration helpers
 # move and update key to new path
 migrate_update() {
+  info "migrating ${1} to ${3}"
   local key="${1}"
   local old_path="${2}"
   local new_path="${3}"
   # old path doesn't exist, create instead
   if [ -e "${old_path}" ]; then
-    mv -n "${old_path}" "${new_path}"
-    reown_r "${new_path}"
+    mv -n "${old_path}" "${new_path}" && \
+      reown_r "${new_path}"
   else
     mkown "${new_path}"
   fi
@@ -88,11 +84,9 @@ check_migrate() {
     info "not migrating ${key} as it is a mount"
   # move to path defined in environment variable if it is mounted
   elif [ -n "${env_path}" ] && [ -e "${env_path}" ] && mountpoint -q "${env_path}"; then
-    info "migrating ${key} to ${env_path}"
     migrate_update "${key}" "${old_path}" "${env_path}"
   # move to /config if /config is mounted
   elif [ -e "/config" ] && mountpoint -q "/config"; then
-    info "migrating ${key} to ${config_path}"
     migrate_update "${key}" "${old_path}" "${config_path}"
   else
     info "not migrating ${key} as /config is not mounted"
@@ -108,30 +102,42 @@ hotio_stash_migration() {
 }
 # migrate from stashapp/stash
 stashapp_stash_migration() {
+  # check if /config is mounted
+  local new_config_root="/config"
+  if ! mountpoint -q "${new_config_root}"; then
+    warn "not migrating from stashapp/stash as ${new_config_root} is not mounted"
+    return 1
+  elif check_dir_perms "${new_config_root}"; then
+    warn_dir_perms "${new_config_root}"
+  fi
   info "migrating from stashapp/stash"
   local old_config_root="/root/.stash"
   # set config yaml path for re-use
   CONFIG_YAML="${old_config_root}/config.yml"
   # migrate and check all paths in yml
-  check_migrate "generated" "/config/generated" "${old_config_root}" "${STASH_GENERATED}"
-  check_migrate "cache" "/config/cache" "${old_config_root}" "${STASH_CACHE}"
-  check_migrate "blobs_path" "/config/blobs" "${old_config_root}" "${STASH_BLOBS}"
-  check_migrate "plugins_path" "/config/plugins" "${old_config_root}"
-  check_migrate "scrapers_path" "/config/scrapers" "${old_config_root}"
-  check_migrate "database" "/config/stash-go.sqlite" "${old_config_root}"
+  check_migrate "generated"     "${new_config_root}/generated"        "${old_config_root}"  "${STASH_GENERATED}"
+  check_migrate "cache"         "${new_config_root}/cache"            "${old_config_root}"  "${STASH_CACHE}"
+  check_migrate "blobs_path"    "${new_config_root}/blobs"            "${old_config_root}"  "${STASH_BLOBS}"
+  check_migrate "plugins_path"  "${new_config_root}/plugins"          "${old_config_root}"
+  check_migrate "scrapers_path" "${new_config_root}/scrapers"         "${old_config_root}"
+  check_migrate "database"      "${new_config_root}/stash-go.sqlite"  "${old_config_root}"
   # forcefully move config.yml
-  mv -n "${old_config_root}/config.yml" "/config/config.yml" "${STASH_CONFIG_FILE}"
+  mv -n \
+    "${old_config_root}/config.yml" \
+    "${STASH_CONFIG_FILE}"
   # migrate all other misc files
   info "leftover files:"
   ls -la "${old_config_root}"
   # reown files
-  reown_r "/config"
+  reown_r "${new_config_root}"
   # symlink old directory for compatibility
-  info "symlinking ${old_config_root} to /config"
-  rmdir "${old_config_root}" && ln -s "/config" "${old_config_root}"
+  info "symlinking ${old_config_root} to ${new_config_root}"
+  rmdir "${old_config_root}" && \
+    ln -s "${new_config_root}" "${old_config_root}"
 }
 # detect if migration is needed and migrate
 try_migrate() {
+  # run if MIGRATE is set
   if [ -n "${MIGRATE}" ]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
@@ -140,10 +146,11 @@ try_migrate() {
     else
       warn "MIGRATE is set, but no migration is needed"
     fi
+  # MIGRATE not set but might be needed
   elif [ -e "/root/.stash" ]; then
     warn "/root/.stash exists, but MIGRATE is not set. This may cause issues."
-    reown "/root/"
-    reown_r "/root/.stash"
+    (reown "/root/" && safe_reown "/root/.stash") || \
+      warn_dir_perms "/root/.stash"
     export STASH_CONFIG_FILE="/root/.stash/config.yml"
   fi
 }
@@ -165,7 +172,7 @@ patch_nvidia() {
   chmod "+x" "/usr/local/bin/patch.sh"
   PATCH_OUTPUT_DIR="/patched-lib"
   mkdir -p "${PATCH_OUTPUT_DIR}"
-  echo "${PATCH_OUTPUT_DIR}" > "etc/ld.so.conf.d/000-patched-lib.conf"
+  echo "${PATCH_OUTPUT_DIR}" > "/etc/ld.so.conf.d/000-patched-lib.conf"
   PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/patch.sh -s
   cd /patched-lib && \
   for f in * ; do
@@ -176,45 +183,44 @@ patch_nvidia() {
   done
   ldconfig
 }
-# chown directory, warn if not writeable
-fix_chown() {
+# warn about directory permissions
+warn_dir_perms() {
   local chkdir="${1}"
+  local msg="${chkdir} is not writeable by stash"
   if [ -n "${SKIP_CHOWN}" ]; then
-    err "${chkdir} is not writable by stash user and SKIP_CHOWN is set"
-    err "Please run 'chown -R ${CHUSR}:${CHGRP} ${chkdir}' to fix this"
-    exit 1
-  elif [ $ROOTLESS -eq 0 ]; then
-    warn "${chkdir} is not writable by stash"
-    warn "Attempting to fix permissions..."
-    chown -R stash:stash "${chkdir}"
-  else
-    err "${chkdir} is not writable by stash"
-    err "Please run 'chown -R ${CHUSR}:${CHGRP} ${chkdir}' to fix this"
-    exit 1
+    msg="${msg} and SKIP_CHOWN is set"
   fi
+  warn "${msg}"
+  warn "Please run 'chown -R ${CHUSR}:${CHGRP} ${chkdir}' to fix this"
+  exit 1
 }
-# check if stash can write to directory, try to fix if not
-check_chown() {
+# check directory permissions
+check_dir_perms() {
   local chkdir="${1}"
-  # check that stash cannot write to CHKDIR
-  if [ "$(runas touch "${chkdir}/.test" 2>&1 | grep -c "Permission denied")" -eq 1 ]; then
-    fix_chown "${chkdir}"
+  touch "${chkdir}/.test" 2> /dev/null && rm "${chkdir}/.test" 2> /dev/null
+  return $?
+}
+# check directory permissions and warn if needed
+safe_reown() {
+  local chkdir="${1}"
+  if check_dir_perms "${chkdir}"; then
+    reown_r "${chkdir}"
+  else
+    warn_dir_perms "${chkdir}"
   fi
-  # clean up test file
-  rm "${chkdir}/.test" 2> /dev/null
 }
 # install python dependencies
 install_python_deps() {
   # copy over /defaults/requirements if it doesn't exist
   if [ ! -f "/config/requirements.txt" ]; then
     debug "Copying default requirements.txt"
-    chown "stash:stash" "/defaults/requirements.txt"
-    cp "/defaults/requirements.txt" "/config/requirements.txt"
+    cp "/defaults/requirements.txt" "/config/requirements.txt" && \
+      reown "/config/requirements.txt"
   fi
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
-  mkown "${PIP_CACHE_DIR}"
-  reown "${PIP_INSTALL_TARGET}" &&
+  safe_reown "${PIP_INSTALL_TARGET}" && \
+    mkown "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
       --exists-action i \
@@ -267,7 +273,7 @@ try_migrate
 install_python_deps
 patch_nvidia
 info 'Creating /config'
-check_chown '/config'
+safe_reown "/config"
 # finally start stash
 echo '
 Starting stash...
