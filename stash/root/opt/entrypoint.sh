@@ -288,12 +288,14 @@ finish() {
 #}}}
 #{{{ main
 trap finish EXIT
-# set UID/GID
-if [ "$(id -u stash 2>/dev/null)" -ne "${PUID}" ]; then
-  warn "User ID for 'stash' is not ${PUID}. If needed, adjust the user manually on the host system."
-fi
-if [ "$(id -g stash 2>/dev/null)" -ne "${PGID}" ]; then
-  warn "Group ID for 'stash' is not ${PGID}. If needed, adjust the group manually on the host system."
+# Check if the container is running as root
+if [ "$(id -u)" -eq 0 ]; then
+    # Running as root, execute usermod and groupmod
+    groupmod -o -g "$PGID" stash
+    usermod -o -u "$PUID" stash
+else
+    # Not running as root, print a message
+    echo "Not running as root. User and group modification skipped."
 fi
 # check if running as rootless
 if [ "$(id -u)" -ne 0 ]; then
