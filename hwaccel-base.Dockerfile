@@ -15,12 +15,12 @@ ENV HOME="/root" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
+  HWACCEL="NONE" \
   LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
   NVIDIA_VISIBLE_DEVICES="all" \
   # Logging
-  LOGGER_LEVEL="1" \
-  HWACCEL="NONE"
+  LOGGER_LEVEL="1"
 
 RUN \
   echo "**** add contrib to sources ****" && \
