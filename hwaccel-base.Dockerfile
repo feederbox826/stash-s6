@@ -15,14 +15,15 @@ ENV HOME="/root" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PYTHONPATH=${PIP_INSTALL_TARGET} \
   # hardware acceleration env
-  LIBVA_DRIVERS_PATH="/usr/local/lib/x86_64-linux-gnu/dri" \
+  HWACCEL="NONE" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
   NVIDIA_VISIBLE_DEVICES="all" \
   # Logging
-  LOGGER_LEVEL="1" \
-  HWACCEL="NONE"
+  LOGGER_LEVEL="1"
 
 RUN \
+  echo "**** setup stash user for render ****" && \
+    usermod -a -G video stash && \
   echo "**** add contrib to sources ****" && \
     sed -i 's/main/main contrib/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install apt-utils and locales ****" && \

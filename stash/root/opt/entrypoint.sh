@@ -9,6 +9,9 @@
 # setup UID/GID
 PUID=${PUID:-911}
 PGID=${PGID:-911}
+# environment variables
+CONFIG_ROOT="/config"
+PYTHON_REQS="${CONFIG_ROOT}/requirements.txt"
 # shellcheck disable=SC1091
 source "/opt/shell-logger.sh"
 export LOGGER_COLOR="always"
@@ -65,7 +68,7 @@ migrate_update() {
 check_migrate() {
   local key="${1}" # key in yaml config
   local config_path="${2}" # new /config path
-  local old_config_root="${3}" # old "config" storage directory
+  local old_root="${3}" # old "config" storage directory
   local env_path="${4}" # environment variable to override path of
   # get value of key
   local old_path
@@ -76,9 +79,9 @@ check_migrate() {
   # if not set, skip
   if [ "${old_path}" = "null" ]; then
     info "not migrating ${key}" as it is not set
-  # only touch files in old_config_root
-  elif ! [[ "${old_path}" == *"${old_config_root}"* ]]; then
-    info "not migrating ${key} as it is not in ${old_config_root}"
+  # only touch files in old_root
+  elif ! [[ "${old_path}" == *"${old_root}"* ]]; then
+    info "not migrating ${key} as it is not in ${old_root}"
   # check if path is a mount
   elif mountpoint -q "${old_path}"; then
     info "not migrating ${key} as it is a mount"
@@ -103,56 +106,63 @@ hotio_stash_migration() {
 # migrate from stashapp/stash
 stashapp_stash_migration() {
   # check if /config is mounted
-  local new_config_root="/config"
-  if ! mountpoint -q "${new_config_root}"; then
-    warn "not migrating from stashapp/stash as ${new_config_root} is not mounted"
+  if ! mountpoint -q "${CONFIG_ROOT}"; then
+    warn "not migrating from stashapp/stash as ${CONFIG_ROOT} is not mounted"
     return 1
-  elif check_dir_perms "${new_config_root}"; then
-    warn_dir_perms "${new_config_root}"
+  elif check_dir_perms "${CONFIG_ROOT}"; then
+    warn_dir_perms "${CONFIG_ROOT}"
   fi
   info "migrating from stashapp/stash"
-  local old_config_root="/root/.stash"
+  local old_root="/root/.stash"
   # set config yaml path for re-use
-  CONFIG_YAML="${old_config_root}/config.yml"
+  CONFIG_YAML="${old_root}/config.yml"
   # migrate and check all paths in yml
-  check_migrate "generated"     "${new_config_root}/generated"        "${old_config_root}"  "${STASH_GENERATED}"
-  check_migrate "cache"         "${new_config_root}/cache"            "${old_config_root}"  "${STASH_CACHE}"
-  check_migrate "blobs_path"    "${new_config_root}/blobs"            "${old_config_root}"  "${STASH_BLOBS}"
-  check_migrate "plugins_path"  "${new_config_root}/plugins"          "${old_config_root}"
-  check_migrate "scrapers_path" "${new_config_root}/scrapers"         "${old_config_root}"
-  check_migrate "database"      "${new_config_root}/stash-go.sqlite"  "${old_config_root}"
+  check_migrate "generated"     "${CONFIG_ROOT}/generated"        "${old_root}"  "${STASH_GENERATED}"
+  check_migrate "cache"         "${CONFIG_ROOT}/cache"            "${old_root}"  "${STASH_CACHE}"
+  check_migrate "blobs_path"    "${CONFIG_ROOT}/blobs"            "${old_root}"  "${STASH_BLOBS}"
+  check_migrate "plugins_path"  "${CONFIG_ROOT}/plugins"          "${old_root}"
+  check_migrate "scrapers_path" "${CONFIG_ROOT}/scrapers"         "${old_root}"
+  check_migrate "database"      "${CONFIG_ROOT}/stash-go.sqlite"  "${old_root}"
   # forcefully move config.yml
-  mv -n \
-    "${old_config_root}/config.yml" \
-    "${STASH_CONFIG_FILE}"
+  mv -n "${old_root}/config.yml" "${STASH_CONFIG_FILE}"
   # migrate all other misc files
   info "leftover files:"
-  ls -la "${old_config_root}"
+  ls -la "${old_root}"
   # reown files
-  reown_r "${new_config_root}"
+  reown_r "${CONFIG_ROOT}"
   # symlink old directory for compatibility
-  info "symlinking ${old_config_root} to ${new_config_root}"
-  rmdir "${old_config_root}" && \
-    ln -s "${new_config_root}" "${old_config_root}"
+  info "symlinking ${old_root} to ${CONFIG_ROOT}"
+  rmdir "${old_root}" && \
+    ln -s "${CONFIG_ROOT}" "${old_root}"
 }
 # detect if migration is needed and migrate
 try_migrate() {
+  local stashapp_root="/root/.stash"
   # run if MIGRATE is set
   if [ -n "${MIGRATE}" ]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
-    elif [ -e "/root/.stash" ] && [ -f "/root/.stash/config.yml" ]; then
+    elif [ -e "${stashapp_root}" ] && [ -f "${stashapp_root}/config.yml" ]; then
       stashapp_stash_migration
     else
       warn "MIGRATE is set, but no migration is needed"
     fi
   # MIGRATE not set but might be needed
-  elif [ -e "/root/.stash" ]; then
-    warn "/root/.stash exists, but MIGRATE is not set. This may cause issues."
-    (reown "/root/" && safe_reown "/root/.stash") || \
-      warn_dir_perms "/root/.stash"
-    export STASH_CONFIG_FILE="/root/.stash/config.yml"
+  elif [ -e "${stashapp_root}" ]; then
+    warn "${stashapp_root} exists, but MIGRATE is not set. This may cause issues."
+    (reown "/root/" && safe_reown "${stashapp_root}") || \
+      warn_dir_perms "${stashapp_root}"
+    export STASH_CONFIG_FILE="${stashapp_root}/config.yml"
   fi
+}
+get_config_key() {
+  local key="${1}"
+  local default="${2}"
+  value=$(yq -r ".${key}" "${STASH_CONFIG_FILE}")
+  if [ "${value}" = "null" ]; then
+    value="${default}"
+  fi
+  echo "${value}"
 }
 # patch multistream NVNEC from keylase/nvidia-patch
 patch_nvidia() {
@@ -209,13 +219,55 @@ safe_reown() {
     warn_dir_perms "${chkdir}"
   fi
 }
+# parse requirements
+parse_reqs() {
+  local file="$1"
+  info "Parsing ${file}"
+  echo "# ${file}" >> "${PYTHON_REQS}"
+  while IFS="" read -r p || [ -n "$p" ]
+  do
+    [[ "${p}" = \#* ]] && continue # skip comments
+    read -r -a pkgarg <<< "$p"
+    debug "Adding ${pkgarg[0]} to requirements.txt"
+    echo "${pkgarg[0]}" >> "${PYTHON_REQS}"
+  done < "$file"
+}
+# search directory for requirements.txt
+search_dir_reqs() {
+  local target_dir="$1"
+  if [ ! -d "${target_dir}" ]; then
+    warn "${target_dir} not found, skipping"
+    return 0
+  fi
+  find "${target_dir}" -type f -name "requirements.txt" -print0 | while IFS= read -r -d '' file
+  do
+    parse_reqs "$file"
+  done
+}
+# dedupe requirements.txt
+dedupe_reqs() {
+  awk '!seen[$0]++' "${PYTHON_REQS}" > "${PYTHON_REQS}.tmp"
+  mv "${PYTHON_REQS}.tmp" "${PYTHON_REQS}"
+}
+find_reqs() {
+  # check that config.yml exists
+  if [ ! -f "${STASH_CONFIG_FILE}" ]; then
+    warn "config.yml not found, skipping requirements.txt generation"
+    return 0
+  fi
+  # iterate over plugins
+  search_dir_reqs "$(get_config_key "plugins_path"  "${CONFIG_ROOT}/plugins")"
+  # iterate over scrapers
+  search_dir_reqs "$(get_config_key "scrapers_path" "${CONFIG_ROOT}/scrapers")"
+  dedupe_reqs "${PYTHON_REQS}"
+}
 # install python dependencies
 install_python_deps() {
   # copy over /defaults/requirements if it doesn't exist
-  if [ ! -f "/config/requirements.txt" ]; then
+  if [ ! -f "${PYTHON_REQS}" ]; then
     debug "Copying default requirements.txt"
-    cp "/defaults/requirements.txt" "/config/requirements.txt" && \
-      reown "/config/requirements.txt"
+    cp "/defaults/requirements.txt" "${PYTHON_REQS}" && \
+      reown "${PYTHON_REQS}"
   fi
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
@@ -225,7 +277,7 @@ install_python_deps() {
       --upgrade -q \
       --exists-action i \
       --target "${PIP_INSTALL_TARGET}" \
-      --requirement /config/requirements.txt
+      --requirement "${PYTHON_REQS}"
   export PYTHONPATH="${PYTHONPATH}:${PIP_INSTALL_TARGET}"
 }
 # trap exit and error
@@ -274,10 +326,11 @@ entrypoint.sh
 
 '
 try_migrate
+find_reqs
 install_python_deps
 patch_nvidia
-info 'Creating /config'
-safe_reown "/config"
+info "Creating ${CONFIG_ROOT}"
+safe_reown "${CONFIG_ROOT}"
 # finally start stash
 echo '
 Starting stash...
