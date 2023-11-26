@@ -125,6 +125,14 @@ stashapp_stash_migration() {
   check_migrate "database"      "${CONFIG_ROOT}/stash-go.sqlite"  "${old_root}"
   # forcefully move config.yml
   mv -n "${old_root}/config.yml" "${STASH_CONFIG_FILE}"
+  # forcefully move database backups
+  mv -n "${old_root}/stash-go.sqlite*" "${CONFIG_ROOT}"
+  # forcefully move misc files
+  mv -n \
+    "${old_root}/custom.css" \
+    "${old_root}/custom.js" \
+    "${old_root}/custom-locales.json" \
+    "${CONFIG_ROOT}"
   # migrate all other misc files
   info "leftover files:"
   ls -la "${old_root}"
