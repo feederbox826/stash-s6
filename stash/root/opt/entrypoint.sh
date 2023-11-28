@@ -296,24 +296,19 @@ finish() {
 #}}}
 #{{{ main
 trap finish EXIT
-# Check if the container is running as root
-if [ "$(id -u)" -eq 0 ]; then
-    # Running as root, execute usermod and groupmod
-    groupmod -o -g "$PGID" stash
-    usermod -o -u "$PUID" stash
-else
-    # Not running as root, print a message
-    echo "Not running as root. User and group modification skipped."
-fi
-# check if running as rootless
+# check if running with or without root
 if [ "$(id -u)" -ne 0 ]; then
   ROOTLESS=1
   CURUSR="$(id -u)"
   CURGRP="$(id -g)"
+  info "Not running as root. User and group modification skipped."
 else # if root, use PUID/PGID
   ROOTLESS=0
   CURUSR="${PUID}"
   CURGRP="${PGID}"
+  # change UID/GID accordingly
+  groupmod -o -g "$PGID" stash
+  usermod  -o -u "$PUID" stash
 fi
 # print branding and donation info
 cat /opt/branding
