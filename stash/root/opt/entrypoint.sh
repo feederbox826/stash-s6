@@ -98,10 +98,10 @@ check_migrate() {
 # migrate from hotio/stash
 hotio_stash_migration() {
   info "migrating from hotio/stash"
-  # hotio doesn't need file migrations, just delete symlinks from .stash
-  unlink "/config/.stash/ffmpeg"
-  unlink "/config/.stash/ffprobe"
-  rmdir "/config/.stash" # remove .stash at the very end
+  # hotio doesn't need file migrations, just delete symlinks
+  unlink "/config/.stash"
+  unlink "/config/ffmpeg"
+  unlink "/config/ffprobe"
 }
 # migrate from stashapp/stash
 stashapp_stash_migration() {
