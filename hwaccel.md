@@ -1,17 +1,14 @@
 ## hwaccel setup
-# CUDA
+# CUDA/ NVENC
 input args:
 `-hwaccel`
-`-cuda`
+`cuda`
 output args:
-# NVENC
 # QSV
 # VA-API
 ## intel
 input args:
 `-hwaccel`
 `vaapi`
-`-hwaccel_device`
-`/dev/dri/renderD128`
 optional:
 `chmod 666 /dev/dri/*`

@@ -1,25 +1,18 @@
 # syntax=docker/dockerfile:1
 
 ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
-ARG COMPUTE_RUNTIME_VERSION="23.30.26918.9"
 FROM ${UPSTREAM_IMAGE}:hwaccel-base
 
 ENV HWACCEL="Jellyfin-ffmpeg"
 ARG ARCHITECTURE="amd64"
+ARG COMPUTE_RUNTIME_VERSION="23.30.26918.9"
 
 COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
 RUN \
-  echo "**** install non-free helper packages ****" && \
+  echo "**** install jellyfin-ffmpeg ****" && \
     sed -i \
       's/main contrib/main contrib non-free non-free-firmware/g' \
       /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && \
-    apt-get install -y \
-      --no-install-recommends \
-      --no-install-suggests \
-        intel-gpu-tools \
-        vainfo && \
-  echo "**** install jellyfin-ffmpeg ****" && \
     mkdir -p \
       /etc/apt/keyrings && \
     curl -fsSL \
@@ -31,6 +24,12 @@ RUN \
     apt-get update && \
     apt-get install -y \
       jellyfin-ffmpeg6 && \
+  echo "**** install intel tools ****" && \
+    apt-get install -y \
+      --no-install-recommends \
+      --no-install-suggests \
+        intel-gpu-tools \
+        vainfo && \
   echo "**** install intel compute-runtime ****" && \
     cd /tmp && \
     wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.14828.8/intel-igc-core_1.0.14828.8_amd64.deb && \

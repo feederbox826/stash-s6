@@ -22,8 +22,6 @@ ENV HOME="/root" \
   LOGGER_LEVEL="1"
 
 RUN \
-  echo "**** setup stash user for render ****" && \
-    usermod -a -G video stash && \
   echo "**** add contrib to sources ****" && \
     sed -i 's/main/main contrib/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install apt-utils and locales ****" && \
@@ -52,6 +50,7 @@ RUN \
   echo "**** create stash user and make our folders ****" && \
     useradd -u 1000 -U -d /config -s /bin/false stash && \
     usermod -G users stash && \
+    usermod -G video stash && \
     mkdir -p \
       /config \
       /defaults && \
