@@ -20,11 +20,6 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
     ```
     docker pull ghcr.io/feederbox826/stash-s6:hwaccel-jf
     ```
-- utilizes [linuxserver.io ffmpeg](https://github.com/linuxserver/docker-ffmpeg)
-    - has specific additional support for iHD and i965
-    ```
-    docker pull ghcr.io/feederbox826/stash-s6:hwaccel-lscr
-    ```
 
 ## internal packages
 `hwaccel-base` - shared base image for hardware acceleration

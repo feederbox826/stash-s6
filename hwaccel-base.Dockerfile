@@ -21,9 +21,10 @@ ENV HOME="/root" \
   # Logging
   LOGGER_LEVEL="1"
 
+COPY stash-files/intel-drivers.sh /opt/intel-drivers.sh
 RUN \
-  echo "**** add contrib to sources ****" && \
-    sed -i 's/main/main contrib/g' /etc/apt/sources.list.d/debian.sources && \
+  echo "**** add contrib and non-free to sources ****" && \
+    sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install apt-utils and locales ****" && \
     apt-get update && \
     apt-get install -y \
@@ -43,6 +44,8 @@ RUN \
       tzdata \
       wget \
       yq && \
+  echo "**** install non-free drivers and intel compute_runtime ****" && \
+    bash /opt/intel-drivers.sh && \
   echo "**** link su-exec to gosu ****" && \
     ln -s /usr/sbin/gosu /sbin/su-exec && \
   echo "**** generate locale ****" && \

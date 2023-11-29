@@ -37,15 +37,4 @@ aarch: cuda, v4l2
 - vaapi g8+ / QSV - debian bookworm | i5-1135G7
 
 ## misc notes
-```
-  echo "**** install intel compute-runtime ****" && \
-    cd /tmp && \
-    wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.14828.8/intel-igc-core_1.0.14828.8_amd64.deb && \
-    wget https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.14828.8/intel-igc-opencl_1.0.14828.8_amd64.deb && \
-    wget https://github.com/intel/compute-runtime/releases/download/${COMPUTE_RUNTIME_VERSION}/intel-level-zero-gpu-dbgsym_1.3.26918.9_amd64.ddeb && \
-    wget https://github.com/intel/compute-runtime/releases/download/${COMPUTE_RUNTIME_VERSION}/intel-level-zero-gpu_1.3.26918.9_amd64.deb &&\
-    wget https://github.com/intel/compute-runtime/releases/download/${COMPUTE_RUNTIME_VERSION}/intel-opencl-icd-dbgsym_${COMPUTE_RUNTIME_VERSION}_amd64.ddeb && \
-    wget https://github.com/intel/compute-runtime/releases/download/${COMPUTE_RUNTIME_VERSION}/intel-opencl-icd_${COMPUTE_RUNTIME_VERSION}_amd64.deb && \
-    wget https://github.com/intel/compute-runtime/releases/download/${COMPUTE_RUNTIME_VERSION}/libigdgmm12_22.3.0_amd64.deb && \
-```
 

@@ -5,14 +5,10 @@ FROM ${UPSTREAM_IMAGE}:hwaccel-base
 
 ENV HWACCEL="Jellyfin-ffmpeg"
 ARG ARCHITECTURE="amd64"
-ARG COMPUTE_RUNTIME_VERSION="23.30.26918.9"
 
 COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
 RUN \
   echo "**** install jellyfin-ffmpeg ****" && \
-    sed -i \
-      's/main contrib/main contrib non-free non-free-firmware/g' \
-      /etc/apt/sources.list.d/debian.sources && \
     mkdir -p \
       /etc/apt/keyrings && \
     curl -fsSL \
