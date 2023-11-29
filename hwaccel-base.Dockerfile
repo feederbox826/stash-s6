@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:bookworm
+FROM debian:bookworm-slim
 ARG DEBIAN_FRONTEND="noninteractive"
 # debian environment variables
 ENV HOME="/root" \
