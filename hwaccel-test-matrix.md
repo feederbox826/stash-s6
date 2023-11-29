@@ -2,7 +2,7 @@
 |------------|---------|----------|-------|
 | vvapi g5+  | ✅[^1] | ✅[^1]  |  ✅   |
 | vaapi g8+  | ~[^5]   | ~[^5]    | ~[^5] |
-| qsv        | ❌       | ✅[^4]  | ✅    |
+| qsv        | ❌       | ✅[^4]  | ✅[^6]|
 | cuda       | ❌[^2]   | ✅      | ❌[^3] |
 | v4l2       | ?       | ?        | ?     |
 
@@ -12,6 +12,7 @@
 [^3]: no audio for transcodes  
 [^4]: requires intel-compute-runtime  
 [^5]: stash defers to QSV, it errors out  
+[^6]: works with `intel-media-va-driver-non-free` installed  
 
 ## architecture matrix
 amd64: vaapi, qsv, cuda  
