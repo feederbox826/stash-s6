@@ -18,6 +18,15 @@ amd64: vaapi, qsv, cuda
 armhf: v4l2  
 aarch: cuda, v4l2  
 
+## upstream arch support
+| upstream | amd64 | armv6 (armel) | armv7 (armhf) | aarch64 |
+|---|---|---|---|---|
+| alpine | ✅ | ✅ | ✅ | ✅ |
+| lscr | ✅ | ❌ | ❌ | ✅ |
+| jellyfin | ✅ | ❌ | ✅ | ✅ |
+| cuda | ✅ | ❌ | ❌ | ✅ |
+| qsv | ✅ | ❌ | ❌ | ❌ |
+
 ## qsv support
 - kabylake (7XXX+)
 
