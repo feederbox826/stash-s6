@@ -1,6 +1,17 @@
 # syntax=docker/dockerfile:1
 
 FROM alpine:3
+# labels
+ARG \
+  BUILD_DATE \
+  GITHASH \
+  STASH_VERSION \
+  OFFICIAL_BUILD \
+LABEL \
+  org.opencontainers.image.created=$BUILD_DATE \
+  org.opencontainers.image.revision=$GITHASH \
+  org.opencontainers.image.version=$STASH_VERSION \
+  official_build=$OFFICIAL_BUILD
 # OS environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
@@ -10,15 +21,15 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PIP_INSTALL_TARGET="/pip-install" \
-  PIP_CACHE_DIR="/pip-install/cache" \
-  PYTHONPATH=${PIP_INSTALL_TARGET} \
+  PY_VENV="/pip-install/venv" \
+  PATH="/pip-install/venv/bin:$PATH" \
   # hardware acceleration env
   HWACCEL="NONE" \
   SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
 
+COPY stash/root/ /
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -34,6 +45,8 @@ RUN \
     vips-tools \
     wget \
     yq && \
+  echo "**** active python virtual environment ****" && \
+    python3 -m venv ${PY_VENV} && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 1000 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
@@ -42,7 +55,6 @@ RUN \
     /defaults && \
   echo "**** cleanup ****"
 
-COPY --chmod=755 stash/root/ /
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 VOLUME /pip-install

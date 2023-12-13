@@ -6,7 +6,6 @@ FROM ${UPSTREAM_IMAGE}:hwaccel-base
 ENV HWACCEL="Jellyfin-ffmpeg"
 ARG ARCHITECTURE="amd64"
 
-COPY stash-files/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
 RUN \
   echo "**** install jellyfin-ffmpeg ****" && \
     mkdir -p \
@@ -14,6 +13,9 @@ RUN \
     curl -fsSL \
       https://repo.jellyfin.org/jellyfin_team.gpg.key | \
       gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg && \
+    cp \
+      /defaults/jellyfin.sources \
+      /etc/apt/sources.list.d/jellyfin.sources && \
     sed -i -r \
       "s/ARCHITECTURE/$ARCHITECTURE/g" \
       "/etc/apt/sources.list.d/jellyfin.sources" && \

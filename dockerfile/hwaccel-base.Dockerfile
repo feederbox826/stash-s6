@@ -1,7 +1,18 @@
 # syntax=docker/dockerfile:1
 
 FROM debian:bookworm-slim
-ARG DEBIAN_FRONTEND="noninteractive"
+# labels
+ARG \
+  BUILD_DATE \
+  GITHASH \
+  STASH_VERSION \
+  OFFICIAL_BUILD="false" \
+  DEBIAN_FRONTEND="noninteractive"
+LABEL \
+  org.opencontainers.image.created=$BUILD_DATE \
+  org.opencontainers.image.revision=$GITHASH \
+  org.opencontainers.image.version=$STASH_VERSION \
+  official_build=$OFFICIAL_BUILD
 # debian environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
@@ -11,9 +22,8 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PIP_INSTALL_TARGET="/pip-install" \
-  PIP_CACHE_DIR="/pip-install/cache" \
-  PYTHONPATH=${PIP_INSTALL_TARGET} \
+  PY_VENV="/pip-install/venv" \
+  PATH="/pip-install/venv/bin:$PATH" \
   # hardware acceleration env
   HWACCEL="NONE" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
@@ -21,7 +31,7 @@ ENV HOME="/root" \
   # Logging
   LOGGER_LEVEL="1"
 
-COPY stash-files/intel-drivers.sh /opt/intel-drivers.sh
+COPY stash/root/ /
 RUN \
   echo "**** add contrib and non-free to sources ****" && \
     sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
@@ -44,6 +54,8 @@ RUN \
       tzdata \
       wget \
       yq && \
+  echo "**** active python virtual environment ****" && \
+    python3 -m venv ${PY_VENV} && \
   echo "**** install non-free drivers and intel compute_runtime ****" && \
     bash /opt/intel-drivers.sh && \
   echo "**** link su-exec to gosu ****" && \
@@ -66,7 +78,6 @@ RUN \
       /var/tmp/* \
       /var/log/*
 
-COPY stash/root/ /
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 VOLUME /pip-install
