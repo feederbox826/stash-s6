@@ -1,3 +1,7 @@
+user=stashapp
+repo=stash
+tag=latest
+
 IS_WIN_SHELL =
 ifeq (${SHELL}, sh.exe)
 	IS_WIN_SHELL = true
@@ -30,13 +34,29 @@ endif
 ifndef OFFICIAL_BUILD
 	$(eval OFFICIAL_BUILD := false)
 endif
+ifndef DOCKER_BUILD_ARGS
+	DOCKER_BUILD_ARGS = --build-arg BUILD_DATE="$(BUILD_DATE)" --build-arg GITHASH="$(GITHASH)" --build-arg STASH_VERSION="$(STASH_VERSION)" --build-arg OFFICIAL_BUILD="$(OFFICIAL_BUILD)"
+endif
+
+.PHONY: docker-build-base
+docker-base: docker-bin
+	docker build ${DOCKER_BUILD_ARGS} --tag ${repo}:base --file dockerfile/ci-copy.Dockerfile .
 
 .PHONY: docker-hwaccel-base
-docker-hwaccel-base: build-info
-	docker build --build-arg BUILD_DATE="$(BUILD_DATE)" --build-arg GITHASH="$(GITHASH)"" --build-arg STASH_VERSION="$(STASH_VERSION)"" --build-arg OFFICIAL_BUILD=$(OFFICIAL_BUILD) --tag stash:hwaccel-base --file dockerfile/hwaccel-base.Dockerfile .
+docker-hwaccel-base: docker-bin
+	docker build ${DOCKER_BUILD_ARGS} --tag ${repo}:hwaccel-base --file dockerfile/hwaccel-base.Dockerfile .
 
+.PHONY: docker-hwaccel-deb
 docker-hwaccel-deb: docker-hwaccel-base
-	docker build --tag stash:hwaccel-deb --file dockerfile/hwaccel-deb.Dockerfile .
+	docker build --build-arg UPSTREAM_IMAGE="${repo}:hwaccel-base" --tag ${repo}:${tag}-hwaccel-deb --file dockerfile/hwaccel-deb.Dockerfile .
 
+.PHONY: docker-hwaccel-jf
 docker-hwaccel-jf: docker-hwaccel-base
-	docker build --tag stash:hwaccel-jf --file dockerfile/hwaccel-jf.Dockerfile .
+	docker build --build-arg UPSTREAM_IMAGE="${repo}:hwaccel-base" --tag ${repo}:${tag}-hwaccel-jf --file dockerfile/hwaccel-jf.Dockerfile .
+
+.PHONY: docker-alpine
+docker-alpine: docker-bin
+	docker build ${DOCKER_BUILD_ARGS} --tag ${repo}:${tag}-alpine --file dockerfile/alpine.Dockerfile .
+
+.PHONY: docker-build-all
+docker-all: docker-hwaccel-deb docker-hwaccel-jf docker-alpine

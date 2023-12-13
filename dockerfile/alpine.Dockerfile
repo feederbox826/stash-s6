@@ -39,6 +39,7 @@ RUN \
     ffmpeg \
     python3 \
     py3-pip \
+    ruby \
     shadow \
     su-exec \
     tzdata \
@@ -47,6 +48,9 @@ RUN \
     yq && \
   echo "**** active python virtual environment ****" && \
     python3 -m venv ${PY_VENV} && \
+  echo "**** install ruby gems ****" && \
+    gem install \
+      faraday && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 1000 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \

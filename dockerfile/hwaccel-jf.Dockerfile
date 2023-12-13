@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-ARG UPSTREAM_IMAGE="docker.io/library/stash-s6"
-FROM ${UPSTREAM_IMAGE}:hwaccel-base
+ARG UPSTREAM_IMAGE="docker.io/library/stash:hwaccel-base"
+FROM ${UPSTREAM_IMAGE}
 
 ENV HWACCEL="Jellyfin-ffmpeg"
 ARG ARCHITECTURE="amd64"

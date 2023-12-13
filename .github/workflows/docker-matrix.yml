@@ -8,7 +8,7 @@ on:
     - cron: '0 0 1 * *'
 
 env:
-  IMAGE_NAME: stash-s6
+  IMAGE_NAME: stash
 
 jobs:
   builds-matrix:
@@ -70,7 +70,7 @@ jobs:
           provenance: false
           file: hwaccel.Dockerfile
           build-args: |
-            UPSTREAM_IMAGE=localhost:5000/stash-s6
+            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
@@ -87,7 +87,7 @@ jobs:
           file: hwaccel-jf.Dockerfile
           build-args: |
             ARCHITECTURE=${{ matrix.arch }}
-            UPSTREAM_IMAGE=localhost:5000/stash-s6
+            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}

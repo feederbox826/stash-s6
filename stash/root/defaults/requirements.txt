@@ -1,5 +1,9 @@
+bencoder.pyx
 bs4
+cloudscraper
 lxml
+mechanicalsoup
 pystashlib
 requests
+requests-toolbelt
 stashapp-tools

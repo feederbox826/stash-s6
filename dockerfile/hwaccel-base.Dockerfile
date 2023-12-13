@@ -51,11 +51,16 @@ RUN \
       libvips-tools \
       python3 \
       python3-pip \
+      python3-venv \
+      ruby \
       tzdata \
       wget \
       yq && \
-  echo "**** active python virtual environment ****" && \
+  echo "**** activate python virtual environment ****" && \
     python3 -m venv ${PY_VENV} && \
+  echo "**** install ruby gems ****" && \
+    gem install \
+      faraday && \
   echo "**** install non-free drivers and intel compute_runtime ****" && \
     bash /opt/intel-drivers.sh && \
   echo "**** link su-exec to gosu ****" && \
