@@ -8,7 +8,7 @@ on:
     - cron: '0 0 1 * *'
 
 env:
-  IMAGE_NAME: stash
+  IMAGE_NAME: stash-s6
 
 jobs:
   builds-matrix:
