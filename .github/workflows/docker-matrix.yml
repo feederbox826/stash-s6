@@ -70,7 +70,7 @@ jobs:
           provenance: false
           file: dockerfile/hwaccel-deb.Dockerfile
           build-args: |
-            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
+            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}:hwaccel-base
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
@@ -87,7 +87,7 @@ jobs:
           file: dockerfile/hwaccel-jf.Dockerfile
           build-args: |
             ARCHITECTURE=${{ matrix.arch }}
-            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
+            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}:hwaccel-base
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
