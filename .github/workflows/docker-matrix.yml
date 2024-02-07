@@ -56,7 +56,7 @@ jobs:
         with:
           push: true
           provenance: false
-          file: hwaccel-base.Dockerfile
+          file: dockerfile/hwaccel-base.Dockerfile
           platforms: ${{ matrix.platform }}
           tags: |
             localhost:5000/stash-s6:hwaccel-base
@@ -68,7 +68,7 @@ jobs:
         with:
           push: true
           provenance: false
-          file: hwaccel.Dockerfile
+          file: dockerfile/hwaccel.Dockerfile
           build-args: |
             UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
           platforms: ${{ matrix.platform }}
@@ -84,7 +84,7 @@ jobs:
         with:
           push: true
           provenance: false
-          file: hwaccel-jf.Dockerfile
+          file: dockerfile/hwaccel-jf.Dockerfile
           build-args: |
             ARCHITECTURE=${{ matrix.arch }}
             UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base

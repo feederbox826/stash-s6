@@ -20,7 +20,7 @@ export LOGGER_SHOW_FILE="0"
 #{{{ helper functions
 # run as stash user if not rootless
 runas() {
-  if [ ${ROOTLESS} -eq 1 ]; then
+  if [ ${ROOTLESS} -eq 1 ] || [ -n "${FORCE_STASH_COMPAT}" ]; then
     "$@"
   else
     su-exec stash "$@"
@@ -177,7 +177,7 @@ patch_nvidia() {
   if [ -n "${SKIP_NVIDIA_PATCH}" ]; then
     debug "Skipping nvidia patch because of SKIP_NVIDIA_PATCH"
     return 0
-  elif [ $ROOTLESS -eq 0 ]; then
+  elif [ $ROOTLESS -eq 1 ]; then
     warn "Skipping nvidia patch as it requires root"
     return 0
   fi
@@ -279,14 +279,14 @@ install_python_deps() {
   fi
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
-  safe_reown "${PIP_INSTALL_TARGET}" && \
+  safe_reown "${PY_VENV}" && \
     mkown "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
       --exists-action i \
-      --target "${PIP_INSTALL_TARGET}" \
+      --target "${PY_VENV}" \
       --requirement "${PYTHON_REQS}"
-  export PYTHONPATH="${PYTHONPATH}:${PIP_INSTALL_TARGET}"
+  export PYTHONPATH="${PYTHONPATH}:${PY_VENV}"
 }
 # trap exit and error
 finish() {
@@ -302,6 +302,11 @@ if [ "$(id -u)" -ne 0 ]; then
   CURUSR="$(id -u)"
   CURGRP="$(id -g)"
   info "Not running as root. User and group modification skipped."
+elif [ -n "${FORCE_STASH_COMPAT}" ]; then
+  ROOTLESS=0
+  CURUSR="$(id -u)"
+  CURGRP="$(id -g)"
+  info "Running in full compatibility mode. User and group modification skipped."
 else # if root, use PUID/PGID
   ROOTLESS=0
   CURUSR="${PUID}"
