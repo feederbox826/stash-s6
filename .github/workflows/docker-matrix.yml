@@ -63,12 +63,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: build hwaccel
+      - name: build hwaccel-deb
         uses: docker/build-push-action@v4
         with:
           push: true
           provenance: false
-          file: dockerfile/hwaccel.Dockerfile
+          file: dockerfile/hwaccel-deb.Dockerfile
           build-args: |
             UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}/hwaccel-base
           platforms: ${{ matrix.platform }}
