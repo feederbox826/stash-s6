@@ -282,7 +282,8 @@ install_python_deps() {
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
   # PIP_CACHE_DIR = /pip-install/cache
-  mkown "${PY_VENV}" && \
+  mkown "/pip-install" && \
+    mkown "${PY_VENV}" && \
     mkown "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
