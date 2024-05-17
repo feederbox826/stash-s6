@@ -31,7 +31,7 @@ ENV HOME="/root" \
   NVIDIA_VISIBLE_DEVICES="all" \
   # Logging
   LOGGER_LEVEL="1"
-
+COPY stash/root/ /
 RUN \
   echo "**** add contrib and non-free to sources ****" && \
     sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
@@ -83,7 +83,6 @@ RUN \
       /var/tmp/* \
       /var/log/*
 
-COPY stash/root/ /
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 VOLUME /pip-install
