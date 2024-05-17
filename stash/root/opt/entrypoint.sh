@@ -12,6 +12,9 @@ PGID=${PGID:-911}
 # environment variables
 CONFIG_ROOT="/config"
 PYTHON_REQS="${CONFIG_ROOT}/requirements.txt"
+STASHAPP_STASH_ROOT="/root/.stash"
+PY_VENV=${PY_VENV:-"/pip-install/venv"}
+COMPAT_MODE=0
 # shellcheck disable=SC1091
 source "/opt/shell-logger.sh"
 export LOGGER_COLOR="always"
@@ -20,7 +23,7 @@ export LOGGER_SHOW_FILE="0"
 #{{{ helper functions
 # run as stash user if not rootless
 runas() {
-  if [ ${ROOTLESS} -eq 1 ] || [ -n "${FORCE_STASH_COMPAT}" ]; then
+  if [ ${ROOTLESS} -eq 1 ] || [ "${COMPAT_MODE}" -eq 1 ]; then
     "$@"
   else
     su-exec stash "$@"
@@ -145,22 +148,21 @@ stashapp_stash_migration() {
 }
 # detect if migration is needed and migrate
 try_migrate() {
-  local stashapp_root="/root/.stash"
   # run if MIGRATE is set
-  if [ -n "${MIGRATE}" ]; then
+  if [ "${MIGRATE}" == "TRUE" ]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
-    elif [ -e "${stashapp_root}" ] && [ -f "${stashapp_root}/config.yml" ]; then
+    elif [ -e "${STASHAPP_STASH_ROOT}" ] && [ -f "${STASHAPP_STASH_ROOT}/config.yml" ]; then
       stashapp_stash_migration
     else
       warn "MIGRATE is set, but no migration is needed"
     fi
   # MIGRATE not set but might be needed
-  elif [ -e "${stashapp_root}" ]; then
-    warn "${stashapp_root} exists, but MIGRATE is not set. This may cause issues."
-    (reown "/root/" && safe_reown "${stashapp_root}") || \
-      warn_dir_perms "${stashapp_root}"
-    export STASH_CONFIG_FILE="${stashapp_root}/config.yml"
+  elif [ -e "${STASHAPP_STASH_ROOT}" ]; then
+    warn "${STASHAPP_STASH_ROOT} exists, but MIGRATE is not set. Running in stashapp/stash compatibility mode"
+    (reown "/root/" && safe_reown "${STASHAPP_STASH_ROOT}") || \
+      warn_dir_perms "${STASHAPP_STASH_ROOT}"
+    export STASH_CONFIG_FILE="${STASHAPP_STASH_ROOT}/config.yml"
   fi
 }
 get_config_key() {
@@ -279,11 +281,13 @@ install_python_deps() {
   fi
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
-  safe_reown "${PY_VENV}" && \
+  # PIP_CACHE_DIR = /pip-install/cache
+  mkown "${PY_VENV}" && \
     mkown "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
       --exists-action i \
+      --root-user-action=ignore \
       --target "${PY_VENV}" \
       --requirement "${PYTHON_REQS}"
   export PYTHONPATH="${PYTHONPATH}:${PY_VENV}"
@@ -296,17 +300,19 @@ finish() {
 #}}}
 #{{{ main
 trap finish EXIT
+# check if running in stashapp/stash compatibility mode
+if [ -e "${STASHAPP_STASH_ROOT}" ] && [ "${MIGRATE}" != "TRUE" ]; then
+  COMPAT_MODE=1
+  ROOTLESS=0
+  CURUSR="$(id -u)"
+  CURGRP="$(id -g)"
+  info "Running in stashapp/stash full compatibility mode. All user and group modifications skipped."
 # check if running with or without root
-if [ "$(id -u)" -ne 0 ]; then
+elif [ "$(id -u)" -ne 0 ]; then
   ROOTLESS=1
   CURUSR="$(id -u)"
   CURGRP="$(id -g)"
   info "Not running as root. User and group modification skipped."
-elif [ -n "${FORCE_STASH_COMPAT}" ]; then
-  ROOTLESS=0
-  CURUSR="$(id -u)"
-  CURGRP="$(id -g)"
-  info "Running in full compatibility mode. User and group modification skipped."
 else # if root, use PUID/PGID
   ROOTLESS=0
   CURUSR="${PUID}"
@@ -329,6 +335,9 @@ User GID:    ${CURGRP}
 HW Accel:    ${HWACCEL}
 $(if [ $ROOTLESS -eq 1 ]; then
   echo "Rootless:    TRUE"
+fi)
+$(if [ $COMPAT_MODE -eq 1 ]; then
+  echo "stashapp/stash mode: TRUE"
 fi)"
 echo '
 ───────────────────────────────────────
@@ -339,8 +348,11 @@ try_migrate
 find_reqs
 install_python_deps
 patch_nvidia
-info "Creating ${CONFIG_ROOT}"
-safe_reown "${CONFIG_ROOT}"
+# only chown if not in stashapp/stash compatibility mode
+if [ $COMPAT_MODE -ne 1 ]; then
+  info "Creating ${CONFIG_ROOT}"
+  safe_reown "${CONFIG_ROOT}"
+fi
 # finally start stash
 echo '
 Starting stash...

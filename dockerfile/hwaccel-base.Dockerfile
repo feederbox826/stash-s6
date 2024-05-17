@@ -23,7 +23,8 @@ ENV HOME="/root" \
   USER="stash" \
   # python env
   PY_VENV="/pip-install/venv" \
-  PATH="/pip-install/venv/bin:$PATH" \
+  PIP_CACHE_DIR="/pip-install/cache" \
+  PATH="$PY_VENV/bin:$PATH" \
   # hardware acceleration env
   HWACCEL="NONE" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
@@ -31,7 +32,6 @@ ENV HOME="/root" \
   # Logging
   LOGGER_LEVEL="1"
 
-COPY stash/root/ /
 RUN \
   echo "**** add contrib and non-free to sources ****" && \
     sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
@@ -83,6 +83,7 @@ RUN \
       /var/tmp/* \
       /var/log/*
 
+COPY stash/root/ /
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 VOLUME /pip-install

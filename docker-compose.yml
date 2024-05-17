@@ -9,7 +9,7 @@ services:
       - PGID=1000
     #  - MIGRATE=TRUE
     volumes:
-      - E:/Workspace/stash-dev-media:/media/stash
+      - /mnt/media/stash:/media/stash
       - pip:/pip-install
       - config:/config
     deploy:
@@ -24,4 +24,3 @@ volumes:
     external: true
   config:
     external: true
-  

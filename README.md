@@ -26,7 +26,30 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 ## environment variables
 `PUID` - Process User ID  
 `PGID` - Process Group ID  
-`SKIP_CHOWN` - skips chown operations for /config directory  
 `SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc  
-`MIGRATE` - automatic migration from stashapp/stash or hotio/stash  
 `TZ` - timezone  
+
+## migration-specific environment variables
+`MIGRATE` - automatic migration from `stashapp/stash` or `hotio/stash`  
+`SKIP_CHOWN` - skips chown operations for /config directory  
+
+## Run modes
+### `stashapp/stash compatibility`
+I want to keep using the `stashapp/stash` image or possibly switch back
+- Replace `image: stashapp/stash` with your desired image
+- You will see a message `Running in stashapp/stash compatibility mode...`
+
+### Migration from `stashapp/stash` or `hotio/stash`
+!!! I don't want the option to switch back !!!
+- Replace `image: stashapp/stash` with your desired image
+- Set the environment variables
+  ```
+  MIGRATE=TRUE
+  ```
+- Add the following volumes alongside your existing mounts. It should look like
+```
+volumes:
+  - /data/old-stash/config:/root/.stash
+  - /data/new-stash/config:/config
+  - /data/new-stash/pip-install:/pip-install
+```
