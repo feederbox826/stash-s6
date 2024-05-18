@@ -34,14 +34,14 @@ jobs:
         ports:
           - 5000:5000
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: arm,arm64
       - uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -50,9 +50,8 @@ jobs:
         run: |
           echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
           echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
-
       - name: build hwaccel-base for local use
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: true
           provenance: false
@@ -64,7 +63,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: build hwaccel-deb
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: true
           provenance: false
@@ -80,7 +79,7 @@ jobs:
       - name: build hwaccel-jf
         # no support for ARMEL
         if: ${{ matrix.platform != 'linux/arm/v6' }}
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: true
           provenance: false
@@ -100,7 +99,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Login to GHCR
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
