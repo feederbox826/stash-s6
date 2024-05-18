@@ -82,7 +82,7 @@ RUN \
       yq && \
   echo "**** install non-free drivers and intel compute runtime ****" &&\
     bash /defaults/intel-drivers.sh && \
-  echo "**** linking jellyfin ffmpeg ****" && \
+  echo "**** symlink packages ****" && \
     ln -s \
       /usr/lib/jellyfin-ffmpeg/ffmpeg \
       /usr/bin/ffmpeg && \
@@ -92,8 +92,12 @@ RUN \
     ln -s \
       /usr/lib/jellyfin-ffmpeg/vainfo \
       /usr/bin/vainfo && \
-  echo "**** link su-exec to gosu ****" && \
-    ln -s /usr/sbin/gosu /sbin/su-exec && \
+    ln -s \ 
+      /usr/sbin/gosu \
+      /sbin/su-exec && \
+    ln -s \
+      /usr/bin/python3 \
+      /usr/bin/python && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** install ruby gems ****" && \
