@@ -21,9 +21,9 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PY_VENV="/pip-install/venv" \
+  PIP_TARGET="/pip-install/install" \
   PIP_CACHE_DIR="/pip-install/cache" \
-  PATH="$PY_VENV/bin:$PATH" \
+  PIP_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="NONE" \
   SKIP_NVIDIA_PATCH="true" \
@@ -46,8 +46,6 @@ RUN \
     vips-tools \
     wget \
     yq && \
-  echo "**** active python virtual environment ****" && \
-    python3 -m venv ${PY_VENV} && \
   echo "**** install ruby gems ****" && \
     gem install \
       faraday && \

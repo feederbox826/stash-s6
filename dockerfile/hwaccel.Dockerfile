@@ -25,9 +25,9 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PY_VENV="/pip-install/venv" \
+  PIP_TARGET="/pip-install/install" \
   PIP_CACHE_DIR="/pip-install/cache" \
-  PATH="$PY_VENV/bin:$PATH" \
+  PIP_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="Jellyfin-ffmpeg" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
@@ -75,7 +75,6 @@ RUN \
       locales \
       python3 \
       python3-pip \
-      python3-venv \
       ruby \
       tzdata \
       wget \
@@ -96,13 +95,11 @@ RUN \
     ln -s /usr/sbin/gosu /sbin/su-exec && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
-  echo "**** activate python virtual environment ****" && \
-    python3 -m venv ${PY_VENV} && \
   echo "**** install ruby gems ****" && \
     gem install \
       faraday && \
   echo "**** create stash user and make our folders ****" && \
-    useradd -u 1000 -U -d /config -s /bin/false stash && \
+    useradd -u 1000 -U -d /config -s /bin/bash stash && \
     usermod -G users stash && \
     usermod -G video stash && \
     mkdir -p \

@@ -13,7 +13,6 @@ PGID=${PGID:-911}
 CONFIG_ROOT="/config"
 PYTHON_REQS="${CONFIG_ROOT}/requirements.txt"
 STASHAPP_STASH_ROOT="/root/.stash"
-PY_VENV=${PY_VENV:-"/pip-install/venv"}
 COMPAT_MODE=0
 # shellcheck disable=SC1091
 source "/opt/shell-logger.sh"
@@ -43,7 +42,8 @@ reown_r() {
     return
   fi
   info "reowning_r $1"
-  chown -Rh stash:stash "$1" && \
+  mkdir -p "$1"
+  chown -R stash:stash "$1" && \
     chmod -R "=rwx" "$1"
 }
 # mkdir and chown
@@ -112,8 +112,8 @@ stashapp_stash_migration() {
   if ! mountpoint -q "${CONFIG_ROOT}"; then
     warn "not migrating from stashapp/stash as ${CONFIG_ROOT} is not mounted"
     return 1
-  elif check_dir_perms "${CONFIG_ROOT}"; then
-    warn_dir_perms "${CONFIG_ROOT}"
+  else
+    safe_reown "${CONFIG_ROOT}"
   fi
   info "migrating from stashapp/stash"
   local old_root="/root/.stash"
@@ -187,7 +187,7 @@ patch_nvidia() {
   wget \
     --quiet \
     --timestamping \
-    --O "/usr/local/bin/patch.sh" \
+    -O "/usr/local/bin/patch.sh" \
     "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
   chmod "+x" "/usr/local/bin/patch.sh"
   PATCH_OUTPUT_DIR="/patched-lib"
@@ -211,7 +211,7 @@ warn_dir_perms() {
     msg="${msg} and SKIP_CHOWN is set"
   fi
   warn "${msg}"
-  warn "Please run 'chown -R ${CHUSR}:${CHGRP} ${chkdir}' to fix this"
+  warn "Please run 'chown -R ${PUID}:${PGID} ${chkdir}' to fix this"
   exit 1
 }
 # check directory permissions
@@ -283,15 +283,13 @@ install_python_deps() {
   info "Installing/upgrading python requirements..."
   # PIP_CACHE_DIR = /pip-install/cache
   mkown "/pip-install" && \
-    mkown "${PY_VENV}" && \
-    mkown "${PIP_CACHE_DIR}" && \
+    reown_r "${PIP_TARGET}" && \
+    reown_r "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
       --exists-action i \
       --root-user-action=ignore \
-      --target "${PY_VENV}" \
       --requirement "${PYTHON_REQS}"
-  export PYTHONPATH="${PYTHONPATH}:${PY_VENV}"
 }
 # trap exit and error
 finish() {
