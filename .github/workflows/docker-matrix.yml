@@ -50,6 +50,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: setup image names
         run: |
           echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
@@ -77,6 +81,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
+             ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -108,6 +113,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: setup image names
         run: |
           echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
@@ -129,3 +139,20 @@ jobs:
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv7 \
             --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-arm64
           docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-jf
+      - name: create manifest for dhio/hwaccel
+        run: |
+          docker manifest create \
+            ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-amd64 \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-armv6 \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-armv7 \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-arm64
+          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel
+      - name: create manifest for dhio/hwaccel-jf
+        run: |
+          docker manifest create \
+            ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-amd64 \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-armv7 \
+            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-arm64
+          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf
