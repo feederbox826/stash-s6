@@ -27,6 +27,7 @@ ENV HOME="/root" \
   # python env
   PIP_TARGET="/pip-install/install" \
   PIP_CACHE_DIR="/pip-install/cache" \
+  PYTHONPATH="/pip-install/install" \
   PIP_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="Jellyfin-ffmpeg" \

@@ -22,6 +22,7 @@ ENV HOME="/root" \
   USER="stash" \
   # python env
   PIP_TARGET="/pip-install/install" \
+  PYTHONPATH="/pip-install/install" \
   PIP_CACHE_DIR="/pip-install/cache" \
   PIP_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env

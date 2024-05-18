@@ -334,8 +334,7 @@ User GID:    ${CURGRP}
 HW Accel:    ${HWACCEL}
 $(if [ $ROOTLESS -eq 1 ]; then
   echo "Rootless:    TRUE"
-fi)
-$(if [ $COMPAT_MODE -eq 1 ]; then
+elif [ $COMPAT_MODE -eq 1 ]; then
   echo "stashapp/stash mode: TRUE"
 fi)"
 echo '
