@@ -2,11 +2,11 @@
 # shellcheck shell=bash
 #
 # Author: feederbox826
-# Path: /opt/intel-drivers.sh
+# Path: /defaults/intel-drivers.sh
 # Description: Install Intel compute-runtime and non-free drivers
 
 install_nonfree_drivers() {
-  if [ ! "$(arch)" == 'x86_64' ]; then
+  if [ ! "$(TARGETPLATFORM)" == 'linux/amd64' ]; then
     return 0
   fi
   apt install -y \

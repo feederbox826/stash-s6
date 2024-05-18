@@ -1,4 +1,4 @@
-name: docker-hawccel-matrix-build
+name: docker-hawccel-build
 on:
   push:
     branches:
@@ -15,28 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  builds-matrix:
+  docker-hwaccel-build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - platform: "linux/amd64"
-            arch: "amd64"
-            tag: "amd64"
-          - platform: "linux/arm64"
-            arch: "arm64"
-            tag: "arm64"
-          - platform: "linux/arm/v6"
-            arch: "armel"
-            tag: "armv6"
-          - platform: "linux/arm/v7"
-            arch: "armhf"
-            tag: "armv7"
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     steps:
       - uses: actions/checkout@v4
       - name: Get Git commit timestamps
@@ -45,8 +25,15 @@ jobs:
         with:
           platforms: arm,arm64
       - uses: docker/setup-buildx-action@v3
+      - id: meta
+        uses: docker/metadata-action@v5
         with:
-          driver-opts: network=host
+          images: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            hwaccel
+            hwaccel-jf
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -56,112 +43,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: setup image names
-        run: |
-          echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
-          echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
-      - name: build hwaccel-base for local use
+      - name: build and push multi-arch hwaccel image
         uses: docker/build-push-action@v5
         with:
           push: true
           provenance: false
-          file: dockerfile/hwaccel-base.Dockerfile
-          platforms: ${{ matrix.platform }}
-          tags: |
-            localhost:5000/stash-s6:hwaccel-base
+          file: dockerfile/hwaccel.Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
         env:
           SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
-
-      - name: build hwaccel-deb
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          provenance: false
-          file: dockerfile/hwaccel-deb.Dockerfile
-          build-args: |
-            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}:hwaccel-base
-          platforms: ${{ matrix.platform }}
-          tags: |
-             ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
-             ${{ env.DHIO_IMAGE }}:hwaccel-${{ matrix.tag }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-        env:
-          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
-
-      - name: build hwaccel-jf
-        # no support for ARMEL
-        if: ${{ matrix.platform != 'linux/arm/v6' }}
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          provenance: false
-          file: dockerfile/hwaccel-jf.Dockerfile
-          build-args: |
-            ARCHITECTURE=${{ matrix.arch }}
-            UPSTREAM_IMAGE=localhost:5000/${{ env.IMAGE_NAME }}:hwaccel-base
-          platforms: ${{ matrix.platform }}
-          tags: |
-             ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
-             ${{ env.DHIO_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-        env:
-          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
-
-  create-manifests:
-    needs: [builds-matrix]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: setup image names
-        run: |
-          echo "GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
-          echo "DHIO_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}" >> "$GITHUB_ENV"
-      - name: create manifest for GHCR/hwaccel
-        run: |
-          docker manifest create \
-            ${{ env.GHCR_IMAGE }}:hwaccel \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-amd64 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv6 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-armv7 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-arm64
-          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel
-      - name: create manifest for GHCR/hwaccel-jf
-        run: |
-          docker manifest create \
-            ${{ env.GHCR_IMAGE }}:hwaccel-jf \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-amd64 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-armv7 \
-            --amend ${{ env.GHCR_IMAGE }}:hwaccel-jf-arm64
-          docker manifest push ${{ env.GHCR_IMAGE }}:hwaccel-jf
-      - name: create manifest for dhio/hwaccel
-        run: |
-          docker manifest create \
-            ${{ env.DHIO_IMAGE }}:hwaccel \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-amd64 \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-armv6 \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-armv7 \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-arm64
-          docker manifest push ${{ env.DHIO_IMAGE }}:hwaccel
-      - name: create manifest for dhio/hwaccel-jf
-        run: |
-          docker manifest create \
-            ${{ env.DHIO_IMAGE }}:hwaccel-jf \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-amd64 \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-armv7 \
-            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-arm64
-          docker manifest push ${{ env.DHIO_IMAGE }}:hwaccel-jf

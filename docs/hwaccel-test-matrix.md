@@ -3,7 +3,7 @@
 | vvapi g5+  | ✅[^1] | ✅[^1]  |  ✅   |
 | vaapi g8+  | ~[^5]   | ~[^5]    | ~[^5] |
 | qsv        | ❌       | ✅[^4]  | ✅[^6]|
-| cuda       | ❌[^2]   | ✅      | ❌[^3] |
+| cuda       | ❌[^2]   | ✅      | ✅ |
 | v4l2       | ?       | ?        | ?     |
 
 # notes
@@ -11,7 +11,6 @@ AMF (AMD) is not supported by stash so it was not tested
 
 [^1]: works without intel-compute-runtime  
 [^2]: no support for `scale-cuda` so NVENC is not loaded  
-[^3]: no audio for transcodes  
 [^4]: requires intel-compute-runtime  
 [^5]: stash defers to QSV, it errors out  
 [^6]: works with `intel-media-va-driver-non-free` installed  
