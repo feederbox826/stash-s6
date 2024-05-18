@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM debian:bookworm-slim
 
+# arguments
 ARG \
   BUILD_DATE \
   GITHASH \
@@ -34,10 +35,21 @@ ENV HOME="/root" \
   # Logging
   LOGGER_LEVEL="1"
 
+# copy over build files
 COPY stash/root/defaults /defaults
 COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 
 RUN \
+  echo "**** install build dependencies ****" && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+      --no-install-recommends \
+      --no-install-suggests \
+      apt-utils \
+      ca-certificates \
+      curl \
+      gnupg && \
   echo "**** add contrib and non-free to sources ****" && \
     sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** set up jellyfin repos ****" && \
@@ -49,19 +61,14 @@ RUN \
     cp \
       /defaults/jellyfin.sources \
       /etc/apt/sources.list.d/jellyfin.sources && \
-    sed -i -r \
-      "s/ARCHITECTURE/$ARCHITECTURE/g" \
+    sed -i \
+      "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
       "/etc/apt/sources.list.d/jellyfin.sources" && \
   echo "**** update and install packages ****" && \
     apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      apt-utils \
-      ca-certificates \
-      curl \
-      gnupg \
       gosu \
       jellyfin-ffmpeg6 \
       libvips-tools \
