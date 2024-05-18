@@ -29,7 +29,7 @@ ENV HOME="/root" \
   SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
-
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -59,7 +59,6 @@ RUN \
     /defaults && \
   echo "**** cleanup ****"
 
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 COPY stash/root/ /
 
 VOLUME /pip-install

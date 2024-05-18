@@ -13,6 +13,9 @@ LABEL \
   org.opencontainers.image.revision=$GITHASH \
   org.opencontainers.image.version=$STASH_VERSION \
   official_build=$OFFICIAL_BUILD
+# copy over build essentials first
+COPY stash/root/defaults /defaults
+COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
 # debian environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
@@ -31,7 +34,6 @@ ENV HOME="/root" \
   NVIDIA_VISIBLE_DEVICES="all" \
   # Logging
   LOGGER_LEVEL="1"
-COPY stash/root/ /
 RUN \
   echo "**** add contrib and non-free to sources ****" && \
     sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
@@ -62,7 +64,7 @@ RUN \
     gem install \
       faraday && \
   echo "**** install non-free drivers and intel compute_runtime ****" && \
-    bash /opt/intel-drivers.sh && \
+    bash /defaults/intel-drivers.sh && \
   echo "**** link su-exec to gosu ****" && \
     ln -s /usr/sbin/gosu /sbin/su-exec && \
   echo "**** generate locale ****" && \
@@ -83,7 +85,7 @@ RUN \
       /var/tmp/* \
       /var/log/*
 
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
+COPY stash/root/ /
 
 VOLUME /pip-install
 

@@ -39,6 +39,8 @@ jobs:
           - 5000:5000
     steps:
       - uses: actions/checkout@v4
+      - name: Get Git commit timestamps
+        run: echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: arm,arm64
@@ -69,6 +71,8 @@ jobs:
             localhost:5000/stash-s6:hwaccel-base
           cache-from: type=gha
           cache-to: type=gha,mode=max
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
 
       - name: build hwaccel-deb
         uses: docker/build-push-action@v5
@@ -84,6 +88,8 @@ jobs:
              ${{ env.DHIO_IMAGE }}:hwaccel-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
 
       - name: build hwaccel-jf
         # no support for ARMEL
@@ -102,6 +108,8 @@ jobs:
              ${{ env.DHIO_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
 
   create-manifests:
     needs: [builds-matrix]
