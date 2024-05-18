@@ -1,7 +1,11 @@
 # stashapp/stash with(out) s6
-## s6 was removed, will keep the naming for now...
-
 for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
+- non-root user support
+  - PUID/ PGID switching support
+- TZ settings
+- CUDA/ QSV images
+  - NVENV encoding session patches
+- automatic dependency installs
 
 ## latest/ alpine/ arm
 - built on alpine linux, no hardware acceleration support
