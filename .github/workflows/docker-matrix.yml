@@ -10,6 +10,10 @@ on:
 env:
   IMAGE_NAME: stash-s6
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   builds-matrix:
     runs-on: ubuntu-latest
