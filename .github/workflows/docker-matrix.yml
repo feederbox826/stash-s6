@@ -81,7 +81,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-${{ matrix.tag }}
-             ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-${{ matrix.tag }}
+             ${{ env.DHIO_IMAGE }}:hwaccel-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -99,6 +99,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
              ${{ env.GHCR_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
+             ${{ env.DHIO_IMAGE }}:hwaccel-jf-${{ matrix.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -142,17 +143,17 @@ jobs:
       - name: create manifest for dhio/hwaccel
         run: |
           docker manifest create \
-            ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-amd64 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-armv6 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-armv7 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-arm64
-          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel
+            ${{ env.DHIO_IMAGE }}:hwaccel \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-amd64 \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-armv6 \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-armv7 \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-arm64
+          docker manifest push ${{ env.DHIO_IMAGE }}:hwaccel
       - name: create manifest for dhio/hwaccel-jf
         run: |
           docker manifest create \
-            ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-amd64 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-armv7 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf-arm64
-          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}:hwaccel-jf
+            ${{ env.DHIO_IMAGE }}:hwaccel-jf \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-amd64 \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-armv7 \
+            --amend ${{ env.DHIO_IMAGE }}:hwaccel-jf-arm64
+          docker manifest push ${{ env.DHIO_IMAGE }}:hwaccel-jf
