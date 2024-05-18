@@ -7,6 +7,8 @@
 | v4l2       | ?       | ?        | ?     |
 
 # notes
+AMF (AMD) is not supported by stash so it was not tested
+
 [^1]: works without intel-compute-runtime  
 [^2]: no support for `scale-cuda` so NVENC is not loaded  
 [^3]: no audio for transcodes  
@@ -23,7 +25,6 @@ aarch: cuda, v4l2
 | upstream | amd64 | armv6 (armel) | armv7 (armhf) | aarch64 |
 |---|---|---|---|---|
 | alpine | ✅ | ✅ | ✅ | ✅ |
-| lscr | ✅ | ❌ | ❌ | ✅ |
 | jellyfin | ✅ | ❌ | ✅ | ✅ |
 | cuda | ✅ | ❌ | ❌ | ✅ |
 | qsv | ✅ | ❌ | ❌ | ❌ |
@@ -33,8 +34,8 @@ aarch: cuda, v4l2
 
 ## test platforms
 - cuda - RTX 3060 | W10 | R5 3600
+- cuda - GTX 1065 | debian bookwork | R7 2700
 - vaapi g5+ - debian bookworm | i5-3570K
 - vaapi g8+ / QSV - debian bookworm | i5-1135G7
 
 ## misc notes
-
