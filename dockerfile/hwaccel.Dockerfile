@@ -39,7 +39,7 @@ ENV HOME="/root" \
 
 # copy over build files
 COPY stash/root/defaults /defaults
-COPY --from=stashapp/stash${STASH_TAG} --chmod=755 /usr/bin/stash /app/stash
+COPY --from=stashapp/stash:${STASH_TAG} --chmod=755 /usr/bin/stash /app/stash
 
 RUN \
   echo "**** install build dependencies ****" && \
