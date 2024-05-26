@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1
+ARG STASH_TAG="latest"
+
 FROM debian:bookworm-slim
 
 # arguments
@@ -8,8 +10,7 @@ ARG \
   STASH_VERSION \
   OFFICIAL_BUILD="false" \
   DEBIAN_FRONTEND="noninteractive" \
-  TARGETPLATFORM \
-  STASH_TAG="latest"
+  TARGETPLATFORM
 # labels
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \

@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1
+ARG STASH_TAG="latest"
+
 FROM alpine:3.20
 
 # labels
@@ -6,8 +8,7 @@ ARG \
   BUILD_DATE \
   GITHASH \
   STASH_VERSION \
-  OFFICIAL_BUILD="false" \
-  STASH_TAG="latest"
+  OFFICIAL_BUILD="false"
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
