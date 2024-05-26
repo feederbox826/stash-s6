@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
-ARG STASH_TAG="latest"
+ARG \
+  STASH_TAG="latest" \
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+FROM $UPSTREAM_STASH as stash
 
-FROM alpine:3.20
+FROM alpine:3.20 as final
 
 # labels
 ARG \
@@ -13,7 +16,8 @@ LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
   org.opencontainers.image.version=$STASH_VERSION \
-  official_build=$OFFICIAL_BUILD
+  official_build=$OFFICIAL_BUILD\
+  STASH_TAG="latest"
 # OS environment variables
 ENV HOME="/root" \
   TZ="Etc/UTC" \
@@ -32,7 +36,7 @@ ENV HOME="/root" \
   SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
-COPY --from=stashapp/stash:${STASH_TAG} --chmod=755 /usr/bin/stash /app/stash
+COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \

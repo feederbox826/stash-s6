@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
-ARG STASH_TAG="latest"
+ARG \
+  STASH_TAG="latest" \
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+FROM $UPSTREAM_STASH as stash
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim as final
 
 # arguments
 ARG \
@@ -16,7 +19,9 @@ LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
   org.opencontainers.image.version=$STASH_VERSION \
-  official_build=$OFFICIAL_BUILD
+  official_build=$OFFICIAL_BUILD \
+  STASH_TAG="latest" \
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 # environment variables
 # debian environment variables
 ENV HOME="/root" \
@@ -40,8 +45,7 @@ ENV HOME="/root" \
 
 # copy over build files
 COPY stash/root/defaults /defaults
-COPY --from=stashapp/stash:${STASH_TAG} --chmod=755 /usr/bin/stash /app/stash
-
+COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
