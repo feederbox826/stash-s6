@@ -6,7 +6,8 @@ ARG \
   BUILD_DATE \
   GITHASH \
   STASH_VERSION \
-  OFFICIAL_BUILD \
+  OFFICIAL_BUILD="false" \
+  STASH_TAG="latest"
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
@@ -30,7 +31,7 @@ ENV HOME="/root" \
   SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
-COPY --from=stashapp/stash --chmod=755 /usr/bin/stash /app/stash
+COPY --from=stashapp/stash:${STASH_TAG} --chmod=755 /usr/bin/stash /app/stash
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \

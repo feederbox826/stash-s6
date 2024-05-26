@@ -16,6 +16,9 @@ permissions:
 
 jobs:
   docker-hwaccel-build:
+    strategy:
+      matrix:
+        upstream-tag: [latest, develop]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,5 +56,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            STASH_TAG=${{ matrix.upstream-tag }}
+            BUILD_DATE=${{ env.TIMESTAMP }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}

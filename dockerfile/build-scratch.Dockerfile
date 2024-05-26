@@ -2,7 +2,8 @@
 FROM node:alpine as frontend
 RUN apk add --no-cache make git
 ARG GITHASH \
-    STASH_VERSION
+    STASH_VERSION \
+    STASH_TAG="latest"
 # mutable steps
 WORKDIR /stash
 COPY Makefile /stash/
