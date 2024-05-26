@@ -18,7 +18,7 @@ jobs:
   docker-alpine-build:
     strategy:
       matrix:
-        upstream: [latest, development]
+        upstream: [latest]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
