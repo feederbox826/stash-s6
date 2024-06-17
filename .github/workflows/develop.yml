@@ -1,0 +1,30 @@
+name: docker-develop-build
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 */7 * *'
+
+jobs:
+  docker-alpine:
+    uses: ./.github/workflows/docker-alpine.yml
+    with:
+      upstream: development
+      tag1: alpine-develop
+      tag2: develop
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+  docker-hwaccel:
+    uses: ./.github/workflows/docker-hwaccel.yml
+    with:
+      upstream: development
+      tag1: hwaccel-develop
+      tag2: hwaccel-jf-develop
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
