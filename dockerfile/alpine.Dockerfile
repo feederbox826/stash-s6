@@ -2,9 +2,9 @@
 ARG \
   STASH_TAG="latest" \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
-FROM $UPSTREAM_STASH as stash
+FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3.20 as final
+FROM alpine:3.20 AS final
 
 # labels
 ARG \

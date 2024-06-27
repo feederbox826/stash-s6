@@ -1,5 +1,5 @@
 # Build Frontend
-FROM node:alpine as frontend
+FROM node:alpine AS frontend
 RUN apk add --no-cache make git
 ARG GITHASH \
     STASH_VERSION \
@@ -13,7 +13,7 @@ RUN make pre-ui && \
     BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S") make ui
 
 # Build Backend
-FROM golang:1.19-alpine as backend
+FROM golang:1.19-alpine AS backend
 RUN apk add --no-cache make alpine-sdk
 ARG GITHASH \
     STASH_VERSION
