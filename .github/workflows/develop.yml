@@ -4,6 +4,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+  repository_dispatch:
+    types: [upstream_update]
   schedule:
     - cron: '0 0 */7 * *'
 
