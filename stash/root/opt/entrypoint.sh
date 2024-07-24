@@ -203,6 +203,15 @@ patch_nvidia() {
   done
   ldconfig
 }
+# install custom certificates
+install_custom_certs() {
+  CERT_PATH="${CUSTOM_CERT_PATH:-/config/certs}"
+  if [ -d "${CERT_PATH}" ]; then
+    info "Installing custom certificates from ${CERT_PATH}"
+    cp -r "${CERT_PATH}"/* /usr/local/share/ca-certificates/
+    update-ca-certificates
+  fi
+}
 # warn about directory permissions
 warn_dir_perms() {
   local chkdir="${1}"
@@ -346,6 +355,7 @@ try_migrate
 find_reqs
 install_python_deps
 patch_nvidia
+install_custom_certs
 # only chown if not in stashapp/stash compatibility mode
 if [ $COMPAT_MODE -ne 1 ]; then
   info "Creating ${CONFIG_ROOT}"
