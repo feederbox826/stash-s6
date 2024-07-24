@@ -1,6 +1,34 @@
-version: "3"
+x-quicksync: &quicksync
+  devices:
+    - /dev/dri:/dev/dri
+  group_add:
+    - 109
+    - 44
+    - 103
+    - 226
+
+x-win-quicksync: &win-quicksync
+  devices:
+    - /dev/dxg:/dev/dxg
+  volumes:
+    - /usr/lib/wsl:/usr/lib/wsl
+
+x-nvenc: &nvenc
+  runtime: nvidia
+  deploy:
+    reources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
 services:
   stash:
+    # uncomment the applicable line for hardware acceleration
+    # <<: *quicksync
+    # <<: *win-quicksync
+    # <<: *nvenc
     image: stash-s6:alpine
     ports:
       - 9999:9999
@@ -12,13 +40,6 @@ services:
       - /mnt/media/stash:/media/stash
       - pip:/pip-install
       - config:/config
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
 volumes:
   pip:
     external: true

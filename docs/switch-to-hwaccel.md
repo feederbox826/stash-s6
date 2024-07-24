@@ -17,17 +17,21 @@ Both use jellyfin under the hood
 ### NVIDIA CUDA/ NVENC
 - Make sure you have the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) installed
 
-add the following to your `docker-compose.yml`
+add the following snippets to your `docker-compose.yml`
 ```yml
+x-nvenc: &nvenc
+  runtime: nvidia
+  deploy:
+    reources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
 services:
   stash:
-    ...
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
+    <<: *nvenc
     ...
 ```
 
@@ -35,12 +39,25 @@ services:
 add the following to your `docker-compose.yml`
 
 ```yml
+x-quicksync: &quicksync
+  devices:
+    - /dev/dri:/dev/dri
+  group_add:
+    - 109
+    - 44
+    - 103
+    - 226
+
 services:
   stash:
+    <<: *quicksync
     ...
-    devices:
-      - /dev/dri:/dev/dri
 ```
+
+If you are on Arc/ Flex, make sure that you have installed all the necessary drivers on your host system  
+https://dgpu-docs.intel.com/driver/client/overview.html
+
+see [arc-troubleshooting](./arc-troubleshooting.md) if you run into more problem
 
 If you are on Intel 5xxx to 8xxx
 Add the following
@@ -64,4 +81,6 @@ services:
     1. Settings -> System -> Transcoding -> FFmpeg hardware encoding
 
 ## Step 4: Profit
-Try streaming an incompatible scene and check your GPU activity with `nvidia-smi` or `nvtop` for NVIDIA or `vainfo` for Intel
+Try streaming an incompatible scene and check your GPU activity with  
+`nvidia-smi` or `nvtop` for NVIDIA  
+`vainfo` or `intel_gpu_top` for Intel  
