@@ -16,7 +16,7 @@ x-win-quicksync: &win-quicksync
 x-nvenc: &nvenc
   runtime: nvidia
   deploy:
-    reources:
+    resources:
       reservations:
         devices:
           - driver: nvidia

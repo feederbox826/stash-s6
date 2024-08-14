@@ -22,7 +22,7 @@ add the following snippets to your `docker-compose.yml`
 x-nvenc: &nvenc
   runtime: nvidia
   deploy:
-    reources:
+    resources:
       reservations:
         devices:
           - driver: nvidia
