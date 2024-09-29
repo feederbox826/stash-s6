@@ -4,6 +4,11 @@ ARG \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
+FROM alpine:3.20 AS uv
+RUN apk add curl && \
+  curl -LsSf https://astral.sh/uv/install.sh | sh && \
+  mv /root/.cargo/bin/uv /uv
+
 FROM alpine:3.20 AS final
 
 # labels
@@ -37,7 +42,7 @@ ENV HOME="/root" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
+COPY --from=uv --chmod=755 /uv /bin/uv
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
