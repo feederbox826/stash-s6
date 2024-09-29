@@ -32,10 +32,10 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PIP_TARGET="/pip-install/install" \
-  PIP_CACHE_DIR="/pip-install/cache" \
+  UV_TARGET="/pip-install/install" \
   PYTHONPATH="/pip-install/install" \
-  PIP_BREAK_SYSTEM_PACKAGES=1 \
+  UV_CACHE_DIR="/pip-install/cache" \
+  UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="Jellyfin-ffmpeg" \
   NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
@@ -46,6 +46,7 @@ ENV HOME="/root" \
 # copy over build files
 COPY stash/root/defaults /defaults
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
+COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
@@ -81,7 +82,6 @@ RUN \
       libvips-tools \
       locales \
       python3 \
-      python3-pip \
       ruby \
       tzdata \
       wget \

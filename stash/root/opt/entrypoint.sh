@@ -244,27 +244,28 @@ find_reqs() {
   # iterate over scrapers
   search_dir_reqs "$(get_config_key "scrapers_path" "${CONFIG_ROOT}/scrapers")"
 }
+# dedupe requirements.txt
+dedupe_reqs() {
+  awk '!seen[$0]++' "${PYTHON_REQS}" > "${PYTHON_REQS}.tmp"
+  mv "${PYTHON_REQS}.tmp" "${PYTHON_REQS}"
+}
 # install python dependencies
 install_python_deps() {
   # copy over /defaults/requirements if it doesn't exist
-  if [ ! -f "${PYTHON_REQS}" ]; then
+  if [ -s "${PYTHON_REQS}" ] || [ ! -f "${PYTHON_REQS}" ]; then
     debug "🐍 Copying default requirements.txt"
     cp "/defaults/requirements.txt" "${PYTHON_REQS}" && \
       reown_pip "${PYTHON_REQS}"
   fi
-  # dedupe requirements
-  awk '!seen[$0]++' "${PYTHON_REQS}" > "${PYTHON_REQS}.tmp"
-  mv "${PYTHON_REQS}.tmp" "${PYTHON_REQS}"
+  dedupe_reqs
   # fix /pip-install directory
   info "🐍 Installing/upgrading python requirements..."
-  # PIP_CACHE_DIR = /pip-install/cache
-  # PIP_TARGET not propogated to subprocess without flag
-  mkown_pip "${PIP_TARGET}" && \
-    mkown_pip "${PIP_CACHE_DIR}" && \
-    runas pip3 install \
-      --upgrade -q \
-      --exists-action i \
-      --root-user-action=ignore \
+  # UV_CACHE_DIR = /pip-install/cache
+  mkown_pip "${UV_TARGET}" && \
+    mkown_pip "${UV_CACHE_DIR}" && \
+    runas uv pip install \
+      --system \
+      --target "${UV_TARGET}" \
       --requirement "${PYTHON_REQS}"
 }
 #}}} /🐍

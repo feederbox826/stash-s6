@@ -27,16 +27,17 @@ ENV HOME="/root" \
   STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
-  PIP_TARGET="/pip-install/install" \
+  UV_TARGET="/pip-install/install" \
   PYTHONPATH="/pip-install/install" \
-  PIP_CACHE_DIR="/pip-install/cache" \
-  PIP_BREAK_SYSTEM_PACKAGES=1 \
+  UV_CACHE_DIR="/pip-install/cache" \
+  UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="NONE" \
   SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
+COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -44,8 +45,10 @@ RUN \
     ca-certificates \
     curl \
     ffmpeg \
+    gcc \
     python3 \
-    py3-pip \
+    python3-dev \
+    musl-dev \
     ruby \
     shadow \
     su-exec \
