@@ -36,6 +36,17 @@ reown() {
   info "reowning $1"
   chown stash:stash "$1"
 }
+# pipenv chown to **current user**
+reown_pip() {
+  info "reowning $1 to current user for pip"
+  chown "${CURUSR}:${CURGRP}" "$1"
+}
+# mkdir and chown for pip
+mkown_pip() {
+  info "creating $1 for pip"
+  mkdir -p "$1" && \
+    reown_pip "$1"
+}
 # recursive chown
 reown_r() {
   if [ -n "${SKIP_CHOWN}" ] || [ ${ROOTLESS} -eq 1 ]; then
@@ -149,7 +160,7 @@ stashapp_stash_migration() {
 # detect if migration is needed and migrate
 try_migrate() {
   # run if MIGRATE is set
-  if [ "${MIGRATE}" == "TRUE" ]; then
+  if [ "${MIGRATE}" == "TRUE" ] || [ "${MIGRATE}" == "true" ]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
     elif [ -e "${STASHAPP_STASH_ROOT}" ] && [ -f "${STASHAPP_STASH_ROOT}/config.yml" ]; then
@@ -160,7 +171,8 @@ try_migrate() {
   # MIGRATE not set but might be needed
   elif [ -e "${STASHAPP_STASH_ROOT}" ]; then
     warn "${STASHAPP_STASH_ROOT} exists, but MIGRATE is not set. Running in stashapp/stash compatibility mode"
-    (reown "/root/" && safe_reown "${STASHAPP_STASH_ROOT}") || \
+    # test if /root is writeable, if not warn
+    check_dir_perms "${STASHAPP_STASH_ROOT}" || \
       warn_dir_perms "${STASHAPP_STASH_ROOT}"
     export STASH_CONFIG_FILE="${STASHAPP_STASH_ROOT}/config.yml"
   fi
@@ -255,7 +267,7 @@ parse_reqs() {
 search_dir_reqs() {
   local target_dir="$1"
   if [ ! -d "${target_dir}" ]; then
-    warn "${target_dir} not found, skipping"
+    warn "${target_dir} not found, skipping requirement search"
     return 0
   fi
   find "${target_dir}" -type f -name "requirements.txt" -print0 | while IFS= read -r -d '' file
@@ -278,7 +290,6 @@ find_reqs() {
   search_dir_reqs "$(get_config_key "plugins_path"  "${CONFIG_ROOT}/plugins")"
   # iterate over scrapers
   search_dir_reqs "$(get_config_key "scrapers_path" "${CONFIG_ROOT}/scrapers")"
-  dedupe_reqs "${PYTHON_REQS}"
 }
 # install python dependencies
 install_python_deps() {
@@ -286,14 +297,14 @@ install_python_deps() {
   if [ ! -f "${PYTHON_REQS}" ]; then
     debug "Copying default requirements.txt"
     cp "/defaults/requirements.txt" "${PYTHON_REQS}" && \
-      reown "${PYTHON_REQS}"
+      reown_pip "${PYTHON_REQS}"
   fi
+  dedupe_reqs "${PYTHON_REQS}"
   # fix /pip-install directory
   info "Installing/upgrading python requirements..."
   # PIP_CACHE_DIR = /pip-install/cache
-  mkown "/pip-install" && \
-    reown_r "${PIP_TARGET}" && \
-    reown_r "${PIP_CACHE_DIR}" && \
+  mkown_pip "${PIP_TARGET}" && \
+    mkown_pip "${PIP_CACHE_DIR}" && \
     runas pip3 install \
       --upgrade -q \
       --exists-action i \
@@ -309,7 +320,7 @@ finish() {
 #{{{ main
 trap finish EXIT
 # check if running in stashapp/stash compatibility mode
-if [ -e "${STASHAPP_STASH_ROOT}" ] && [ "${MIGRATE}" != "TRUE" ]; then
+if [ -e "${STASHAPP_STASH_ROOT}" ] && [ "${MIGRATE}" != "TRUE" ] || [ "${MIGRATE}" != "true" ]; then
   COMPAT_MODE=1
   ROOTLESS=0
   CURUSR="$(id -u)"

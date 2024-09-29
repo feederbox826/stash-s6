@@ -94,11 +94,13 @@ _logger_level () {
     local level=1
   fi
   [ -z "${ZSH_VERSION:-}" ] || emulate -L ksh
+  # shellcheck disable=SC2059
   printf "${LOGGER_LEVELS[$level]}"
 }
 
 _logger_time () {
   [ "$LOGGER_SHOW_TIME" -ne 1 ] && return
+  # shellcheck disable=SC2059
   printf "[$(date +"$LOGGER_DATE_FORMAT")]"
 }
 
@@ -109,9 +111,12 @@ _logger_file () {
     i=$1
   fi
   if [ -n "$BASH_VERSION" ];then
+    # shellcheck disable=SC2059
     printf "[${BASH_SOURCE[$((i+1))]}:${BASH_LINENO[$i]}]"
   else
     emulate -L ksh
+    # shellcheck disable=SC2059
+    # shellcheck disable=SC2154
     printf "[${funcfiletrace[$i]}]"
   fi
 }
@@ -128,6 +133,7 @@ _logger () {
   if [ "$level" -lt "$(_get_level "$LOGGER_LEVEL")" ];then
     return
   fi
+  # shellcheck disable=SC2155
   local msg_prefix="$(_logger_time)$(_logger_file "$wrap")"
   local msg="${msg_prefix:+$msg_prefix }$*" # add prefix with a space only if prefix not is empty
   msg="${msg/\$/\\\$}" # escape $ is msg to be able to use eval below without trying to resolve a variable
