@@ -4,9 +4,9 @@ ARG \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3.20 AS uv
-RUN apk add curl && \
-  curl -LsSf https://astral.sh/uv/install.sh | sh && \
+FROM alpine:3 AS uv
+ADD https://astral.sh/uv/install.sh /install.sh
+RUN sh /install.sh && \
   mv /root/.cargo/bin/uv /uv
 
 FROM alpine:3.20 AS final
