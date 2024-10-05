@@ -3,7 +3,7 @@ on:
   workflow_call:
     inputs:
       upstream:
-        require: true
+        required: true
         type: string
       pr:
         required: true
