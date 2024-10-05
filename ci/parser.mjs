@@ -15,7 +15,7 @@ async function downloadUrl(url) {
     },
     responseType: 'stream'
   });
-  await promises.writeFile(ARTIFACT_NAME, response.data);
+  await promises.writeFile(`${ARTIFACT_NAME}.zip`, response.data);
 }
 
 const ghApi = axios.create({

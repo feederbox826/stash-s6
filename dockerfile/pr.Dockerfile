@@ -10,7 +10,9 @@ ARG TARGET_BRANCH \
 WORKDIR /app
 COPY ci/parser.mjs parser.mjs
 RUN --mount=type=secret,id=GITHUB_TOKEN \
-  npm i axios && node parser.mjs
+  npm i axios && node parser.mjs && \
+  unzip stash-linux.zip && \
+  chmod 755 stash-linux
 
 # pull in prebuilt alpine/hwaccel
 FROM ghcr.io/feederbox826/stash-s6:${UPSTREAM_TYPE} AS stash
