@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'dockerfile/**'
+      - 'stash/**'
+      - 'VERSION'
   workflow_dispatch:
   schedule:
     - cron: '0 0 1 * *'
