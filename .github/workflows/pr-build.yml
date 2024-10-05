@@ -1,0 +1,25 @@
+name: docker-develop-build
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        type: string
+        required: true
+
+jobs:
+  docker-alpine:
+    uses: ./.github/workflows/docker-pr.yml
+    with:
+      upstream: alpine-develop
+      pr: ${{ inputs.pr }}
+      tag: alpine-pr-${{ inputs.pr }}
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  docker-hwaccel:
+    uses: ./.github/workflows/docker-pr.yml
+    with:
+      upstream: hwaccel-develop
+      pr: ${{ inputs.pr }}
+      tag: hwaccel-pr-${{ inputs.pr }}
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
