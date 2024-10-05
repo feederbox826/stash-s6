@@ -14,4 +14,4 @@ RUN --mount=type=secret,id=GITHUB_TOKEN \
 
 # pull in prebuilt alpine/hwaccel
 FROM ghcr.io/feederbox826/stash-s6:${UPSTREAM_TYPE} AS stash
-COPY --from=puller /app/stash-linux /app/stash
+COPY --from=puller --chmod=755 /app/stash-linux /app/stash
