@@ -1,4 +1,5 @@
 # stashapp/stash with(out) s6
+![](docs/icon/horiz-bg.svg)
 for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
 - non-root user support
   - PUID/ PGID switching support
@@ -17,7 +18,7 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 - built on debian, hardware acceration support via jellyfin-ffmpeg
 - utilizes [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/)
     ```
-    docker pull ghcr.io/feederbox826/stash-s6:hwaccel-jf
+    docker pull ghcr.io/feederbox826/stash-s6:hwaccel
     ```
 
 ## environment variables

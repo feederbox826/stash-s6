@@ -1,13 +1,14 @@
 # I want hardware acceleration and I want it now!
 
 ## Step 1: compatible image
-replace the following in your `docker-compose.yml`
+replace the following in your `docker-compose.yml` with one of the following images
 ```diff
 services:
   stash:
 -   image: stashapp/stash
 +   image: nerethos/stash-jellyfin-ffmpeg
-+   image: ghcr.io/feederbox826/stash-s6:hwaccel-jf
+
++   image: ghcr.io/feederbox826/stash-s6:hwaccel
 ...
 ```
 
@@ -79,6 +80,8 @@ services:
     ```
 2. Enable hardware acceleration
     1. Settings -> System -> Transcoding -> FFmpeg hardware encoding
+3. Validation
+   1. If you are still not getting `[InitHWSupport]`, check that you don't have ffmpeg in your local directory. stash-s6 will also warn you if you do.
 
 ## Step 4: Profit
 Try streaming an incompatible scene and check your GPU activity with  
