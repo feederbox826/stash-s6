@@ -1,4 +1,4 @@
-name: docker-alpine-build
+name: docker-pr-build
 on: 
   workflow_call:
     inputs:

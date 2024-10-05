@@ -1,4 +1,4 @@
-name: docker-develop-build
+name: develop-build
 on:
   push:
     branches:
