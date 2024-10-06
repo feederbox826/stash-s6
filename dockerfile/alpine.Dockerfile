@@ -24,7 +24,7 @@ LABEL \
   official_build=$OFFICIAL_BUILD\
   STASH_TAG="latest"
 # OS environment variables
-ENV HOME="/root" \
+ENV HOME="/config" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
@@ -73,8 +73,8 @@ RUN \
   echo "**** cleanup ****"
 
 COPY stash/root/ /
-
 VOLUME /pip-install
 
+WORKDIR /config
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]

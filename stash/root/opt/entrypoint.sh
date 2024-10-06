@@ -388,6 +388,8 @@ install_custom_certs
 if [ $COMPAT_MODE -ne 1 ]; then
   info "🔑 Creating ${CONFIG_ROOT}"
   safe_reown "${CONFIG_ROOT}"
+  # move to CONFIG_ROOT
+  cd "${CONFIG_ROOT}" || exit 1
 fi
 # danger if ffmpeg present locally
 check_ffmpeg "${CONFIG_ROOT}"
