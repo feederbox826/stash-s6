@@ -18,14 +18,15 @@ ARG \
   STASH_VERSION \
   OFFICIAL_BUILD="false" \
   DEBIAN_FRONTEND="noninteractive" \
-  TARGETPLATFORM
+  TARGETPLATFORM \
+  FFMPEG_VERSION=6 \
+  STASH_TAG="latest"
 # labels
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
   org.opencontainers.image.version=$STASH_VERSION \
   official_build=$OFFICIAL_BUILD \
-  STASH_TAG="latest" \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 # environment variables
 # debian environment variables
@@ -83,7 +84,7 @@ RUN \
       --no-install-recommends \
       --no-install-suggests \
       gosu \
-      jellyfin-ffmpeg6 \
+      jellyfin-ffmpeg${FFMPEG_VERSION} \
       libvips-tools \
       locales \
       python3 \
