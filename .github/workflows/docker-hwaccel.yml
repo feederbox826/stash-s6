@@ -8,7 +8,7 @@ on:
       tags:
         required: true
         type: string
-      buildargs:
+      buildarg:
         type: string
     secrets:
       DOCKERHUB_USERNAME:

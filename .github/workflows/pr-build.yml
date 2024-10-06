@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       pr:
+        description: upstream branch to pull from
         type: string
         required: true
 
