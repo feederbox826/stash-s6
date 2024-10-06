@@ -33,7 +33,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-          tags: ${{ fromJSON(inputs.tags) }}
+          tags: ${{ inputs.tags }}
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io

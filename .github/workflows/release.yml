@@ -16,7 +16,9 @@ jobs:
     uses: ./.github/workflows/docker-alpine.yml
     with:
       upstream: latest
-      tags: "['alpine', 'latest']"
+      tags: |-
+        alpine
+        latest
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -25,7 +27,9 @@ jobs:
     uses: ./.github/workflows/docker-hwaccel.yml
     with:
       upstream: latest
-      tags: "['hwaccel', 'hwaccel-jf']"
+      tags: |-
+        hwaccel
+        hwaccel-jf
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
