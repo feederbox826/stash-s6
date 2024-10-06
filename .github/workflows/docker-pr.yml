@@ -8,7 +8,7 @@ on:
       pr:
         required: true
         type: string
-      tag:
+      tags:
         required: true
         type: string
     secrets:
@@ -33,8 +33,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ inputs.tag }}
+          tags: ${{ fromJSON(inputs.tags) }}
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
