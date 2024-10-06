@@ -17,9 +17,16 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 ## hwaccel
 - built on debian, hardware acceration support via jellyfin-ffmpeg
 - utilizes [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/)
-    ```
-    docker pull ghcr.io/feederbox826/stash-s6:hwaccel
-    ```
+```
+docker pull ghcr.io/feederbox826/stash-s6:hwaccel
+```
+
+## Jellyfin-ffmpeg7 alpha
+- same as hwaccel, uses jellyfin-ffmpeg7
+- could possibly break and blow up, but just replace with `hwaccel` to revert
+```
+docker pull ghcr.io/feederbox826/stash-s6:hwaccel-jf7
+```
 
 ## environment variables
 `PUID` - Process User ID  
