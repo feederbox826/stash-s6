@@ -9,12 +9,6 @@
 # notes
 AMF (AMD) is not supported by stash so it was not tested
 
-[^1]: works without intel-compute-runtime  
-[^2]: no support for `scale-cuda` so NVENC is not loaded  
-[^4]: requires intel-compute-runtime  
-[^5]: stash defers to QSV, it errors out  
-[^6]: works with `intel-media-va-driver-non-free` installed  
-
 ## architecture matrix
 amd64: vaapi, qsv, cuda  
 armhf: v4l2  
@@ -37,4 +31,10 @@ aarch: cuda, v4l2
 - vaapi g5+ - debian bookworm | i5-3570K
 - vaapi g8+ / QSV - debian bookworm | i5-1135G7
 
-## misc notes
+## Footnotes
+
+[^1]: works without intel-compute-runtime  
+[^2]: no support for `scale-cuda` so NVENC is not loaded  
+[^4]: requires intel-compute-runtime  
+[^5]: stash defers to QSV, it errors out  
+[^6]: works with `intel-media-va-driver-non-free` installed  
