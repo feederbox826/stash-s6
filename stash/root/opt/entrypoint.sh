@@ -252,7 +252,7 @@ dedupe_reqs() {
 # install python dependencies
 install_python_deps() {
   # copy over /defaults/requirements if it doesn't exist
-  if [ -s "${PYTHON_REQS}" ] || [ ! -f "${PYTHON_REQS}" ]; then
+  if [ ! -f "${PYTHON_REQS}" ] || [ ! -s "${PYTHON_REQS}" ]; then
     debug "🐍 Copying default requirements.txt"
     cp "/defaults/requirements.txt" "${PYTHON_REQS}" && \
       reown_pip "${PYTHON_REQS}"
