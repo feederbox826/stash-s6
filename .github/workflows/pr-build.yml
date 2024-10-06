@@ -20,6 +20,6 @@ jobs:
     with:
       upstream: hwaccel-develop
       pr: ${{ inputs.pr }}
-      tags: "[\"hwaccel-pr-${{ inputs.pr }}\""]"
+      tags: "[\"hwaccel-pr-${{ inputs.pr }}\"]"
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
