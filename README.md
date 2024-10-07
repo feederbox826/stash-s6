@@ -8,7 +8,7 @@ for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
   - NVENV encoding session patches
 - automatic dependency installs
 
-## latest/ alpine/ arm
+## latest/ alpine
 - built on alpine linux, no hardware acceleration support
 ```
 docker pull ghcr.io/feederbox826/stash-s6:alpine
@@ -21,11 +21,22 @@ docker pull ghcr.io/feederbox826/stash-s6:alpine
 docker pull ghcr.io/feederbox826/stash-s6:hwaccel
 ```
 
+## Deprecation warning
+The following image aliases will be removed
+- hwaccel-amd64
+- hwaccel-armv7
+- hwaccel-arm64
+- hwaccel-armv6
+- hwaccel-jf-amd64
+- hwaccel-jf-armv7
+- hwaccel-jf-arm64
+- hwaccel-jf
+
 ## Jellyfin-ffmpeg7 alpha
 - same as hwaccel, uses jellyfin-ffmpeg7
-- could possibly break and blow up, but just replace with `hwaccel` to revert
+- could possibly break and blow up, but just replace with `hwaccel-develop` to revert
 ```
-docker pull ghcr.io/feederbox826/stash-s6:hwaccel-jf7
+docker pull ghcr.io/feederbox826/stash-s6:hwaccel-develop-jf7
 ```
 
 ## environment variables
@@ -46,7 +57,10 @@ I want to keep using the `stashapp/stash` image or possibly switch back
 - You will see a message `Running in stashapp/stash compatibility mode...`
 
 ### Migration from `stashapp/stash` or `hotio/stash`
-!!! I don't want the option to switch back !!!
+
+> [!WARNING]
+> Switching back is difficult and requires manual configuration
+
 - Replace `image: stashapp/stash` with your desired image
 - Set the environment variables
   ```

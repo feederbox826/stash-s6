@@ -19,8 +19,7 @@ jobs:
     with:
       upstream: development
       tags: |-
-        alpine
-        latest
+        alpine-develop
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -30,8 +29,7 @@ jobs:
     with:
       upstream: development
       tags: |-
-        hwaccel
-        hwaccel-jf
+        hwaccel-develop
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -40,7 +38,7 @@ jobs:
     uses: ./.github/workflows/docker-hwaccel.yml
     with:
       upstream: development
-      tags: hwaccel-jf7
+      tags: hwaccel-develop-jf7
       buildarg: "FFMPEG_VERSION=7"
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

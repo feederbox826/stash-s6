@@ -6,8 +6,8 @@
 | cuda       | ❌[^2]   | ✅      | ✅ |
 | v4l2       | ?       | ?        | ?     |
 
-# notes
-AMF (AMD) is not supported by stash so it was not tested
+> [!NOTE]
+> AMF (AMD) is not supported by stash so it was not tested
 
 ## architecture matrix
 amd64: vaapi, qsv, cuda  
