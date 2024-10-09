@@ -54,6 +54,8 @@ RUN \
     python3 \
     python3-dev \
     musl-dev \
+    nano \
+    ncdu \
     ruby \
     shadow \
     su-exec \

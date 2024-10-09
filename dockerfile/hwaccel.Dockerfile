@@ -60,7 +60,6 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      apt-utils \
       ca-certificates \
       curl \
       gnupg && \
@@ -87,6 +86,8 @@ RUN \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
       libvips-tools \
       locales \
+      nano \
+      ncdu \
       python3 \
       ruby \
       tzdata \
