@@ -21,7 +21,10 @@ LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
   org.opencontainers.image.version=$STASH_VERSION \
-  official_build=$OFFICIAL_BUILD\
+  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.vendor=feederbox826 \
+  org.opencontainers.image.licenses=AGPL-3.0-only \
+  official_build=$OFFICIAL_BUILD \
   STASH_TAG="latest"
 # OS environment variables
 ENV HOME="/config" \

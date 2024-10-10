@@ -23,13 +23,6 @@ docker pull ghcr.io/feederbox826/stash-s6:hwaccel
 
 ## Deprecation warning
 The following image aliases will be removed
-- hwaccel-amd64
-- hwaccel-armv7
-- hwaccel-arm64
-- hwaccel-armv6
-- hwaccel-jf-amd64
-- hwaccel-jf-armv7
-- hwaccel-jf-arm64
 - hwaccel-jf
 
 ## Jellyfin-ffmpeg7 alpha
