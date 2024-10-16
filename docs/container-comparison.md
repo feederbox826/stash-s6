@@ -26,11 +26,7 @@
 | TrueNAS Scale | stash | stashapp/stash | https://truecharts.org/charts/stable/stash/ |
 | Unraid | CorneliousJD stash | stashapp/stash | https://forums.unraid.net/topic/90861-support-stash-corneliousjd-repo/ |
 | Unraid | hotio stash | hotio/stash | https://github.com/hotio/unraid-templates/blob/master/hotio/stash.xml |
-
-Pending CA inclusion
-```
 | Unraid | feederbox826 stash | feederbox826 | https://github.com/feederbox826/unraid-templates |
-```
 
 ## Other
 `binarygeek119/stash-cuda`
