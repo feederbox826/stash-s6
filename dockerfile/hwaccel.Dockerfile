@@ -5,7 +5,7 @@ ARG \
   UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
-FROM python:3.12-slim-bookworm AS uv
+FROM debian:bookworm-slim AS uv
 ARG UV_VERSION
 ENV UV_INSTALL_DIR="/bin"
 ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
@@ -14,7 +14,7 @@ RUN apt update && \
   sh /install.sh
 RUN ls -lah /bin/bin/uv
 
-FROM python:3.12-slim-bookworm AS final
+FROM debian:bookworm-slim AS final
 
 # arguments
 ARG \
@@ -98,6 +98,7 @@ RUN \
       locales \
       nano \
       ncdu \
+      python3 \
       ruby \
       tzdata \
       wget \
