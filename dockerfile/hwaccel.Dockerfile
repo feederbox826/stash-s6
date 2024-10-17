@@ -93,11 +93,11 @@ RUN \
       gcc \
       gosu \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
+      libc-dev \
       libvips-tools \
       locales \
       nano \
       ncdu \
-      python3 \
       ruby \
       tzdata \
       wget \
