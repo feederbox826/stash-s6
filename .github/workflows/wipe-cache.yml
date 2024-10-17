@@ -1,0 +1,11 @@
+name: Wipe GH Cache
+on:
+  workflow_dispatch:
+
+jobs:
+  my-job:
+    name: Delete all caches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear caches
+        uses: easimon/wipe-cache@main

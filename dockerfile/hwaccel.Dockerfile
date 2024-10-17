@@ -1,13 +1,18 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}" \
+  UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3 AS uv
-ADD https://astral.sh/uv/install.sh /install.sh
-RUN sh /install.sh && \
-  mv /root/.cargo/bin/uv /uv
+FROM python:3.12-slim-bookworm AS uv
+ARG UV_VERSION
+ENV UV_INSTALL_DIR="/bin"
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
+RUN apt update && \
+  apt install -y wget && \
+  sh /install.sh
+RUN ls -lah /bin/bin/uv
 
 FROM python:3.12-slim-bookworm AS final
 
@@ -55,7 +60,7 @@ ENV HOME="/config" \
 # copy over build files
 COPY stash/root/defaults /defaults
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=uv --chmod=755 /uv /bin/uv
+COPY --from=uv --chmod=755 /bin/bin/uv /usr/bin/uv
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
@@ -85,6 +90,7 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
+      gcc \
       gosu \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
       libvips-tools \

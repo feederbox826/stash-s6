@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}" \
+  UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
 FROM alpine:3 AS uv
-ADD https://astral.sh/uv/install.sh /install.sh
+ENV UV_INSTALL_DIR="/bin"
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
 RUN sh /install.sh && \
-  mv /root/.cargo/bin/uv /uv
+  mv /bin/bin/uv /uv
 
 FROM alpine:3.20 AS final
 
