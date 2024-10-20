@@ -5,7 +5,7 @@ ARG \
   UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
-FROM debian:bookworm-slim AS uv
+FROM python:3.12-slim-bookworm AS uv
 ARG UV_VERSION
 ENV UV_INSTALL_DIR="/bin"
 ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
@@ -14,7 +14,7 @@ RUN apt update && \
   sh /install.sh
 RUN ls -lah /bin/bin/uv
 
-FROM debian:bookworm-slim AS final
+FROM python:3.12-slim-bookworm AS final
 
 # arguments
 ARG \
@@ -118,9 +118,9 @@ RUN \
     ln -s \ 
       /usr/sbin/gosu \
       /sbin/su-exec && \
-    ln -s \
-      /usr/bin/python3 \
-      /usr/bin/python && \
+  echo "**** mask python3.11 ****" && \
+    chmod -x /usr/bin/python3.11 && \
+    chmod -x /bin/python3 && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** install ruby gems ****" && \
