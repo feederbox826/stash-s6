@@ -5,15 +5,6 @@ ARG \
   UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
-FROM python:3.12-slim-bookworm AS uv
-ARG UV_VERSION
-ENV UV_INSTALL_DIR="/bin"
-ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
-RUN apt update && \
-  apt install -y wget && \
-  sh /install.sh
-RUN ls -lah /bin/bin/uv
-
 FROM python:3.12-slim-bookworm AS final
 
 # arguments
@@ -60,7 +51,7 @@ ENV HOME="/config" \
 # copy over build files
 COPY stash/root/defaults /defaults
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=uv --chmod=755 /bin/bin/uv /usr/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
 COPY --from=docker.io/mikefarah/yq /usr/bin/yq /usr/bin/yq
 RUN \
   echo "**** install build dependencies ****" && \
@@ -69,7 +60,6 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      ca-certificates \
       curl \
       gnupg && \
   echo "**** add contrib and non-free to sources ****" && \
@@ -86,7 +76,7 @@ RUN \
     sed -i \
       "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
       "/etc/apt/sources.list.d/jellyfin.sources" && \
-  echo "**** update and install packages ****" && \
+  echo "**** install packages ****" && \
     apt-get update && \
     apt-get install -y \
       --no-install-recommends \
@@ -102,33 +92,8 @@ RUN \
       ruby \
       tzdata \
       wget && \
-  echo "**** install non-free drivers and intel compute runtime ****" &&\
+  echo "**** install non-free drivers and intel compute runtime ****" && \
     bash /defaults/intel-drivers.sh && \
-  echo "**** symlink packages ****" && \
-    ln -s \
-      /usr/lib/jellyfin-ffmpeg/ffmpeg \
-      /usr/bin/ffmpeg && \
-    ln -s \
-      /usr/lib/jellyfin-ffmpeg/ffprobe \
-      /usr/bin/ffprobe && \
-    ln -s \
-      /usr/lib/jellyfin-ffmpeg/vainfo \
-      /usr/bin/vainfo && \
-    ln -s \ 
-      /usr/sbin/gosu \
-      /sbin/su-exec && \
-  echo "**** generate locale ****" && \
-    locale-gen en_US.UTF-8 && \
-  echo "**** install ruby gems ****" && \
-    gem install \
-      faraday && \
-  echo "**** create stash user and make our folders ****" && \
-    useradd -u 1000 -U -d /config -s /bin/bash stash && \
-    usermod -G users stash && \
-    usermod -G video stash && \
-    mkdir -p \
-      /config \
-      /defaults && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \
@@ -137,6 +102,33 @@ RUN \
       /var/lib/apt/lists/* \
       /var/tmp/* \
       /var/log/*
+RUN \
+  echo "**** symlink packages ****" && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffmpeg \
+    /usr/bin/ffmpeg && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffprobe \
+    /usr/bin/ffprobe && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/vainfo \
+    /usr/bin/vainfo && \
+  ln -s \ 
+    /usr/sbin/gosu \
+    /sbin/su-exec && \
+  echo "**** generate locale ****" && \
+    locale-gen en_US.UTF-8 && \
+  echo "**** install ruby gems ****" && \
+    gem install \
+      faraday
+RUN \
+  echo "**** create stash user and make our folders ****" && \
+  useradd -u 1000 -U -d /config -s /bin/bash stash && \
+  usermod -G users stash && \
+  usermod -G video stash && \
+  mkdir -p \
+    /config \
+    /defaults
 
 COPY stash/root/ /
 VOLUME /pip-install

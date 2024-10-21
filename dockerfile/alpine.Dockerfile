@@ -5,14 +5,7 @@ ARG \
   UV_VERSION="0.4.6"
 FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3 AS uv
-ENV UV_INSTALL_DIR="/bin"
-ADD https://astral.sh/uv/${UV_VERSION}/install.sh /install.sh
-RUN sh /install.sh && \
-  mv /bin/bin/uv /uv
-
 FROM alpine:3.20 AS final
-
 # labels
 ARG \
   BUILD_DATE \
@@ -32,6 +25,7 @@ LABEL \
 ENV HOME="/config" \
   TZ="Etc/UTC" \
   LANG="en_US.UTF-8" \
+  LC_ALL="en_US.UTF-8" \
   LANGUAGE="en_US:en" \
   # stash environment variables
   STASH_CONFIG_FILE="/config/config.yml" \
@@ -47,7 +41,10 @@ ENV HOME="/config" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=uv --chmod=755 /uv /bin/uv
+RUN \
+  apk add --no-cache \
+  --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+  uv
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -67,10 +64,12 @@ RUN \
     tzdata \
     vips-tools \
     wget \
-    yq-go && \
+    yq-go
+RUN \
   echo "**** install ruby gems ****" && \
-    gem install \
-      faraday && \
+  gem install \
+    faraday
+RUN \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 1000 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
