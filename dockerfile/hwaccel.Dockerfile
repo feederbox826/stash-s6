@@ -61,6 +61,7 @@ ENV HOME="/config" \
 COPY stash/root/defaults /defaults
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 COPY --from=uv --chmod=755 /bin/bin/uv /usr/bin/uv
+COPY --from=docker.io/mikefarah/yq /usr/bin/yq /usr/bin/yq
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
@@ -98,11 +99,9 @@ RUN \
       locales \
       nano \
       ncdu \
-      python3 \
       ruby \
       tzdata \
-      wget \
-      yq && \
+      wget && \
   echo "**** install non-free drivers and intel compute runtime ****" &&\
     bash /defaults/intel-drivers.sh && \
   echo "**** symlink packages ****" && \
@@ -118,9 +117,6 @@ RUN \
     ln -s \ 
       /usr/sbin/gosu \
       /sbin/su-exec && \
-  echo "**** mask python3.11 ****" && \
-    chmod -x /usr/bin/python3.11 && \
-    chmod -x /bin/python3 && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** install ruby gems ****" && \
