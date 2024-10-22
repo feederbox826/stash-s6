@@ -1,3 +1,2 @@
 - [ ] adapt matrix into builder
-- [ ] create job dependencies between croxx-platform build and matrix build
 - [ ] add makefile for matrix builder

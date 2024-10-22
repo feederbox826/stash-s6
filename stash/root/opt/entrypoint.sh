@@ -21,28 +21,29 @@ export LOGGER_SHOW_FILE="0"
 #}}}
 
 #{{{🔑 permission functions
-# run as stash user if not rootless
+# run as CURUSR if possible
 runas() {
-  if [[ ${ROOTLESS} -eq 1 || "${COMPAT_MODE}" -eq 1 ]]; then
+  if [[ ${ROOTLESS} -eq 1 ]]; then
     "$@"
   else
-    su-exec stash "$@"
+    su-exec "${CURUSR}:${CURGRP}" "$@"
   fi
 }
-# recursive chown
+# recursive chown as CURUSR:CURGRP
 reown_r() {
-  if [ -n "${SKIP_CHOWN}" ] || [ ${ROOTLESS} -eq 1 ]; then
+  # if forced, chown is necessary for function, so SKIP_CHOWN is ignored
+  local force=$1
+  if [ ${ROOTLESS} -eq 1 ]; then
+    return
+  # if not forced and SKIP_CHOWN, return
+  elif [[ ! $force ]] && [[ $SKIP_CHOWN ]]; then
     return
   fi
   info "🔑 owning $1"
-  mkdir -p "$1"
-  chown -R stash:stash "$1" && \
+  # if DNE, assume and create directory
+  [ ! -e "$1" ] && mkdir -p "$1"
+  chown -R "${CURUSR}:${CURGRP}" "$1" && \
     chmod -R "=rwx" "$1"
-}
-# mkdir and chown
-mkown() {
-  runas mkdir -p "$1" || \
-    (mkdir -p "$1" && reown_r "$1")
 }
 # check directory permissions
 check_dir_perms() {
@@ -56,28 +57,17 @@ warn_dir_perms() {
     msg="${msg} and SKIP_CHOWN is set"
   fi
   warn "${msg}"
-  warn "💻 Please run 'chown -R ${PUID}:${PGID} ${chkdir}' to fix this"
+  warn "💻 Please run 'chown -R ${CURUSR}:${CURGRP} ${chkdir}' on the host to fix this"
   exit 1
 }
-# check directory permissions and warn if needed
-safe_reown() {
-  local chkdir="${1}"
-  if check_dir_perms "${chkdir}"; then
-    reown_r "${chkdir}"
-  else
+# try to access and reown if necessary
+try_reown() {
+  local chkdir="$1"
+  local force="$2"
+  # if permission issues and reown fails, warn
+  if ! check_dir_perms "${chkdir}" && ! reown_r "${chkdir}" "${force}"; then
     warn_dir_perms "${chkdir}"
   fi
-}
-# pipenv chown to current user
-reown_pip() {
-  info "🔑🐍 owning $1 to current user for pip"
-  chown "${CURUSR}:${CURGRP}" "$1"
-}
-# mkdir and chown for pip
-mkown_pip() {
-  info "🐍 creating $1 for pip"
-  mkdir -p "$1" && \
-    reown_pip "$1"
 }
 #}}} /🔑
 
@@ -101,9 +91,9 @@ migrate_update() {
   # old path doesn't exist, create instead
   if [ -e "${old_path}" ]; then
     mv -n "${old_path}" "${new_path}" && \
-      reown_r "${new_path}"
+      reown_r "${new_path}" "FORCE"
   else
-    mkown "${new_path}"
+    reown_r "${new_path}" "FORCE"
   fi
   yq -i ".${key} = \"${new_path}\"" "${CONFIG_YAML}"
 }
@@ -118,21 +108,22 @@ check_migrate() {
   # remove quotes
   old_path="${old_path%\"}"
   old_path="${old_path#\"}"
-  # if not set, skip
+  # SKIP if not set
   if [ "${old_path}" = "null" ]; then
     info "⏩🚛 skip migrating ${key}" as it is not set
-  # only touch files in old_root
+  # SKIP if not in old_root
   elif ! [[ "${old_path}" == *"${old_root}"* ]]; then
     info "⏩🚛 not migrating ${key} as it is not in ${old_root}"
-  # check if path is a mount
+  # SKIP if path is a mount
   elif mountpoint -q "${old_path}"; then
     warn "⏩🚛 skip migrating ${key} as it is a mount"
-  # move to path defined in environment variable if it is mounted
+  # MOVE to path defined in environment variable if mounted
   elif [ -n "${env_path}" ] && [ -e "${env_path}" ] && mountpoint -q "${env_path}"; then
     migrate_update "${key}" "${old_path}" "${env_path}"
-  # move to /config if /config is mounted
+  # MOVE to /config if /config is mounted
   elif [ -e "/config" ] && mountpoint -q "/config"; then
     migrate_update "${key}" "${old_path}" "${config_path}"
+  # /config not mounted, error
   else
     info "🛑🚛 not migrating ${key} as /config is not mounted"
   fi
@@ -172,7 +163,7 @@ stashapp_stash_migration() {
     warn "🛑🚚 aborting migration from stashapp/stash as ${CONFIG_ROOT} is not mounted"
     return 1
   else
-    safe_reown "${CONFIG_ROOT}"
+    try_reown "${CONFIG_ROOT}" "FORCE"
   fi
   info "🚚 migrating from stashapp/stash"
   local old_root="/root/.stash"
@@ -199,7 +190,7 @@ stashapp_stash_migration() {
   info "🚚‼️ leftover files:"
   ls -la "${old_root}"
   # reown files
-  reown_r "${CONFIG_ROOT}"
+  reown_r "${CONFIG_ROOT}" "FORCE"
   # symlink old directory for compatibility
   info "🚛 symlinking ${old_root} to ${CONFIG_ROOT}"
   rmdir "${old_root}" && \
@@ -255,14 +246,15 @@ install_python_deps() {
   if [ ! -f "${PYTHON_REQS}" ] || [ ! -s "${PYTHON_REQS}" ]; then
     debug "🐍 Copying default requirements.txt"
     cp "/defaults/requirements.txt" "${PYTHON_REQS}" && \
-      reown_pip "${PYTHON_REQS}"
+      reown_r "${PYTHON_REQS}" "FORCE"
   fi
+  find_reqs
   dedupe_reqs
   # fix /pip-install directory
   info "🐍 Installing/upgrading python requirements..."
   # UV_CACHE_DIR = /pip-install/cache
-  mkown_pip "${UV_TARGET}" && \
-    mkown_pip "${UV_CACHE_DIR}" && \
+  reown_r "${UV_TARGET}" "FORCE" && \
+    reown_r "${UV_CACHE_DIR}" "FORCE" && \
     runas uv pip install \
       --system \
       --target "${UV_TARGET}" \
@@ -298,7 +290,7 @@ patch_nvidia() {
     -O "/usr/local/bin/nv-patch.sh" \
     "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
   chmod "+x" "/usr/local/bin/nv-patch.sh"
-  PATCH_OUTPUT_DIR="/patched-lib"
+  local PATCH_OUTPUT_DIR="/patched-lib"
   mkdir -p "${PATCH_OUTPUT_DIR}"
   echo "${PATCH_OUTPUT_DIR}" > "/etc/ld.so.conf.d/000-patched-lib.conf"
   PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/nv-patch.sh -s
@@ -380,14 +372,13 @@ entrypoint.sh
 
 '
 try_migrate
-find_reqs
 install_python_deps
 patch_nvidia
 install_custom_certs
 # only chown if not in stashapp/stash compatibility mode
 if [ $COMPAT_MODE -ne 1 ]; then
   info "🔑 Creating ${CONFIG_ROOT}"
-  safe_reown "${CONFIG_ROOT}"
+  try_reown "${CONFIG_ROOT}"
   # move to CONFIG_ROOT
   cd "${CONFIG_ROOT}" || exit 1
 fi
