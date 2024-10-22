@@ -274,7 +274,7 @@ check_ffmpeg() {
     err "💥 ffmpeg/ffprobe is present at $1, this will likely cause issues. Please remove it"
   fi
 }
-# patch multistream NVNEC from keylase/nvidia-patch
+# patch multistream NVENC from keylase/nvidia-patch
 patch_nvidia() {
   if [ -n "${SKIP_NVIDIA_PATCH}" ]; then
     debug "⏩🖥️ Skipping nvidia patch because of SKIP_NVIDIA_PATCH"
