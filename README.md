@@ -5,32 +5,36 @@ for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
   - PUID/ PGID switching support
 - TZ settings
 - CUDA/ QSV images
-  - NVENV encoding session patches
-- automatic dependency installs
+  - NVENC encoding session patches
+- automatic python dependency installs
 
-## latest/ alpine
-- built on alpine linux, no hardware acceleration support
-```
-docker pull ghcr.io/feederbox826/stash-s6:alpine
-```
+-----
+# Tags
 
-## hwaccel
-- built on debian, hardware acceration support via jellyfin-ffmpeg
-- utilizes [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/)
+## `latest` / `alpine`
 ```
-docker pull ghcr.io/feederbox826/stash-s6:hwaccel
+ghcr.io/feederbox826/stash-s6:alpine
 ```
+no hardware acceleration, built on alpine linux
+## `hwaccel`
+```
+ghcr.io/feederbox826/stash-s6:hwaccel
+```
+hardware acceleration from [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/), built on debian
 
-## Deprecation warning
-The following image aliases will be removed
-- hwaccel-jf
+## `-develop` variants
+Append `-develop` to the tag to run the development builds of stash
+- `develop` / `alpine-develop`
+- `hwaccel-develop`
 
-## Jellyfin-ffmpeg7 alpha
-- same as hwaccel, uses jellyfin-ffmpeg7
-- could possibly break and blow up, but just replace with `hwaccel-develop` to revert
-```
-docker pull ghcr.io/feederbox826/stash-s6:hwaccel-develop-jf7
-```
+## `hwaccel-develop-jf7` beta
+- uses jellyfin-ffmpeg7 (BETA), replace with `hwaccel-develop` to revert
+- please report any ffmpeg quirks and issues
+
+## deprecated tags
+- `hwaccel-jf` and `hwaccel-develop-jf`
+
+These tag will be removed with the release of v0.28, please switch to `hwaccel` and `hwaccel-develop` respectively
 
 ## environment variables
 `PUID` - Process User ID  
@@ -41,7 +45,7 @@ docker pull ghcr.io/feederbox826/stash-s6:hwaccel-develop-jf7
 
 ## migration-specific environment variables
 `MIGRATE` - automatic migration from `stashapp/stash` or `hotio/stash`  
-`SKIP_CHOWN` - skips chown operations for /config directory  
+`SKIP_CHOWN` - skips chown operations for `/config` directory  
 
 ## Run modes
 ### `stashapp/stash compatibility`
