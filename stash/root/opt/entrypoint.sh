@@ -33,8 +33,8 @@ runas() {
 }
 # recursive chown as CURUSR:CURGRP
 reown_r() {
-  # if ROOTLESS, cannot chown so exit early
-  if [[ $ROOTLESS -eq 1 ]]; then
+  # if ROOTLESS cannot chown
+  if [[ $ROOTLESS -eq 1 ]] ; then
     return 1
   fi
   info "🔑 fixing permissions on $1"
@@ -46,14 +46,15 @@ reown_r() {
 }
 # check directory permissions
 check_dir_perms() {
-  runas test -w "$1" && return 0 || return 1
+  (runas test "-w $1" && runas stat "$1" >/dev/null 2>&1) \
+    && return 0 || return 1
 }
 # try to access as user and reown if necessary
 try_reown() {
   local chkdir="$1"
   # if permission issues and reown fails, warn
   if ! check_dir_perms "$chkdir" && ! reown_r "$chkdir"; then
-    error "⚠️ $chkdir is not writeable by stash"
+    error "⚠️ $chkdir is not accessible by stash"
     error "💻 Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
     return 1
   fi
@@ -186,8 +187,11 @@ stashapp_stash_migration() {
   mv -n "$STASHAPP_STASH_CONFIG" "$STASH_CONFIG_FILE"
   # forcefully move database backups
   mv -n "$STASHAPP_STASH_ROOT/stash-go.sqlite*" "$CONFIG_ROOT"
+  # forcefully move config backups
+  mv -n "$STASHAPP_STASH_ROOT/config.yml.*" "$CONFIG_ROOT"
   # forcefully move misc files
   mv -n \
+    "$STASHAPP_STASH_ROOT/icon.png" \
     "$STASHAPP_STASH_ROOT/custom.css" \
     "$STASHAPP_STASH_ROOT/custom.js" \
     "$STASHAPP_STASH_ROOT/custom-locales.json" \
@@ -327,7 +331,7 @@ user_status() {
   if [ $COMPAT_MODE -eq 1 ]; then
     # running as root since no PUID/PGID access
     if [ "$CURUSR" -eq 0 ]; then
-      warn "🧩⚠️ COMPAT_MODE running as root since PUID/PGID does not have permissions"
+      warn "🧩⚠️ COMPAT_MODE running as root since PUID/PGID missing write/ stat permissions"
     else
       info "🧩🎭 COMPAT_MODE running as $CURUSR:$CURGRP"
     fi
@@ -354,18 +358,18 @@ trap finish EXIT
 # check if running in stashapp/stash compatibility mode
 if [ -e "$STASHAPP_STASH_ROOT" ] && [ "$MIGRATE" != "TRUE" ] && [ "$MIGRATE" != "true" ]; then
   COMPAT_MODE=1
-  # pretend to be rootless to skip chown operations
-  ROOTLESS=0
-  # check if /root is writeable, if not warn
   # change UID/GID for test
-  groupmod -o -g "$PGID" stash
-  usermod  -o -u "$PUID" stash
-  if ! check_dir_perms "$STASHAPP_STASH_ROOT"; then
+  CURUSR="$PUID"
+  CURGRP="$PGID"
+  # check if directories and config file is writeable
+  if ! check_dir_perms $STASHAPP_STASH_CONFIG; then
+    # revert changes, warn later
     CURUSR="$(id -u)"
     CURGRP="$(id -g)"
   else
-    CURUSR="$PUID"
-    CURGRP="$PGID"
+    # commit PUID/PGID changes
+    groupmod -o -g "$PGID" stash
+    usermod  -o -u "$PUID" stash
   fi
 # check if running with or without root
 elif [ "$(id -u)" -ne 0 ]; then
