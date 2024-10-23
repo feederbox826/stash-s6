@@ -22,8 +22,7 @@ export LOGGER_COLOR="always"
 export LOGGER_SHOW_FILE="0"
 #}}}
 
-#{{{🔑 permission functions
-# run as CURUSR if possible
+# 🎭 run as CURUSR if possible
 runas() {
   if [[ $ROOTLESS -eq 1 ]] || [[ $(id -u) -eq 1 ]]; then
     "$@"
@@ -31,7 +30,9 @@ runas() {
     su-exec "$CURUSR:$CURGRP" "$@"
   fi
 }
-# recursive chown as CURUSR:CURGRP
+
+#{{{🔑 permission functions
+# recursive chown as CURUSR
 reown_r() {
   # if ROOTLESS cannot chown
   if [[ $ROOTLESS -eq 1 ]] ; then
@@ -44,6 +45,17 @@ reown_r() {
   chown -R "$CURUSR" "$1" && \
     chmod -R "u=rwx" "$1"
 }
+# non-recursive chown as CURUSR
+reown() {
+  # if ROOTLESS cannot chown
+  if [[ $ROOTLESS -eq 1 ]] ; then
+    return 1
+  fi
+  info "🔑 fixing permissions on $1"
+  # change owner and permissions for owner
+  chown "$CURUSR" "$1" && \
+    chmod "u=rwx" "$1"
+}
 # check that directory is writeable
 check_dir_perms() {
   runas test "-w $1" && return 0 || return 1
@@ -53,13 +65,23 @@ check_file_perms() {
   (runas test "-w $1" && runas stat "$1" >/dev/null 2>&1) \
     && return 0 || return 1
 }
-# try to access as user and reown if necessary
-try_reown() {
+# try to access dir as user and reown if necessary
+try_reown_r() {
   local chkdir="$1"
   # if permission issues and reown fails, warn
   if ! check_dir_perms "$chkdir" && ! reown_r "$chkdir"; then
     error "⚠️ $chkdir is not accessible by stash"
     error "💻 Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
+    return 1
+  fi
+}
+# try to access as user and reown if necessary
+try_reown() {
+  local chkfile="$1"
+  # if permission issues and reown fails, warn
+  if ! check_file_perms "$chkfile" && ! reown "$chkfile"; then
+    error "⚠️ $chkfile is not accessible by stash"
+    error "💻 Please run 'chown -$ $CURUSR:$CURGRP $chkfile' on the host to fix this"
     return 1
   fi
 }
@@ -141,14 +163,15 @@ try_migrate() {
 check_common_perms() {
   info "📋 checking common directory permissions"
   # check if critical config paths are writeable
-  try_reown "$CONFIG_ROOT" || return 1
+  # only chown one level of CONFIG_ROOT
+  try_reown "$STASH_CONFIG_FILE" || return 1
   if [ -f "$STASH_CONFIG_FILE" ]; then
     try_reown "$STASH_CONFIG_FILE" || return 1
   fi
   # check if envvars are writeable
   local envvars=("$STASH_BLOBS" "$STASH_CACHE" "$STASH_GENERATED")
   for envvar in "${envvars[@]}"; do
-    [ -d "$envvar" ] && try_reown "$envvar" || return 1
+    [ -d "$envvar" ] && try_reown_r "$envvar" || return 1
   done
 }
 #}}} /🚛
@@ -169,7 +192,7 @@ stashapp_stash_migration() {
     error "🛑🚚 aborting migration from stashapp/stash as $CONFIG_ROOT is not mounted"
     return 1
   fi
-  try_reown "$CONFIG_ROOT"
+  try_reown_r "$CONFIG_ROOT"
   info "🚚 migrating from stashapp/stash"
   # migrate and check all paths in yml
   check_migrate "generated" \
@@ -259,10 +282,10 @@ install_python_deps() {
   if [ ! -f "$PYTHON_REQS" ] || [ ! -s "$PYTHON_REQS" ]; then
     debug "🐍 Copying default requirements.txt"
     cp "/defaults/requirements.txt" "$PYTHON_REQS" && \
-      try_reown "$PYTHON_REQS"
+      try_reown_r "$PYTHON_REQS"
   fi
   # check permission of requirements.txt
-  if ! try_reown "$PYTHON_REQS"; then
+  if ! try_reown_r "$PYTHON_REQS"; then
     error "🐍 requirements.txt is not writeable, skipping search"
   else
     find_reqs
@@ -271,8 +294,8 @@ install_python_deps() {
   # fix /pip-install directory
   info "🐍 Installing/upgrading python requirements..."
   # UV_CACHE_DIR = /pip-install/cache
-  try_reown "$UV_TARGET" && \
-    try_reown "$UV_CACHE_DIR" && \
+  try_reown_r "$UV_TARGET" && \
+    try_reown_r "$UV_CACHE_DIR" && \
     runas uv pip install \
       --system \
       --target "$UV_TARGET" \
