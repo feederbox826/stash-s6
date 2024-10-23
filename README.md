@@ -44,8 +44,7 @@ These tag will be removed with the release of v0.28, please switch to `hwaccel` 
 `CUSTOM_CERT_PATH` - Path to custom root certificates to be added to stash (defaults to `/config/certs`)  
 
 ## migration-specific environment variables
-`MIGRATE` - automatic migration from `stashapp/stash` or `hotio/stash`  
-`SKIP_CHOWN` - skips chown operations for `/config` directory  
+`MIGRATE` - automatic migration from `stashapp/stash` or `hotio/stash`
 
 ## Run modes
 ### `stashapp/stash compatibility`

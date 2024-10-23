@@ -71,7 +71,7 @@ RUN \
     faraday
 RUN \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 1000 -U -d /config -s /bin/false stash && \
+  useradd -u 911 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
   mkdir -p \
     /config \
