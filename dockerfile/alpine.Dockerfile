@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}" \
-  UV_VERSION="0.4.6"
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
 FROM alpine:3.20 AS final

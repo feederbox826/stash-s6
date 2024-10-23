@@ -6,7 +6,7 @@
 # Description: Install Intel compute-runtime and non-free drivers
 
 install_nonfree_drivers() {
-  if [ ! "$(TARGETPLATFORM)" == 'linux/amd64' ]; then
+  if [ "$(uname -m)" != "x86_64" ]; then
     return 0
   fi
   apt install -y \
