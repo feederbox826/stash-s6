@@ -80,10 +80,8 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      gcc \
       gosu \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
-      libc-dev \
       libvips-tools \
       locales \
       nano \

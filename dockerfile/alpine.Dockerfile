@@ -51,10 +51,7 @@ RUN \
     ca-certificates \
     curl \
     ffmpeg \
-    gcc \
     python3 \
-    python3-dev \
-    musl-dev \
     nano \
     ncdu \
     ruby \
