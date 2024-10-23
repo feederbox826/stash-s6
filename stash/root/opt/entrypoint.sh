@@ -204,7 +204,7 @@ stashapp_stash_migration() {
   check_migrate "blobs_path" \
     "$CONFIG_ROOT/blobs" "$STASHAPP_STASH_ROOT" \
     "$STASH_BLOBS"
-  check_migrate  "plugins_path" \
+  check_migrate "plugins_path" \
     "$CONFIG_ROOT/plugins" "$STASHAPP_STASH_ROOT"
   check_migrate "scrapers_path" \
     "$CONFIG_ROOT/scrapers" "$STASHAPP_STASH_ROOT"
