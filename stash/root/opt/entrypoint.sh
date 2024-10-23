@@ -13,6 +13,7 @@ PGID=${PGID:-911}
 CONFIG_ROOT="/config"
 PYTHON_REQS="$CONFIG_ROOT/requirements.txt"
 STASHAPP_STASH_ROOT="/root/.stash"
+STASHAPP_STASH_CONFIG="$STASHAPP_STASH_ROOT/config.yml"
 COMPAT_MODE=0
 ROOTLESS=0
 # shellcheck disable=SC1091
@@ -36,7 +37,7 @@ reown_r() {
   if [[ $ROOTLESS -eq 1 ]]; then
     return 1
   fi
-  info "🔑 chowning $1"
+  info "🔑 fixing permissions on $1"
   # if DNE, assume and create directory
   [ ! -e "$1" ] && mkdir -p "$1"
   # change owner and permissions for owner
@@ -52,8 +53,9 @@ try_reown() {
   local chkdir="$1"
   # if permission issues and reown fails, warn
   if ! check_dir_perms "$chkdir" && ! reown_r "$chkdir"; then
-    warn "⚠️ $chkdir is not writeable by stash"
-    warn "💻 Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
+    error "⚠️ $chkdir is not writeable by stash"
+    error "💻 Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
+    return 1
   fi
 }
 #}}} /🔑
@@ -79,7 +81,7 @@ migrate_update() {
   [ -e "$old_path" ] && mv -n "$old_path" "$new_path"
   # if doesn't exist, just create and reown
   reown_r "$new_path"
-  yq -i ".$key = \"$new_path\"" "$CONFIG_YAML"
+  yq -i ".$key = \"$new_path\"" "$STASHAPP_STASH_CONFIG"
 }
 # check config value and migrate if possible
 check_migrate() {
@@ -89,7 +91,7 @@ check_migrate() {
   local env_path="$4" # environment variable to override path of
   # get value of key
   local old_path
-  old_path=$(yq ."$key" "$CONFIG_YAML")
+  old_path=$(yq ."$key" "$STASHAPP_STASH_CONFIG")
   # remove quotes
   old_path="${old_path%\"}"
   old_path="${old_path#\"}"
@@ -108,9 +110,9 @@ check_migrate() {
   # MOVE to /config if /config is mounted
   elif [ -e "/config" ] && mountpoint -q "/config"; then
     migrate_update "$key" "$old_path" "$config_path"
-  # /config not mounted, error
+  # /config not mounted, skip
   else
-    info "🛑🚛 not migrating $key as /config is not mounted"
+    warn "🛑🚛 not migrating $key as /config is not mounted"
   fi
 }
 # detect if migration is needed and migrate
@@ -119,20 +121,20 @@ try_migrate() {
   if [ "$MIGRATE" == "TRUE" ] || [ "$MIGRATE" == "true" ]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
-    elif [ -e "$STASHAPP_STASH_ROOT" ] && [ -f "$STASHAPP_STASH_ROOT/config.yml" ]; then
+    elif [ -e "$STASHAPP_STASH_ROOT" ] && [ -f "$STASHAPP_STASH_CONFIG" ]; then
       stashapp_stash_migration
     else
       warn "⏩🚚 MIGRATE is set, but no migration is needed"
     fi
   # MIGRATE not set but might be needed
   elif [ -e "$STASHAPP_STASH_ROOT" ]; then
-    warn "⚙️ $STASHAPP_STASH_ROOT exists, but MIGRATE is not set. Running in stashapp/stash compatibility mode"
-    export STASH_CONFIG_FILE="$STASHAPP_STASH_ROOT/config.yml"
+    warn "🧩 $STASHAPP_STASH_ROOT exists, but MIGRATE is not set. Running in COMPAT_MODE"
+    export STASH_CONFIG_FILE="$STASHAPP_STASH_CONFIG"
   fi
 }
 # check if permissions for common directories are correct
 check_common_perms() {
-  info "🚛 checking common directory permissions"
+  info "📋 checking common directory permissions"
   # check if critical config paths are writeable
   try_reown "$CONFIG_ROOT" || return 1
   if [ -f "$STASH_CONFIG_FILE" ]; then
@@ -141,9 +143,7 @@ check_common_perms() {
   # check if envvars are writeable
   local envvars=("$STASH_BLOBS" "$STASH_CACHE" "$STASH_GENERATED")
   for envvar in "${envvars[@]}"; do
-    if [[ $envvar ]] && [ -d "$envvar" ]; then
-      try_reown "$envvar" || return 1
-    fi
+    [ -d "$envvar" ] && try_reown "$envvar" || return 1
   done
 }
 #}}} /🚛
@@ -161,40 +161,46 @@ hotio_stash_migration() {
 stashapp_stash_migration() {
   # check if /config is mounted
   if ! mountpoint -q "$CONFIG_ROOT"; then
-    warn "🛑🚚 aborting migration from stashapp/stash as $CONFIG_ROOT is not mounted"
+    error "🛑🚚 aborting migration from stashapp/stash as $CONFIG_ROOT is not mounted"
     return 1
   fi
   try_reown "$CONFIG_ROOT"
   info "🚚 migrating from stashapp/stash"
-  local old_root="/root/.stash"
-  # set config yaml path for re-use
-  CONFIG_YAML="$old_root/config.yml"
   # migrate and check all paths in yml
-  check_migrate "generated"     "$CONFIG_ROOT/generated"        "$old_root"  "$STASH_GENERATED"
-  check_migrate "cache"         "$CONFIG_ROOT/cache"            "$old_root"  "$STASH_CACHE"
-  check_migrate "blobs_path"    "$CONFIG_ROOT/blobs"            "$old_root"  "$STASH_BLOBS"
-  check_migrate "plugins_path"  "$CONFIG_ROOT/plugins"          "$old_root"
-  check_migrate "scrapers_path" "$CONFIG_ROOT/scrapers"         "$old_root"
-  check_migrate "database"      "$CONFIG_ROOT/stash-go.sqlite"  "$old_root"
+  check_migrate "generated" \
+    "$CONFIG_ROOT/generated" "$STASHAPP_STASH_ROOT" \
+    "$STASH_GENERATED"
+  check_migrate "cache" \
+    "$CONFIG_ROOT/cache" "$STASHAPP_STASH_ROOT" \
+    "$STASH_CACHE"
+  check_migrate "blobs_path" \
+    "$CONFIG_ROOT/blobs" "$STASHAPP_STASH_ROOT" \
+    "$STASH_BLOBS"
+  check_migrate  "plugins_path" \
+    "$CONFIG_ROOT/plugins" "$STASHAPP_STASH_ROOT"
+  check_migrate "scrapers_path" \
+    "$CONFIG_ROOT/scrapers" "$STASHAPP_STASH_ROOT"
+  check_migrate "database" \
+    "$CONFIG_ROOT/stash-go.sqlite" "$STASHAPP_STASH_ROOT"
   # forcefully move config.yml
-  mv -n "$old_root/config.yml" "$STASH_CONFIG_FILE"
+  mv -n "$STASHAPP_STASH_CONFIG" "$STASH_CONFIG_FILE"
   # forcefully move database backups
-  mv -n "$old_root/stash-go.sqlite*" "$CONFIG_ROOT"
+  mv -n "$STASHAPP_STASH_ROOT/stash-go.sqlite*" "$CONFIG_ROOT"
   # forcefully move misc files
   mv -n \
-    "$old_root/custom.css" \
-    "$old_root/custom.js" \
-    "$old_root/custom-locales.json" \
+    "$STASHAPP_STASH_ROOT/custom.css" \
+    "$STASHAPP_STASH_ROOT/custom.js" \
+    "$STASHAPP_STASH_ROOT/custom-locales.json" \
     "$CONFIG_ROOT"
   # migrate all other misc files
   info "🚚‼️ leftover files:"
-  ls -la "$old_root"
+  ls -la "$STASHAPP_STASH_ROOT"
   # reown files
   reown_r "$CONFIG_ROOT"
   # symlink old directory for compatibility
-  info "🚛 symlinking $old_root to $CONFIG_ROOT"
-  rmdir "$old_root" && \
-    ln -s "$CONFIG_ROOT" "$old_root"
+  info "🚚 symlinking $STASHAPP_STASH_ROOT to $CONFIG_ROOT"
+  rmdir "$STASHAPP_STASH_ROOT" && \
+    ln -s "$CONFIG_ROOT" "$STASHAPP_STASH_ROOT"
 }
 #}}} /🚚
 
@@ -247,8 +253,13 @@ install_python_deps() {
     cp "/defaults/requirements.txt" "$PYTHON_REQS" && \
       try_reown "$PYTHON_REQS"
   fi
-  find_reqs
-  dedupe_reqs
+  # check permission of requirements.txt
+  if ! try_reown "$PYTHON_REQS"; then
+    error "🐍 requirements.txt is not writeable, skipping search"
+  else
+    find_reqs
+    dedupe_reqs
+  fi
   # fix /pip-install directory
   info "🐍 Installing/upgrading python requirements..."
   # UV_CACHE_DIR = /pip-install/cache
@@ -269,7 +280,7 @@ finish() {
 # check if local ffmpeg is present
 check_ffmpeg() {
   if [ -e "$1/ffmpeg" ] || [ -e "$1/ffprobe" ]; then
-    err "💥 ffmpeg/ffprobe is present at $1, this will likely cause issues. Please remove it"
+    error "💥 ffmpeg/ffprobe is present at $1, this will likely cause issues. Please remove it"
   fi
 }
 # patch multistream NVENC from keylase/nvidia-patch
@@ -310,6 +321,31 @@ install_custom_certs() {
     update-ca-certificates
   fi
 }
+# status of UID and GID changes
+user_status() {
+  # COMPAT_MODE
+  if [ $COMPAT_MODE -eq 1 ]; then
+    # running as root since no PUID/PGID access
+    if [ "$CURUSR" -eq 0 ]; then
+      warn "🧩⚠️ COMPAT_MODE running as root since PUID/PGID does not have permissions"
+    else
+      info "🧩🎭 COMPAT_MODE running as $CURUSR:$CURGRP"
+    fi
+  else
+    # running as rootless
+    if [ $ROOTLESS -eq 1 ]; then
+      info "⏩🎭 Running as docker user, migration and PUID/PGID not possible"
+      if ! check_common_perms; then
+        error "⛔ Running as rootless, but common directories are not writeable"
+        error "💻 Please follow the preceding CHOWN instructions to resolve this"
+      fi
+    # with root, running as PUID/PGID
+    else
+      info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
+      check_common_perms
+    fi
+  fi
+}
 #}}}
 
 #{{{ main
@@ -318,40 +354,31 @@ trap finish EXIT
 # check if running in stashapp/stash compatibility mode
 if [ -e "$STASHAPP_STASH_ROOT" ] && [ "$MIGRATE" != "TRUE" ] && [ "$MIGRATE" != "true" ]; then
   COMPAT_MODE=1
+  # pretend to be rootless to skip chown operations
   ROOTLESS=0
   # check if /root is writeable, if not warn
   # change UID/GID for test
   groupmod -o -g "$PGID" stash
   usermod  -o -u "$PUID" stash
   if ! check_dir_perms "$STASHAPP_STASH_ROOT"; then
-    warn "🛑🔑 Could not change to PUID/PGID due to $STASHAPP_STASH_ROOT not being writeable"
     CURUSR="$(id -u)"
     CURGRP="$(id -g)"
   else
-    info "🎭 Changing to PUID/PGID since $STASHAPP_STASH_ROOT is writeable"
     CURUSR="$PUID"
     CURGRP="$PGID"
   fi
-  info "⚙️ Running in stashapp/stash full compatibility mode. migration and PUID/PGID skipped."
 # check if running with or without root
 elif [ "$(id -u)" -ne 0 ]; then
   ROOTLESS=1
   CURUSR="$(id -u)"
   CURGRP="$(id -g)"
-  info "⏩ Not running as root. migration and PUID/PGID skipped."
 # if root, use PUID/PGID
 else
+  ROOTLESS=0
   groupmod -o -g "$PGID" stash
   usermod  -o -u "$PUID" stash
-  if ! check_common_perms; then
-    CURUSR="$(id -u)"
-    CURGRP="$(id -g)"
-    warn "🛑🎭 Could not change to PUID/PGID due to permissions issues"
-  else
-    CURUSR="$PUID"
-    CURGRP="$PGID"
-    info "🎭 Changing to PUID/PGID since permissions check passed"
-  fi
+  CURUSR="$PUID"
+  CURGRP="$PGID"
 fi
 # print branding and donation info
 cat /opt/branding
@@ -363,8 +390,7 @@ GID/UID
 ───────────────────────────────────────
 User UID:    $CURUSR
 User GID:    $CURGRP
-HW Accel:    $HWACCEL
-"
+HW Accel:    $HWACCEL"
 if [ $ROOTLESS -eq 1 ]; then
   echo "Rootless:    TRUE"
 elif [ $COMPAT_MODE -eq 1 ]; then
@@ -375,15 +401,11 @@ echo '
 entrypoint.sh
 
 '
+user_status
 try_migrate
 install_python_deps
 patch_nvidia
 install_custom_certs
-# only chown if not in stashapp/stash compatibility mode
-if [ $COMPAT_MODE -ne 1 ]; then
-  # move to CONFIG_ROOT
-  cd "$CONFIG_ROOT" || exit 1
-fi
 # danger if ffmpeg present locally
 check_ffmpeg "$CONFIG_ROOT"
 check_ffmpeg "$STASHAPP_STASH_ROOT"
