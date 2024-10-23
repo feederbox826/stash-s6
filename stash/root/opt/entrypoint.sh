@@ -58,12 +58,11 @@ reown() {
 }
 # check that directory is writeable
 check_dir_perms() {
-  runas test "-w $1" && return 0 || return 1
+  runas test "-w $1"
 }
 # check file is writeable and executable
 check_file_perms() {
-  (runas test "-w $1" && runas stat "$1" >/dev/null 2>&1) \
-    && return 0 || return 1
+  runas test "-w $1" && runas stat "$1" >/dev/null 2>&1
 }
 # try to access dir as user and reown if necessary
 try_reown_r() {
@@ -145,7 +144,7 @@ check_migrate() {
 # detect if migration is needed and migrate
 try_migrate() {
   # run if MIGRATE is set
-  if [ "$MIGRATE" == "TRUE" ] || [ "$MIGRATE" == "true" ]; then
+  if [[ "$MIGRATE" == "TRUE" || "$MIGRATE" == "true" ]]; then
     if [ -e "/config/.stash" ]; then
       hotio_stash_migration
     elif [ -e "$STASHAPP_STASH_ROOT" ] && [ -f "$STASHAPP_STASH_CONFIG" ]; then
@@ -383,13 +382,13 @@ user_status() {
 trap finish EXIT
 # user setup
 # check if running in stashapp/stash compatibility mode
-if [ -e "$STASHAPP_STASH_ROOT" ] && [ "$MIGRATE" != "TRUE" ] && [ "$MIGRATE" != "true" ]; then
+if [ -e "$STASHAPP_STASH_ROOT" ] && [[ "$MIGRATE" != "TRUE" ]] && [[ "$MIGRATE" != "true" ]]; then
   COMPAT_MODE=1
   # change UID/GID for test
   CURUSR="$PUID"
   CURGRP="$PGID"
   # check if directories and config file is writeable
-  if ! check_file_perms $STASHAPP_STASH_CONFIG; then
+  if ! check_file_perms "$STASHAPP_STASH_CONFIG"; then
     # revert changes, warn later
     CURUSR="$(id -u)"
     CURGRP="$(id -g)"
