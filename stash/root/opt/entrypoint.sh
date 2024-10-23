@@ -44,8 +44,12 @@ reown_r() {
   chown -R "$CURUSR" "$1" && \
     chmod -R "u=rwx" "$1"
 }
-# check directory permissions
+# check that directory is writeable
 check_dir_perms() {
+  runas test "-w $1" && return 0 || return 1
+}
+# check file is writeable and executable
+check_file_perms() {
   (runas test "-w $1" && runas stat "$1" >/dev/null 2>&1) \
     && return 0 || return 1
 }
@@ -362,7 +366,7 @@ if [ -e "$STASHAPP_STASH_ROOT" ] && [ "$MIGRATE" != "TRUE" ] && [ "$MIGRATE" != 
   CURUSR="$PUID"
   CURGRP="$PGID"
   # check if directories and config file is writeable
-  if ! check_dir_perms $STASHAPP_STASH_CONFIG; then
+  if ! check_file_perms $STASHAPP_STASH_CONFIG; then
     # revert changes, warn later
     CURUSR="$(id -u)"
     CURGRP="$(id -g)"
