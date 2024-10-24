@@ -8,6 +8,7 @@ services:
 -   image: stashapp/stash
 +   image: nerethos/stash-jellyfin-ffmpeg
 
+-   image: stashapp/stash
 +   image: ghcr.io/feederbox826/stash-s6:hwaccel
 ...
 ```

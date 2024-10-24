@@ -19,6 +19,7 @@ jobs:
     with:
       upstream: development
       tags: |-
+        develop
         alpine-develop
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

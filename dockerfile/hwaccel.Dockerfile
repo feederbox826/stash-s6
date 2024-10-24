@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}" \
-  UV_VERSION="0.4.6"
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
 FROM python:3.12-slim-bookworm AS final
@@ -81,10 +80,8 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      gcc \
       gosu \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
-      libc-dev \
       libvips-tools \
       locales \
       nano \
@@ -123,7 +120,7 @@ RUN \
       faraday
 RUN \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 1000 -U -d /config -s /bin/bash stash && \
+  useradd -u 911 -U -d /config -s /bin/bash stash && \
   usermod -G users stash && \
   usermod -G video stash && \
   mkdir -p \
