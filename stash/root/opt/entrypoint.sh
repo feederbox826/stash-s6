@@ -161,17 +161,20 @@ try_migrate() {
 # check if permissions for common directories are correct
 check_common_perms() {
   info "📋 checking common directory permissions"
-  # check if critical config paths are writeable
-  # only chown one level of CONFIG_ROOT
-  try_reown "$STASH_CONFIG_FILE" || return 1
+  # Check if CONFIG_ROOT is writable
+  try_reown "$CONFIG_ROOT" || return 1
+  # check if config file exists and is writeable
   if [ -f "$STASH_CONFIG_FILE" ]; then
     try_reown "$STASH_CONFIG_FILE" || return 1
   fi
   # check if envvars are writeable
   local envvars=("$STASH_BLOBS" "$STASH_CACHE" "$STASH_GENERATED")
   for envvar in "${envvars[@]}"; do
-    [ -d "$envvar" ] && try_reown_r "$envvar" || return 1
+    if [ -d "$envvar" ] && ! try_reown_r "$envvar"; then
+      return 1
+    fi
   done
+  info "📋✅ common directories are accessible"
 }
 #}}} /🚛
 

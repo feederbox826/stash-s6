@@ -29,7 +29,7 @@ services:
     # <<: *quicksync
     # <<: *win-quicksync
     # <<: *nvenc
-    image: stash-s6:alpine
+    image: ghcr.io/feederbox826/stash-s6:alpine
     ports:
       - 9999:9999
     environment:
