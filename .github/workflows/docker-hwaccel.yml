@@ -56,9 +56,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: buildx-${{ inputs.tags[0] }}-${{ github.sha }}
+          key: buildx-${{ inputs.tags }}-${{ github.sha }}
           restore-keys: |
-            buildx-${{ inputs.tags[0] }}-
+            buildx-${{ inputs.tags }}-
       - name: build and push multi-arch hwaccel image
         uses: docker/build-push-action@v5
         with:
