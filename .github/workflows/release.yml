@@ -19,6 +19,7 @@ jobs:
       tags: |-
         alpine
         latest
+      cachetag: alpine-stable
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -30,6 +31,7 @@ jobs:
       tags: |-
         hwaccel
         hwaccel-jf
+      cachetag: hwaccel-stable
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

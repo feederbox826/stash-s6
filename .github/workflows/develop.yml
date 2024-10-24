@@ -21,6 +21,8 @@ jobs:
       tags: |-
         develop
         alpine-develop
+      cachetag:
+        alpine-develop
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -31,6 +33,8 @@ jobs:
       upstream: development
       tags: |-
         hwaccel-develop
+      cachetag:
+        hwaccel-develop
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -40,6 +44,7 @@ jobs:
     with:
       upstream: development
       tags: hwaccel-develop-jf7
+      cachetag: hwaccel-develop-jf7
       buildarg: "FFMPEG_VERSION=7"
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

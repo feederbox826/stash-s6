@@ -10,6 +10,8 @@ on:
         type: string
       buildarg:
         type: string
+      cachetag:
+        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -56,9 +58,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: buildx-${{ inputs.tags }}-${{ github.sha }}
+          key: buildx-${{ inputs.cachetag }}-${{ github.sha }}
           restore-keys: |
-            buildx-${{ inputs.tags }}-
+            buildx-${{ inputs.cachetag }}-
       - name: build and push multi-arch hwaccel image
         uses: docker/build-push-action@v5
         with:

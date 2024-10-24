@@ -14,6 +14,7 @@ jobs:
       upstream: alpine-develop
       pr: ${{ inputs.pr }}
       tags: alpine-pr-${{ inputs.pr }}
+      cachetag: alpine-${{ inputs.pr }}
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   docker-hwaccel:
@@ -22,5 +23,6 @@ jobs:
       upstream: hwaccel-develop
       pr: ${{ inputs.pr }}
       tags: hwaccel-pr-${{ inputs.pr }}
+      cachetag: hwaccel-${{ inputs.pr }}
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
