@@ -1,4 +1,4 @@
-name: docker-hawccel-build
+name: docker-hwaccel-build
 on: 
   workflow_call:
     inputs:
