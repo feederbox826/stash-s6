@@ -27,7 +27,8 @@ runas() {
   if [[ $ROOTLESS -eq 1 ]] || [[ $(id -u) -eq 1 ]]; then
     "$@"
   else
-    su-exec "$CURUSR:$CURGRP" "$@"
+    # shellcheck disable=SC2068
+    su-exec "$CURUSR:$CURGRP" $@
   fi
 }
 
@@ -58,11 +59,11 @@ reown() {
 }
 # check that directory is writeable
 check_dir_perms() {
-  runas test "-w $1"
+  runas test -w "$1"
 }
 # check file is writeable and executable
 check_file_perms() {
-  runas test "-w $1" && runas stat "$1" >/dev/null 2>&1
+  runas test -w "$1" && runas stat "$1" >/dev/null 2>&1
 }
 # try to access dir as user and reown if necessary
 try_reown_r() {
