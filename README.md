@@ -27,12 +27,10 @@ Append `-develop` to the tag to run the development builds of stash
 - `develop` / `alpine-develop`
 - `hwaccel-develop`
 
-## `hwaccel-develop-jf7` beta
-- uses jellyfin-ffmpeg7 (BETA), replace with `hwaccel-develop` to revert
-- please report any ffmpeg quirks and issues
-
 ## deprecated tags
-- `hwaccel-jf` and `hwaccel-develop-jf`
+- `hwaccel-jf`
+- `hwaccel-develop-jf`
+- `hwaccel-develop-jf7`
 
 These tag will be removed with the release of v0.28, please switch to `hwaccel` and `hwaccel-develop` respectively
 
