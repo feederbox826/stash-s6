@@ -39,14 +39,3 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-  docker-jf7:
-    uses: ./.github/workflows/docker-hwaccel.yml
-    with:
-      upstream: development
-      tags: hwaccel-develop-jf7
-      cachetag: hwaccel-develop-jf7
-      buildarg: "FFMPEG_VERSION=7"
-    secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}

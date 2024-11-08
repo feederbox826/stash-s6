@@ -14,7 +14,7 @@ ARG \
   OFFICIAL_BUILD="false" \
   DEBIAN_FRONTEND="noninteractive" \
   TARGETPLATFORM \
-  FFMPEG_VERSION=6 \
+  FFMPEG_VERSION=7 \
   STASH_TAG="latest"
 # labels
 LABEL \
