@@ -16,7 +16,7 @@
 | stashapp/stash (official) | ❌ | v6,v7,arm64 | 6.11[^4] | 3.12[^1] | ❌ |
 | hotio | ❌ | arm64 | 6.11[^4] | 3.12[^1] | ❌ |
 | nerethos | CUDA,QSV,VAAPI | ❌ | 6.0.1-8-jellyfin[^7] | 3.11[^2] | ✅ venv |
-| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v7,arm64,v6[^9] | 6.0.1-8-jellyfin[^7] | 3.12[^1] / 3.12[^3] | ✅ uv |
+| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 7-jellyfin[^10] | 3.12[^1] / 3.12[^3] | ✅ uv |
 | stash-cuda | CUDA | ❌ | 4.4.2[^8] | ❌ | ❌ |
 
 ## Packaging
@@ -42,4 +42,5 @@
 [^6]: [gyan.dev release](https://github.com/stashapp/stash/blob/develop/pkg/ffmpeg/downloader.go#L21-L22)  
 [^7]: [jellyfin-ffmpeg6](https://github.com/jellyfin/jellyfin-ffmpeg)  
 [^8]: [ffmpeg @ Ubuntu Jammy (22.04)](https://packages.ubuntu.com/jammy/ffmpeg)  
-[^9]: ARMv6 support only without hwaccel
+[^9]: ARMv6 support only without hwaccel  
+[^10]: [jellyfin-ffmpeg7](https://github.com/jellyfin/jellyfin-ffmpeg/tree/jellyfin)  
