@@ -11,21 +11,25 @@ for [stashapp/stash#4300](https://github.com/stashapp/stash/issues/4300)
 -----
 # Tags
 
-## `latest` / `alpine`
+## `latest` / `alpine` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/alpine)
+
 ```
 ghcr.io/feederbox826/stash-s6:alpine
 ```
 no hardware acceleration, built on alpine linux
-## `hwaccel`
+## `hwaccel` ![Image size](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel)
+
 ```
 ghcr.io/feederbox826/stash-s6:hwaccel
 ```
 hardware acceleration from [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/), built on debian
 
-## `-develop` variants
+## `-develop` variants ![Build Date](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Ffeederbox826%2Fstash-s6%2Factions%2Fworkflows%2F103206424%2Fruns%3Fstatus%3Dcompleted%26per_page%3D1&query=%24.workflow_runs%5B0%5D.run_started_at&label=build%20date)
+
 Append `-develop` to the tag to run the development builds of stash
-- `develop` / `alpine-develop`
-- `hwaccel-develop`
+- `develop` / `alpine-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/alpine-develop)
+- `hwaccel-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-develop)
+
 
 ## deprecated tags
 - `hwaccel-jf`

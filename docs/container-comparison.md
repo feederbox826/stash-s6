@@ -1,13 +1,13 @@
 # A (biased) comparison of stash containers
 
 ## Images
-| Name | DockerHub | GitHub |
-|---|---|---|
-| stashapp/stash (official) | [`stashapp/stash`](https://hub.docker.com/r/stashapp/stash) | https://github.com/stashapp/stash |
-| hotio | [`hotio/stash`](https://hub.docker.com/r/hotio/stash) | [`ghcr.io/hotio/stash`](https://github.com/hotio/stash) |
-| nerethos | [`nerethos/stash-jellyfin-ffmpeg`](https://hub.docker.com/r/nerethos/stash-jellyfin-ffmpeg) | [`ghcr.io/nerethos/stash`](https://github.com/nerethos/docker-stash) |
-| feederbox826 | [`feederbox826/stash-s6`](https://hub.docker.com/r/feederbox826/stash-s6) | [`ghcr.io/feederbox826/stash-s6`](https://github.com/feederbox826/stash-s6) |
-| stash-cuda (manual) | | https://github.com/stashapp/stash/tree/develop/docker/build/x86_64 |
+| Name | DockerHub | GitHub | Size |
+|---|---|---|---|
+| stashapp/stash (official) | [`stashapp/stash`](https://hub.docker.com/r/stashapp/stash) | https://github.com/stashapp/stash | ![Docker Image Size](https://img.shields.io/docker/image-size/stashapp/stash?style=flat-square&label=%20) |
+| hotio | [`hotio/stash`](https://hub.docker.com/r/hotio/stash) | [`ghcr.io/hotio/stash`](https://github.com/hotio/stash) | ![Docker Image Size](https://img.shields.io/docker/image-size/hotio/stash?style=flat-square&label=%20) |
+| nerethos | [`nerethos/stash-jellyfin-ffmpeg`](https://hub.docker.com/r/nerethos/stash-jellyfin-ffmpeg) | [`ghcr.io/nerethos/stash`](https://github.com/nerethos/docker-stash) | ![Docker Image Size](https://img.shields.io/docker/image-size/nerethos/stash-jellyfin-ffmpeg?style=flat-square&label=%20) |
+| feederbox826 | [`feederbox826/stash-s6`](https://hub.docker.com/r/feederbox826/stash-s6) | [`ghcr.io/feederbox826/stash-s6`](https://github.com/feederbox826/stash-s6) | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/latest?style=flat-square&label=%20) to ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel?style=flat-square&label=%20) |
+| stash-cuda (manual) | | https://github.com/stashapp/stash/tree/develop/docker/build/x86_64 | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nvidia/cuda/12.0.1-base-ubuntu22.04?arch=amd64&style=flat-square&label=%20)+ |
 
 ## Feature Breakdown
 | Name | hardware acceleration | ARM support | ffmpeg | python version | python dependency installer |
@@ -17,7 +17,7 @@
 | hotio | ❌ | arm64 | 6.11[^4] | 3.12[^1] | ❌ |
 | nerethos | CUDA,QSV,VAAPI | ❌ | 6.0.1-8-jellyfin[^7] | 3.11[^2] | ✅ venv |
 | feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 7-jellyfin[^10] | 3.12[^1] / 3.12[^3] | ✅ uv |
-| stash-cuda | CUDA | ❌ | 4.4.2[^8] | ❌ | ❌ |
+| stash-cuda | CUDA | ❌ | 4.4.2[^8] | ❌ | ❌ | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nvidia/cuda/12.0.1-base-ubuntu22.04?arch=amd64&style=flat-square&label=%20) |
 
 ## Packaging
 
