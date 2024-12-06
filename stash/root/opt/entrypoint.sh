@@ -255,7 +255,7 @@ search_dir_reqs() {
 parse_reqs() {
   local file="$1"
   info "🐍 Parsing $file"
-  echo "# $file" >> "$PYTHON_REQS"
+  printf "\n# %s" "$file" >> "$PYTHON_REQS"
   while IFS="" read -r p || [ -n "$p" ]
   do
     [[ "$p" = \#* ]] && continue # skip comments
