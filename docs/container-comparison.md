@@ -13,10 +13,10 @@
 | Name | hardware acceleration | ARM support | ffmpeg | python version | python dependency installer |
 |---|---|---|---|---|---|
 | baremetal | CUDA,QSV,VAAPI,V4L2 | v6,v7,arm64 | 6.1[^5] / 7.1[^6] | system | system |
-| stashapp/stash (official) | ❌ | v6,v7,arm64 | 6.11[^4] | 3.12[^1] | ❌ |
-| hotio | ❌ | arm64 | 6.11[^4] | 3.12[^1] | ❌ |
+| stashapp/stash (official) | ❌ | v6,v7,arm64 | 6.1.1[^4] | 3.12[^1] | ❌ |
+| hotio | ❌ | arm64 | 6.1.2[^4] | 3.12[^1] | ❌ |
 | nerethos | CUDA,QSV,VAAPI | ❌ | 6.0.1-8-jellyfin[^7] | 3.11[^2] | ✅ venv |
-| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 7-jellyfin[^10] | 3.12[^1] / 3.12[^3] | ✅ uv |
+| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 6.1.2[^4] / 7-jellyfin[^10] | 3.12[^1] / 3.13[^3] | ✅ uv |
 | stash-cuda | CUDA | ❌ | 4.4.2[^8] | ❌ | ❌ | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nvidia/cuda/12.0.1-base-ubuntu22.04?arch=amd64&style=flat-square&label=%20) |
 
 ## Packaging
@@ -34,10 +34,10 @@
 - Excluded since it's last update was over 1y ago (2023-03-30) and there is no CI to keep it updated
 
 ## Footnotes
-[^1]: [python3 @ Alpine 3.20](https://pkgs.alpinelinux.org/packages?name=python3&branch=v3.20)  
+[^1]: [python3 @ Alpine 3.21](https://pkgs.alpinelinux.org/packages?name=python3&branch=v3.21)  
 [^2]: [python3 @ Debian bookworm](https://packages.debian.org/stable/python3)  
-[^3]: [python:slim-bookworm](https://hub.docker.com/_/python/tags?name=3.12-slim-bookworm)  
-[^4]: [ffmpeg @ Alpine 3.20](https://pkgs.alpinelinux.org/packages?name=ffmpeg&branch=v3.20)  
+[^3]: [python:slim-bookworm](https://hub.docker.com/_/python/tags?name=3.13-slim-bookworm)  
+[^4]: [ffmpeg @ Alpine 3.21](https://pkgs.alpinelinux.org/packages?name=ffmpeg&branch=v3.21)  
 [^5]: [ffbinaries](https://github.com/stashapp/stash/blob/develop/pkg/ffmpeg/downloader.go#L12-L20)  
 [^6]: [gyan.dev release](https://github.com/stashapp/stash/blob/develop/pkg/ffmpeg/downloader.go#L21-L22)  
 [^7]: [jellyfin-ffmpeg6](https://github.com/jellyfin/jellyfin-ffmpeg)  

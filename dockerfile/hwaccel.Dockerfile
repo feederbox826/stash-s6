@@ -4,7 +4,7 @@ ARG \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM python:3.12-slim-bookworm AS final
+FROM python:3.13-slim-bookworm AS final
 
 # arguments
 ARG \
