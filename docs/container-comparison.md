@@ -33,6 +33,9 @@
 [DockerHub](https://hub.docker.com/r/binarygeek119/stash-cuda) | [GitHub](https://github.com/binarygeek119/stash-cuda)
 - Excluded since it's last update was over 1y ago (2023-03-30) and there is no CI to keep it updated
 
+`treefiddy/stash-cuda-build` [DockerHub](https://hub.docker.com/r/treefiddy/stash-cuda-build)
+- Excluded since no source available
+
 ## Footnotes
 [^1]: [python3 @ Alpine 3.21](https://pkgs.alpinelinux.org/packages?name=python3&branch=v3.21)  
 [^2]: [python3 @ Debian bookworm](https://packages.debian.org/stable/python3)  
