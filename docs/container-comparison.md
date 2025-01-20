@@ -15,8 +15,8 @@
 | baremetal | CUDA,QSV,VAAPI,V4L2 | v6,v7,arm64 | 6.1[^5] / 7.1[^6] | system | system |
 | stashapp/stash (official) | ❌ | v6,v7,arm64 | 6.1.1[^4] | 3.12[^1] | ❌ |
 | hotio | ❌ | arm64 | 6.1.2[^4] | 3.12[^1] | ❌ |
-| nerethos | CUDA,QSV,VAAPI | v6,v7,arm64[^10] | 7-jellyfin[^7] | 3.12[^2] | ✅ venv |
-| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 6.1.2[^4] / 7-jellyfin[^7] | 3.12[^1] / 3.13[^3] | ✅ uv |
+| nerethos | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 6.1.2[^4] / 7-jellyfin[^7] | 3.12[^2] | ✅ venv |
+| feederbox826 | CUDA,QSV,VAAPI,V4L2 | v6[^9],v7,arm64 | 6.1.2[^4] / 7-jellyfin[^7] | 3.12[^1] / 3.14[^3] | ✅ uv |
 | stash-cuda | CUDA | ❌ | 4.4.2[^8] | ❌ | ❌ | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nvidia/cuda/12.0.1-base-ubuntu22.04?arch=amd64&style=flat-square&label=%20) |
 
 ## Packaging
@@ -39,11 +39,10 @@
 ## Footnotes
 [^1]: [python3 @ Alpine 3.21](https://pkgs.alpinelinux.org/packages?name=python3&branch=v3.21)  
 [^2]: [python3 @ Ubuntu noble](https://packages.ubuntu.com/noble/python3)  
-[^3]: [python:slim-bookworm](https://hub.docker.com/_/python/tags?name=3.13-slim-bookworm)  
+[^3]: [python:slim-bookworm](https://hub.docker.com/_/python/tags?name=3.14-slim-bookworm)  
 [^4]: [ffmpeg @ Alpine 3.21](https://pkgs.alpinelinux.org/packages?name=ffmpeg&branch=v3.21)  
 [^5]: [ffbinaries](https://github.com/stashapp/stash/blob/develop/pkg/ffmpeg/downloader.go#L12-L20)  
 [^6]: [gyan.dev release](https://github.com/stashapp/stash/blob/develop/pkg/ffmpeg/downloader.go#L21-L22)  
 [^7]: [jellyfin-ffmpeg7](https://github.com/jellyfin/jellyfin-ffmpeg)  
 [^8]: [ffmpeg @ Ubuntu Jammy (22.04)](https://packages.ubuntu.com/jammy/ffmpeg)  
-[^9]: ARMv6 support only without hwaccel  
-[^10]: ARM64 supports hwaccel. v6 and v7 only supported on "lite" image without hwaccel
+[^9]: ARMv6 support without hwaccel  
