@@ -22,6 +22,5 @@ jobs:
       upstream: hwaccel-develop
       pr: ${{ inputs.pr }}
       tags: hwaccel-pr-${{ inputs.pr }}
-      cachetag: hwaccel-${{ inputs.pr }}
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
