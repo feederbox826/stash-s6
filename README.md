@@ -30,14 +30,6 @@ Append `-develop` to the tag to run the development builds of stash
 - `develop` / `alpine-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/alpine-develop)
 - `hwaccel-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-develop)
 
-
-## deprecated tags
-- `hwaccel-jf`
-- `hwaccel-develop-jf`
-- `hwaccel-develop-jf7`
-
-These tag will be removed with the release of v0.28, please switch to `hwaccel` and `hwaccel-develop` respectively
-
 ## environment variables
 `PUID` - Process User ID  
 `PGID` - Process Group ID  
