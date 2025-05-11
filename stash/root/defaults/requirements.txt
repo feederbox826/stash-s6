@@ -1,6 +1,5 @@
 bs4
 cloudscraper
-fastbencode
 lxml
 mechanicalsoup
 pystashlib
