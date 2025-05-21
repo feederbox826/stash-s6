@@ -1,0 +1,67 @@
+#!/bin/sh
+set -e
+
+# uv-py: A wrapper around `uv run` to act like `python`
+# © 2025 feederbox826
+# License: GPL-3.0-or-later
+
+_HELP="uv-py: A wrapper for uv run to act like python
+
+Usage:
+  uv-py <script> [args...]
+    Specify a script and arguments to run with uv run.
+
+  uv-py -m pip [install/uninstall] <package>
+    (Un)Installs a package using uv pip install."
+
+# if no arguments, print usage
+[ $# -eq 0 ] && { echo "$_HELP"; exit 1; }
+
+# exit early if no uv
+command -v uv >/dev/null 2>&1 || { echo "Error: uv not found." >&2; exit 1; }
+
+# stash logger
+log() { level="$1"; shift; printf >&2 "\001%s\002uv-py: %s\n" "$level" "$*"; }
+
+### log beta version
+log "d" "uv-py beta 0.1"
+
+# Handle only `-m pip install` and `-m pip uninstall`
+if [ "$1 $2" = "-m pip" ]; then
+  cmd="$3"
+  shift 3
+  if [ "$cmd" = "install" ] || [ "$cmd" = "uninstall" ]; then
+    # check for UV_TARGET
+    [ -z "$UV_TARGET" ] && { log "e" "UV_TARGET not set. Please set it to the target directory."; exit 1; }
+    log "d" "Running uv pip $cmd with target $UV_TARGET"
+    uv pip "$cmd" --system --target "$UV_TARGET" "$@"
+    exit 0
+  else
+    log "e" "Unsupported pip subcommand: $cmd"
+    exit 1
+  fi
+fi
+
+if [ ! -f pyproject.toml ]; then
+  log "d" "No pyproject.toml found, initializing project"
+  uv init
+  # Install from requirements.txt
+  if [ -f requirements.txt ]; then
+    log "d" "Installing dependencies from requirements.txt"
+    uv add -r requirements.txt
+  # parse ensure_requirements(...)
+  else
+    log "d" "Parsing ensure_requirements from $1"
+    deps=$(grep -Eo 'ensure_requirements\(([^)]*)\)' "$1" | \
+      grep -oE '"[^"]+"' | \
+      sed -E 's/"([^":]*:)?([^"]+)"/\2/')
+    if [ -n "$deps" ]; then
+      echo "$deps" | while IFS= read -r dep; do
+        uv add "$dep"
+      done
+    else
+      log "e" "No ensure_requirements found in script"
+    fi
+  fi
+fi
+uv run "$@"

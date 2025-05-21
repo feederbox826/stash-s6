@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+# uv-pip: A shim for pip using uv for feederbox826/stash-s6
+# © 2025 feederbox826
+# License: GPL-3.0-or-later
+
+log() { level="$1"; shift; printf >&2 "\001%s\002uv: %s\n" "$level" "$*"; }
+
+log "e" "stash-s6 intentionally excludes pip, attempting to install with uv"
+
+# Handle only install and uninstall
+cmd="$1"
+shift
+if [ "$cmd" = "install" ] || [ "$cmd" = "uninstall" ]; then
+  # check for UV_TARGET
+  [ -z "$UV_TARGET" ] && { log "e" "UV_TARGET not set. Please set it to the target directory."; exit 1; }
+  log "d" "Running uv pip $cmd with target $UV_TARGET"
+  uv pip "$cmd" --system --target "$UV_TARGET" "$@"
+  exit 0
+else
+  log "e" "Unsupported pip subcommand: $cmd"
+  exit 1
+fi

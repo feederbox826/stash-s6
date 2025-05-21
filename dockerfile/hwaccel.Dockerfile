@@ -110,9 +110,12 @@ RUN \
   ln -s \
     /usr/lib/jellyfin-ffmpeg/vainfo \
     /usr/bin/vainfo && \
-  ln -s \ 
+  ln -s \
     /usr/sbin/gosu \
     /sbin/su-exec && \
+  ln -s \
+    /opt/uv-pip \
+    /usr/bin/pip && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8 && \
   echo "**** install ruby gems ****" && \

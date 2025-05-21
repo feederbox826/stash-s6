@@ -66,6 +66,10 @@ RUN \
   gem install \
     faraday
 RUN \
+  echo "**** symlink uv-pip ****" && \
+  ln -s \
+    /opt/uv-pip \
+    /usr/bin/pip && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 911 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
