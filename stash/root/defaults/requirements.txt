@@ -1,3 +1,4 @@
+algoliasearch
 bs4
 cloudscraper
 lxml
