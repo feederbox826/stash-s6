@@ -7,12 +7,10 @@ on:
 jobs:
   clean:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
     steps:
       - uses: Chizkiyahu/delete-untagged-ghcr-action@main
         with:
           owner_type: user
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           repository_owner: ${{ github.repository_owner }}
           except_untagged_multiplatform: true
