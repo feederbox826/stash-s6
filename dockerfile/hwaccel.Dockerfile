@@ -23,6 +23,7 @@ LABEL \
   org.opencontainers.image.version=$STASH_VERSION \
   org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
+  org.opencontainers.image.description="stashapp/stash with hwaccel, rootless and automatic python dependency" \
   org.opencontainers.image.licenses=AGPL-3.0-only \
   official_build=$OFFICIAL_BUILD \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
