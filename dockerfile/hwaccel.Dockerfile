@@ -125,7 +125,6 @@ RUN \
 RUN \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 911 -U -d /config -s /bin/bash stash && \
-  usermod -G users stash && \
   usermod -G video stash && \
   mkdir -p \
     /config \

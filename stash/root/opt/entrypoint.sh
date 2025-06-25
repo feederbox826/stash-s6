@@ -28,7 +28,7 @@ runas() {
     "$@"
   else
     # shellcheck disable=SC2068
-    su-exec "$CURUSR:$CURGRP" $@
+    su-exec "stash:stash" $@
   fi
 }
 
