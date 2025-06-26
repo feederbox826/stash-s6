@@ -376,6 +376,7 @@ user_status() {
     # with root, running as PUID/PGID
     else
       info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
+      info "🎭🖥️ Running with additional group $AVGID from AVGID"
       check_common_perms
     fi
   fi
