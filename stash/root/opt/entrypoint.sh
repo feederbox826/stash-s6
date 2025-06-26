@@ -28,7 +28,7 @@ runas() {
     "$@"
   else
     # shellcheck disable=SC2068
-    su-exec "stash:stash" $@
+    su-exec "stash" $@
   fi
 }
 
@@ -398,7 +398,6 @@ if [ -e "$STASHAPP_STASH_ROOT" ] && [[ "$MIGRATE" != "TRUE" ]] && [[ "$MIGRATE" 
     CURGRP="$(id -g)"
   else
     if [ -n "$AVGID" ]; then
-      info "🎭🖥️ Creating additional video group $AVGID"
       # add group for AVGID
       addgroup --gid "$AVGID" addl_video
       usermod -a -G addl_video stash
@@ -417,7 +416,6 @@ elif [ "$(id -u)" -ne 0 ]; then
 else
   ROOTLESS=0
   if [ -n "$AVGID" ]; then
-    info "🎭🖥️ Creating additional video group $AVGID"
     # add group for AVGID
     addgroup --gid "$AVGID" addl_video
     usermod -a -G addl_video stash
