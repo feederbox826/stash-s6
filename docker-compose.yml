@@ -38,11 +38,19 @@ services:
       - AVGID=22
     #  - MIGRATE=TRUE
     volumes:
-      - /mnt/media/stash:/media/stash
+    # Adjust the left side of the volume paths to where the data is stored on your host (e.g. /volume1/media/HOMEWORK)
+    # The right side of the path will be where it appears in stash, and where you will have to point your "Library" path to
+    # More info here: https://docs.docker.com/engine/storage/bind-mounts/#options-for---mount
+      - /host/path-to-stash:/container/browse/to-library
+    # the pip mount is used to install python packages, you can mount it to a local directory if you want a peek behind the curtains
       - pip:/pip-install
-      - config:/config
+    # can optionally also be mounted to a local directory
+      - /host/docker-apps/stash/pip:/pip-install
+    # the config mount stores all the configuratio files for stash, this is an important directory
+    # this should be backed up regularly and should not be within your library directory
+      - /host/docker-apps/stash/config:/config
+    # If you are migrating from another container, you can mount them here for migration
+    # - /host/path/to-old-stashapp-stash:/root/.stash
 volumes:
   pip:
-    external: true
-  config:
     external: true
