@@ -33,7 +33,6 @@ Append `-develop` to the tag to run the development builds of stash
 ## environment variables
 `PUID` - Process User ID  
 `PGID` - Process Group ID  
-`AVGID` - Additional Video Group ID  
 `SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc. see [keylase/nvidia-patch](https://github.com/keylase/nvidia-patch?tab=readme-ov-file#version-table) for supported drivers  
 `TZ` - timezone  
 `CUSTOM_CERT_PATH` - Path to custom root certificates to be added to stash (defaults to `/config/certs`)  

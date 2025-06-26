@@ -13,7 +13,7 @@ RUN make pre-ui && \
     BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S") make ui
 
 # Build Backend
-FROM golang:1.24-alpine AS backend
+FROM golang:1.22-alpine AS backend
 RUN apk add --no-cache make alpine-sdk
 ARG GITHASH \
     STASH_VERSION

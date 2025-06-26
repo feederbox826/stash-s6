@@ -28,7 +28,7 @@ runas() {
     "$@"
   else
     # shellcheck disable=SC2068
-    su-exec "stash" $@
+    su-exec "$CURUSR:$CURGRP" $@
   fi
 }
 
@@ -376,7 +376,6 @@ user_status() {
     # with root, running as PUID/PGID
     else
       info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
-      info "🎭🖥️ Running with additional group $AVGID from AVGID"
       check_common_perms
     fi
   fi
@@ -398,15 +397,9 @@ if [ -e "$STASHAPP_STASH_ROOT" ] && [[ "$MIGRATE" != "TRUE" ]] && [[ "$MIGRATE" 
     CURUSR="$(id -u)"
     CURGRP="$(id -g)"
   else
-    if [ -n "$AVGID" ]; then
-      # add group for AVGID
-      addgroup --gid "$AVGID" addl_video
-      usermod -a -G addl_video stash
-    fi
     # commit PUID/PGID changes
     groupmod -o -g "$PGID" stash
     usermod  -o -u "$PUID" stash
-    usermod  -a -G stash stash
   fi
 # check if running with or without root
 elif [ "$(id -u)" -ne 0 ]; then
@@ -416,14 +409,8 @@ elif [ "$(id -u)" -ne 0 ]; then
 # if root, use PUID/PGID
 else
   ROOTLESS=0
-  if [ -n "$AVGID" ]; then
-    # add group for AVGID
-    addgroup --gid "$AVGID" addl_video
-    usermod -a -G addl_video stash
-  fi
   groupmod -o -g "$PGID" stash
   usermod  -o -u "$PUID" stash
-  usermod  -a -G stash stash
   CURUSR="$PUID"
   CURGRP="$PGID"
 fi

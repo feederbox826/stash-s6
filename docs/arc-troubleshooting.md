@@ -12,9 +12,7 @@ sudo apt install -y \
 - reboot, reboot, reboot
 - if there is something akin to permission denied
   - dangerous ⚠️: `chmod -R 666 /dev/dri` to open up permissions to the video cards
-  - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render"
-    - Under rootful container, add the group ID to environment as `AVGID=22`
-    - Under rootless (`user:`) add that to the `group_add` block in `docker-compose`
+  - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render" and add that to the `group_add` block in `docker-compose`
   ```bash
   # getent group render | cut -d: -f3
   > 22
