@@ -4,7 +4,7 @@ ARG \
   UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3.21 AS final
+FROM alpine:3.22 AS final
 # labels
 ARG \
   BUILD_DATE \
@@ -17,6 +17,7 @@ LABEL \
   org.opencontainers.image.version=$STASH_VERSION \
   org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
+  org.opencontainers.image.description="stashapp/stash with hwaccel, rootless and automatic python dependency" \
   org.opencontainers.image.licenses=AGPL-3.0-only \
   official_build=$OFFICIAL_BUILD \
   STASH_TAG="latest"

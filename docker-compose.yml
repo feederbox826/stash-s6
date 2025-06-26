@@ -35,6 +35,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+      - AVGID=22
     #  - MIGRATE=TRUE
     volumes:
       - /mnt/media/stash:/media/stash
