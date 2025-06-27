@@ -1,0 +1,36 @@
+name: alpha-build
+on:
+  push:
+    branches:
+      - alpha
+    paths:
+      - 'dockerfile/**'
+      - 'stash/**'
+      - 'VERSION'
+  workflow_dispatch:
+
+jobs:
+  docker-alpine:
+    uses: ./.github/workflows/docker-alpine.yml
+    with:
+      upstream: development
+      tags: |-
+        alpine-alpha
+      cachetag:
+        alpine-alpha
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+  docker-hwaccel:
+    uses: ./.github/workflows/docker-hwaccel.yml
+    with:
+      upstream: development
+      tags: |-
+        hwaccel-alpha
+      cachetag:
+        hwaccel-alpha
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
