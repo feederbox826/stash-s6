@@ -47,6 +47,7 @@ RUN \
     ca-certificates \
     curl \
     jellyfin-ffmpeg \
+    libva-utils \
     python3 \
     nano \
     ruby \
@@ -60,7 +61,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
     echo "**** install optional x86 drivers ****" && \
       apk add --no-cache \
         intel-media-driver \
-        libva-intel-driver; \
+        libva-intel-driver \
+        onevpl-intel-gpu ; \
     fi
 RUN \
   echo "**** install ruby gems ****" && \
