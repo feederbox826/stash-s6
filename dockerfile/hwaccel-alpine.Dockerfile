@@ -39,6 +39,7 @@ ENV HOME="/config" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
+COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -50,7 +51,6 @@ RUN \
     nano \
     ruby \
     shadow \
-    su-exec \
     tzdata \
     uv \
     vips-tools \
