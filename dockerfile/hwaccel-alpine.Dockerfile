@@ -35,31 +35,33 @@ ENV HOME="/config" \
   UV_CACHE_DIR="/pip-install/cache" \
   UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
-  HWACCEL="NONE" \
-  SKIP_NVIDIA_PATCH="true" \
+  HWACCEL="Jellyfin-ffmpeg" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-RUN \
-  apk add --no-cache \
-  --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-  uv
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
     bash \
     ca-certificates \
     curl \
-    ffmpeg \
+    jellyfin-ffmpeg \
     python3 \
     nano \
     ruby \
     shadow \
     su-exec \
     tzdata \
+    uv \
     vips-tools \
     wget \
     yq-go
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+    echo "**** install optional x86 drivers ****" && \
+      apk add --no-cache \
+        intel-media-driver \
+        libva-intel-driver; \
+    fi
 RUN \
   echo "**** install ruby gems ****" && \
   gem install \
