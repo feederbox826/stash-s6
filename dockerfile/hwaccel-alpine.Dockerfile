@@ -82,7 +82,7 @@ RUN \
     /usr/bin/ffmpeg && \
   ln -s \
     /usr/lib/jellyfin-ffmpeg/ffprobe \
-    /usr/bin/ffprobe && \
+    /usr/bin/ffprobe
 COPY stash/root/ /
 VOLUME /pip-install
 
