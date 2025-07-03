@@ -1,13 +1,31 @@
 #!/bin/sh
 set -e
 
-# uv-pip: A shim for pip using uv for feederbox826/stash-s6
+# uv-pip: 'pip' to 'uv' shim for feederbox826/stash-s6
 # © 2025 feederbox826
 # License: GPL-3.0-or-later
 
+VERSION="0.1"
+_HELP="uv-pip: A wrapper for uv pip to act like pip
+
+Usage:
+  uv-pip install <package>
+    Installs a package using uv pip install.
+
+  uv-pip uninstall <package>
+    Uninstalls a package using uv pip uninstall."
+
+# if no arguments, print usage
+[ $# -eq 0 ] && { echo "$_HELP"; exit 1; }
+
+# exit early if no uv
+command -v uv >/dev/null 2>&1 || { echo "Error: uv not found." >&2; exit 1; }
+
+# stash logger
 log() { level="$1"; shift; printf >&2 "\001%s\002uv: %s\n" "$level" "$*"; }
 
-log "e" "stash-s6 intentionally excludes pip, attempting to install with uv"
+### log version
+log "e" "attempting to install with uv-pip $VERSION"
 
 # Handle only install and uninstall
 cmd="$1"
