@@ -28,7 +28,7 @@ runas() {
     "$@"
   else
     # shellcheck disable=SC2068
-    su-exec "$CURUSR:$CURGRP" $@
+    dropprs "$CURUSR:$CURGRP:$AVGID" $@
   fi
 }
 
@@ -376,6 +376,9 @@ user_status() {
     # with root, running as PUID/PGID
     else
       info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
+      if [ -n "$AVGID" ]; then
+        info "🎭🖥️ Additional GID from AVGID: $AVGID"
+      fi
       check_common_perms
     fi
   fi
