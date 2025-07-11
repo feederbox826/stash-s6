@@ -9,6 +9,10 @@ on:
       - 'VERSION'
   workflow_dispatch:
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   docker-alpine:
     uses: ./.github/workflows/docker-alpine.yml

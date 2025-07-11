@@ -13,6 +13,10 @@ on:
   schedule:
     - cron: '0 0 */7 * *'
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   docker-alpine:
     uses: ./.github/workflows/docker-alpine.yml
