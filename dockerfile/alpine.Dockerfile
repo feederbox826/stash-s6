@@ -40,7 +40,6 @@ ENV HOME="/config" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
@@ -48,6 +47,7 @@ RUN \
     ca-certificates \
     curl \
     ffmpeg \
+    gosu \
     python3 \
     nano \
     ncdu \
@@ -67,6 +67,10 @@ RUN \
   ln -s \
     /opt/uv-pip \
     /usr/bin/pip && \
+  echo "**** symlink gosu for alpine ****" && \
+  ln -s \
+    /usr/sbin/gosu \
+    /usr/bin/dropprs && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 911 -U -d /config -s /bin/false stash && \
   usermod -G users stash && \
