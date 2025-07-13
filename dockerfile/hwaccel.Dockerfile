@@ -52,6 +52,7 @@ COPY stash/root/defaults /defaults
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
 COPY --from=docker.io/mikefarah/yq /usr/bin/yq /usr/bin/yq
+COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
@@ -80,7 +81,6 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
-      gosu \
       jellyfin-ffmpeg${FFMPEG_VERSION} \
       libvips-tools \
       locales \
@@ -110,9 +110,6 @@ RUN \
   ln -s \
     /usr/lib/jellyfin-ffmpeg/vainfo \
     /usr/bin/vainfo && \
-  ln -s \
-    /usr/sbin/gosu \
-    /sbin/su-exec && \
   ln -s \
     /opt/uv-pip \
     /usr/bin/pip && \
