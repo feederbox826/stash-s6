@@ -5,30 +5,23 @@ ARG \
 FROM $UPSTREAM_STASH AS stash
 
 FROM docker.io/library/debian AS jellyfin-setup
-COPY ci/jellyfin.sources /ci/jellyfin.sources
+COPY ci/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
+ADD https://repo.jellyfin.org/jellyfin_team.gpg.key /ci/jellyfin_team.gpg.key
 RUN \
   echo "**** install build dependencies ****" && \
     apt-get update && \
     apt-get install -y \
       --no-install-recommends \
-      ca-certificates \
-      curl \
       gnupg && \
   echo "**** set up jellyfin repos ****" && \
     mkdir -p \
       /etc/apt/keyrings && \
-    curl -fsSL \
-      https://repo.jellyfin.org/jellyfin_team.gpg.key | \
-      gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg && \
-    cp \
-      /ci/jellyfin.sources \
-      /etc/apt/sources.list.d/jellyfin.sources && \
+    gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg /ci/jellyfin_team.gpg.key && \
     sed -i \
       "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
       "/etc/apt/sources.list.d/jellyfin.sources"
 
 FROM docker.io/library/python:3.13-slim-bookworm AS final
-
 # arguments
 ARG \
   DEBIAN_FRONTEND="noninteractive"
@@ -62,7 +55,7 @@ COPY --from=jellyfin-setup /etc/apt/sources.list.d/jellyfin.sources /etc/apt/sou
 COPY --from=jellyfin-setup /etc/apt/keyrings/jellyfin.gpg /etc/apt/keyrings/jellyfin.gpg
 RUN \
   echo "**** add contrib and non-free to sources ****" && \
-    sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list.d/debian.sources && \
   echo "**** install packages ****" && \
     apt-get update -qq && \
     apt-get install -y \
