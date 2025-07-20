@@ -5,6 +5,7 @@ ARG \
 FROM $UPSTREAM_STASH AS stash
 
 FROM alpine:3.22 AS final
+ARG TARGETPLATFORM
 # OS environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
@@ -46,7 +47,9 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   echo "**** install optional x86 drivers ****" && \
     apk add --no-cache \
       intel-media-driver \
-      libva-intel-driver \
+      libva-intel-driver && \
+    apk add --no-cache \
+      --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing \
       onevpl-intel-gpu ; \
   fi
 RUN \
