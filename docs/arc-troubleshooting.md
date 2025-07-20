@@ -11,16 +11,9 @@ sudo apt install -y \
 - make sure you have other competing drivers (NVIDIA) uninstalled
 - reboot, reboot, reboot
 - if there is something akin to permission denied
-  - dangerous ⚠️: `chmod -R 666 /dev/dri` to open up permissions to the video cards
-  - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render" and add that to the `group_add` block in `docker-compose`
-  ```bash
-  # getent group render | cut -d: -f3
-  > 22
-  nano docker-compose.yml
+  - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render" or "video"
+    - Add it to the `group_add` block in `docker-compose`
+    - Add it to `AVGID` if using `PUID/PGID`
+  - dangerous ⚠️: `chmod -R 666 /dev/dri` to open up permissions to the video cards (resets on reboot)
 
-  service:
-    stash:
-      group_add:
-        - 22
-  ```
 - appeal to other resources: [jellyfin](https://jellyfin.org/docs/general/administration/hardware-acceleration/intel) [intel](https://dgpu-docs.intel.com/driver/client/overview.html)

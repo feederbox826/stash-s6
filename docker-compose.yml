@@ -35,6 +35,8 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+    # Additional group ID for Intl hwacccel
+      - AVGID=22
     #  - MIGRATE=TRUE
     volumes:
     # Adjust the left side of the volume paths to where the data is stored on your host (e.g. /volume1/media/HOMEWORK)
