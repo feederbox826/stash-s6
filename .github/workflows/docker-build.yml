@@ -24,9 +24,6 @@ on:
       GH_TOKEN:
         required: true
 
-env:
-  BUILDKIT_PROGRESS: plain
-
 jobs:
   build:
     runs-on: ubuntu-latest
