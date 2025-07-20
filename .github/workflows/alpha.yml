@@ -10,31 +10,23 @@ on:
   workflow_dispatch:
 
 permissions:
-  packages: write
   contents: read
+  packages: write
 
 jobs:
-  docker-alpine:
-    uses: ./.github/workflows/docker-alpine.yml
+  build:
+    strategy:
+      matrix:
+        variant: [alpine, hwaccel, hwaccel-alpine]
+        upstream: [development]
+    uses: ./.github/workflows/docker-build.yml
     with:
-      upstream: development
-      tags: |-
-        alpine-alpha
-      cachetag:
-        alpine-alpha
+      variant: ${{ matrix.variant }}
+      upstream: ${{ matrix.upstream }}
+      # develop prefix
+      tags: "alpha-${{ matrix.variant }}"
+      buildargs: ""
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
     secrets:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-  docker-hwaccel:
-    uses: ./.github/workflows/docker-hwaccel.yml
-    with:
-      upstream: development
-      tags: |-
-        hwaccel-alpha
-      cachetag:
-        hwaccel-alpha
-    secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}

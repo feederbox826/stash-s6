@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="docker.io/stashapp/stash:${STASH_TAG}"
+  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM docker.io/library/alpine:3.22 AS final
+FROM alpine:3.22 AS final
 # OS environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
@@ -20,8 +20,7 @@ ENV HOME="/config" \
   UV_CACHE_DIR="/pip-install/cache" \
   UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
-  HWACCEL="NONE" \
-  SKIP_NVIDIA_PATCH="true" \
+  HWACCEL="Jellyfin-ffmpeg" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
@@ -32,10 +31,10 @@ RUN \
     bash \
     ca-certificates \
     curl \
-    ffmpeg \
+    jellyfin-ffmpeg \
+    libva-utils \
     python3 \
     nano \
-    ncdu \
     ruby \
     shadow \
     tzdata \
@@ -43,6 +42,13 @@ RUN \
     vips-tools \
     wget \
     yq-go
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+  echo "**** install optional x86 drivers ****" && \
+    apk add --no-cache \
+      intel-media-driver \
+      libva-intel-driver \
+      onevpl-intel-gpu ; \
+  fi
 RUN \
   echo "**** install ruby gems ****" && \
   gem install \
@@ -52,6 +58,13 @@ RUN \
   ln -s \
     /opt/uv-pip \
     /usr/bin/pip && \
+  echo "**** symlink ffmpeg ****" && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffmpeg \
+    /usr/bin/ffmpeg && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffprobe \
+    /usr/bin/ffprobe && \
   echo "**** create stash user and make our folders ****" && \
   useradd -u 911 -U -d /config -s /bin/false stash && \
   mkdir -p \
@@ -61,7 +74,7 @@ RUN \
 COPY stash/root/ /
 VOLUME /pip-install
 
-# dynamic labels
+# labels
 ARG \
   BUILD_DATE \
   GITHASH \

@@ -1,32 +1,37 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+  UPSTREAM_STASH="docker.io/stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM python:3.13-slim-bookworm AS final
+FROM docker.io/library/debian AS jellyfin-setup
+COPY ci/jellyfin.sources /ci/jellyfin.sources
+RUN \
+  echo "**** install build dependencies ****" && \
+    apt-get update && \
+    apt-get install -y \
+      --no-install-recommends \
+      ca-certificates \
+      curl \
+      gnupg && \
+  echo "**** set up jellyfin repos ****" && \
+    mkdir -p \
+      /etc/apt/keyrings && \
+    curl -fsSL \
+      https://repo.jellyfin.org/jellyfin_team.gpg.key | \
+      gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg && \
+    cp \
+      /ci/jellyfin.sources \
+      /etc/apt/sources.list.d/jellyfin.sources && \
+    sed -i \
+      "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
+      "/etc/apt/sources.list.d/jellyfin.sources"
+
+FROM docker.io/library/python:3.13-slim-bookworm AS final
 
 # arguments
 ARG \
-  BUILD_DATE \
-  GITHASH \
-  STASH_VERSION \
-  OFFICIAL_BUILD="false" \
-  DEBIAN_FRONTEND="noninteractive" \
-  TARGETPLATFORM \
-  FFMPEG_VERSION=7 \
-  STASH_TAG="latest"
-# labels
-LABEL \
-  org.opencontainers.image.created=$BUILD_DATE \
-  org.opencontainers.image.revision=$GITHASH \
-  org.opencontainers.image.version=$STASH_VERSION \
-  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
-  org.opencontainers.image.vendor=feederbox826 \
-  org.opencontainers.image.licenses=AGPL-3.0-only \
-  official_build=$OFFICIAL_BUILD \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
-# environment variables
+  DEBIAN_FRONTEND="noninteractive"
 # debian environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
@@ -53,35 +58,18 @@ COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 COPY --from=ghcr.io/astral-sh/uv:latest --chmod=755 /uv /bin/uv
 COPY --from=docker.io/mikefarah/yq /usr/bin/yq /usr/bin/yq
 COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
+COPY --from=jellyfin-setup /etc/apt/sources.list.d/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
+COPY --from=jellyfin-setup /etc/apt/keyrings/jellyfin.gpg /etc/apt/keyrings/jellyfin.gpg
 RUN \
-  echo "**** install build dependencies ****" && \
-    apt-get update && \
-    apt-get upgrade -y && \
+  echo "**** add contrib and non-free to sources ****" && \
+    sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
+  echo "**** install packages ****" && \
+    apt-get update -qq && \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
       curl \
-      gnupg && \
-  echo "**** add contrib and non-free to sources ****" && \
-    sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
-  echo "**** set up jellyfin repos ****" && \
-    mkdir -p \
-      /etc/apt/keyrings && \
-    curl -fsSL \
-      https://repo.jellyfin.org/jellyfin_team.gpg.key | \
-      gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg && \
-    cp \
-      /defaults/jellyfin.sources \
-      /etc/apt/sources.list.d/jellyfin.sources && \
-    sed -i \
-      "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
-      "/etc/apt/sources.list.d/jellyfin.sources" && \
-  echo "**** install packages ****" && \
-    apt-get update && \
-    apt-get install -y \
-      --no-install-recommends \
-      --no-install-suggests \
-      jellyfin-ffmpeg${FFMPEG_VERSION} \
+      jellyfin-ffmpeg7 \
       libvips-tools \
       locales \
       nano \
@@ -130,6 +118,21 @@ RUN \
 COPY stash/root/ /
 VOLUME /pip-install
 
+# arguments
+ARG \
+  BUILD_DATE \
+  GITHASH \
+  STASH_VERSION \
+  OFFICIAL_BUILD="false" \
+  STASH_TAG="latest"
+# labels
+LABEL \
+  org.opencontainers.image.created=$BUILD_DATE \
+  org.opencontainers.image.revision=$GITHASH \
+  org.opencontainers.image.version=$STASH_VERSION \
+  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.vendor=feederbox826 \
+  org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config
 EXPOSE 9999
 CMD ["/bin/bash", "/opt/entrypoint.sh"]
