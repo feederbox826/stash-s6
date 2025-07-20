@@ -1,4 +1,4 @@
-name: Docker Build Reusable Workflow
+name: docker-build
 on:
   workflow_call:
     inputs:
