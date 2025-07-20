@@ -5,7 +5,7 @@ set -e
 # © 2025 feederbox826
 # License: GPL-3.0-or-later
 
-VERSION="0.1"
+VERSION="0.1.1"
 _HELP="uv-py: A wrapper for uv run to act like python
 
 Usage:
@@ -35,7 +35,7 @@ fi
 
 if [ ! -f pyproject.toml ]; then
   log "d" "No pyproject.toml found, initializing project"
-  uv init
+  uv init --bare
   # Install from requirements.txt
   if [ -f requirements.txt ]; then
     log "d" "Installing dependencies from requirements.txt"
