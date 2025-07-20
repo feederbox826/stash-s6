@@ -68,13 +68,13 @@ RUN \
     apt-get install -y \
       --no-install-recommends \
       --no-install-suggests \
+      ca-certificates \
       curl \
       jellyfin-ffmpeg7 \
       libvips-tools \
       locales \
       nano \
       ncdu \
-      ruby \
       tzdata \
       wget && \
   echo "**** install non-free drivers and intel compute runtime ****" && \
@@ -102,15 +102,11 @@ RUN \
     /opt/uv-pip \
     /usr/bin/pip && \
   echo "**** generate locale ****" && \
-    locale-gen en_US.UTF-8 && \
-  echo "**** install ruby gems ****" && \
-    gem install \
-      faraday
+    locale-gen en_US.UTF-8
 RUN \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 911 -U -d /config -s /bin/bash stash && \
-  usermod -G users stash && \
-  usermod -G video stash && \
+  groupadd -g 911 stash && \
+  useradd -u 911 -d /config -s /bin/false -r -g stash -G video stash && \
   mkdir -p \
     /config \
     /defaults

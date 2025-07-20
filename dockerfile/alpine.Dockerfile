@@ -36,7 +36,6 @@ RUN \
     python3 \
     nano \
     ncdu \
-    ruby \
     shadow \
     tzdata \
     uv \
@@ -44,16 +43,13 @@ RUN \
     wget \
     yq-go
 RUN \
-  echo "**** install ruby gems ****" && \
-  gem install \
-    faraday
-RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
     /opt/uv-pip \
     /usr/bin/pip && \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 911 -U -d /config -s /bin/false stash && \
+  groupadd -g 911 stash && \
+  useradd -u 911 -d /config -s /bin/false -r -g stash stash && \
   mkdir -p \
     /config \
     /defaults

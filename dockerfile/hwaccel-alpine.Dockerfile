@@ -36,7 +36,6 @@ RUN \
     libva-utils \
     python3 \
     nano \
-    ruby \
     shadow \
     tzdata \
     uv \
@@ -53,10 +52,6 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
       onevpl-intel-gpu ; \
   fi
 RUN \
-  echo "**** install ruby gems ****" && \
-  gem install \
-    faraday
-RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
     /opt/uv-pip \
@@ -69,7 +64,8 @@ RUN \
     /usr/lib/jellyfin-ffmpeg/ffprobe \
     /usr/bin/ffprobe && \
   echo "**** create stash user and make our folders ****" && \
-  useradd -u 911 -U -d /config -s /bin/false stash && \
+  groupadd -g 911 stash && \
+  useradd -u 911 -d /config -s /bin/false -r -g stash -G video stash && \
   mkdir -p \
     /config \
     /defaults
