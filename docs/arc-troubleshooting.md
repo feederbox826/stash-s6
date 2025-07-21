@@ -9,6 +9,7 @@ sudo apt install -y \
   mesa-vdpau-drivers mesa-vulkan-drivers va-driver-all vainfo hwinfo clinfo 
 ```
 - make sure you have other competing drivers (NVIDIA) uninstalled
+- make sure you did not set the `LIBVA_DRIVER_NAME_JELLYFIN` or `LIBVA_DRIVER_NAME` to i915
 - reboot, reboot, reboot
 - if there is something akin to permission denied
   - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render" or "video"

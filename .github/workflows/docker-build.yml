@@ -41,21 +41,32 @@ jobs:
               mirrors = ["mirror.gcr.io"]
 
       - name: Generate platforms
-        run: | 
+        run: |
           # Set platforms depending on variant
           if [[ "${{ inputs.variant }}" == "alpine" ]]; then
             echo "PLATFORMS=linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7" >> $GITHUB_ENV
           else
             echo "PLATFORMS=linux/amd64,linux/arm64" >> $GITHUB_ENV
           fi
-
+      - id: hash
+        name: Generate short_hash
+        run: |
+          shorthash=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$shorthash" >> $GITHUB_OUTPUT
+      - id: date
+        name: Generate date suffix for consumption
+        run: |
+          DATE=$(date -d @"${{ env.TIMESTAMP }}" +%F)
+          ISO8601=$(date -d @"${{ env.TIMESTAMP}}" +"%Y-%m-%dT%H:%M:%S%z")
+          echo "DATE=$DATE" >> "$GITHUB_OUTPUT"
+          echo "ISO8601=$ISO8601" >> "$GITHUB_OUTPUT"
       - id: generate-tags
         name: Generate tags with date suffix
         run: |
           # Split input tags by comma, trim whitespace
           IFS=',' read -ra TAGS <<< "${{ inputs.tags }}"
           # Get date YYYY-MM-DD from timestamp
-          DATE=$(date -d @"${{ env.TIMESTAMP }}" +%F)
+          DATE=${{ steps.date.outputs.DATE }}
           ALL_TAGS=()
           # edge cases for "alpine"
           if [[ "${{ inputs.variant }}" == "alpine" ]]; then
@@ -108,11 +119,13 @@ jobs:
           provenance: mode=max
           platforms: ${{ env.PLATFORMS }}
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha,scope=${{ inputs.variant }}
-          cache-to: type=gha,mode=max,scope=${{ inputs.variant }}
+          cache-from: type=gha,scope=${{ inputs.upstream }}-${{ inputs.variant }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.upstream }}-${{ inputs.variant }}
           build-args: |
             STASH_TAG=${{ inputs.upstream }}
-            BUILD_DATE=${{ env.TIMESTAMP }}
+            BUILD_DATE=${{ steps.date.outputs.ISO8601 }}
+            SHORT_BUILD_DATE=${{ steps.date.outputs.DATE }}
+            GITHASH=${{ steps.hash.outputs.COMMIT_SHORT_SHA }}
             ${{ inputs.buildargs }}
         env:
           SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}

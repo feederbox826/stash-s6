@@ -419,6 +419,8 @@ else
 fi
 # print branding and donation info
 cat /opt/branding
+# print version info
+echo "    $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)"
 cat /opt/donate
 # print UID/GID
 echo "
