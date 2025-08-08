@@ -46,6 +46,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   echo "**** install optional x86 drivers ****" && \
     apk add --no-cache \
       intel-media-driver \
+      intel-media-sdk \
       libva-intel-driver && \
     apk add --no-cache \
       --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing \

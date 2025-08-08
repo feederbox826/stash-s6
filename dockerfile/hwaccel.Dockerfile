@@ -71,7 +71,13 @@ RUN \
       tzdata \
       wget && \
   echo "**** install non-free drivers and intel compute runtime ****" && \
-    bash /defaults/intel-drivers.sh && \
+    if [ "$( dpkg --print-architecture )" = "amd64" ]; then \
+      apt-get install -y \
+        --no-install-recommends \
+        i965-va-driver-shaders \
+        intel-media-va-driver-non-free \
+        intel-opencl-icd
+    fi && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
     apt-get clean && \
