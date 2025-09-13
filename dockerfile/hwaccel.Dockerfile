@@ -16,12 +16,9 @@ RUN \
   echo "**** set up jellyfin repos ****" && \
     mkdir -p \
       /etc/apt/keyrings && \
-    gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg /ci/jellyfin_team.gpg.key && \
-    sed -i \
-      "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
-      "/etc/apt/sources.list.d/jellyfin.sources"
+    gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg /ci/jellyfin_team.gpg.key
 
-FROM docker.io/library/python:3.13-slim-trixie AS final
+FROM docker.io/library/python:3.13-slim-bookworm AS final
 # arguments
 ARG \
   DEBIAN_FRONTEND="noninteractive"
