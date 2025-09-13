@@ -49,7 +49,7 @@ RUN \
     /usr/bin/pip && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
-  useradd -u 911 -d /config -s /bin/false -r -g stash stash && \
+  useradd -u 911 -d /config -s /bin/sh -r -g stash stash && \
   mkdir -p \
     /config \
     /defaults

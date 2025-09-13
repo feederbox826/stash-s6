@@ -21,7 +21,7 @@ RUN \
       "s/ARCHITECTURE/$( dpkg --print-architecture )/" \
       "/etc/apt/sources.list.d/jellyfin.sources"
 
-FROM docker.io/library/python:3.13-slim-bookworm AS final
+FROM docker.io/library/python:3.13-slim-trixie AS final
 # arguments
 ARG \
   DEBIAN_FRONTEND="noninteractive"

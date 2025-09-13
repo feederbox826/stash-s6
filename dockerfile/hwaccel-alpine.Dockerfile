@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 ARG \
   STASH_TAG="latest" \
-  UPSTREAM_STASH="stashapp/stash:${STASH_TAG}"
+  UPSTREAM_STASH="docker.io/stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM alpine:3.22 AS final
+FROM docker.io/library/alpine:3.22 AS final
 ARG TARGETPLATFORM
 # OS environment variables
 ENV HOME="/config" \
@@ -66,7 +66,7 @@ RUN \
     /usr/bin/ffprobe && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
-  useradd -u 911 -d /config -s /bin/false -r -g stash -G video stash && \
+  useradd -u 911 -d /config -s /bin/sh -r -g stash -G video stash && \
   mkdir -p \
     /config \
     /defaults
