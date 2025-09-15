@@ -9,11 +9,6 @@ ARG TARGETPLATFORM
 # OS environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
-  LANG="en_US.UTF-8" \
-  LC_ALL="en_US.UTF-8" \
-  LANGUAGE="en_US:en" \
-  # stash environment variables
-  STASH_CONFIG_FILE="/config/config.yml" \
   USER="stash" \
   # python env
   UV_TARGET="/pip-install/install" \
