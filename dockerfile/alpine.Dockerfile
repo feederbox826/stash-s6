@@ -70,4 +70,5 @@ LABEL \
   org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config
 EXPOSE 9999
+HEALTHCHECK --start-period=30s CMD curl -sf http://localhost:${STASH_PORT:-9999}/healthz
 CMD ["/bin/bash", "/opt/entrypoint.sh"]
