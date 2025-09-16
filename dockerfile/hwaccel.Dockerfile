@@ -25,6 +25,7 @@ ARG \
 # debian environment variables
 ENV HOME="/config" \
   USER="stash" \
+  STASH_CONFIG_FILE="/config/config.yml" \
   # python env
   UV_TARGET="/pip-install/install" \
   PYTHONPATH="/pip-install/install" \
