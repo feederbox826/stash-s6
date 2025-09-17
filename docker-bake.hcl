@@ -2,22 +2,26 @@
 group "release_ci_alpine" {
   targets = ["alpine", "hwaccel-alpine"]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
+  output = ["type=registry"]
 }
 
 group "release_ci_debian" {
   targets = ["hwaccel"]
   platforms = ["linux/amd64", "linux/arm64"]
+  output = ["type=registry"]
 }
 
 // develop CI
 group "develop_ci_alpine" {
   targets = ["alpine-develop", "hwaccel-alpine-develop", "hwaccel-develop"]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
+  output = ["type=registry"]
 }
 
 group "develop_ci_debian" {
   targets = ["hwaccel-develop"]
   platforms = ["linux/amd64", "linux/arm64"]
+  output = ["type=registry"]
 }
 
 // targets
