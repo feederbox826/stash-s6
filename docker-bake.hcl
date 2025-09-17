@@ -1,26 +1,22 @@
 // release CI
 group "release_ci_alpine" {
   targets = ["alpine", "hwaccel-alpine"]
-  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
   output = ["type=registry"]
 }
 
 group "release_ci_debian" {
   targets = ["hwaccel"]
-  platforms = ["linux/amd64", "linux/arm64"]
   output = ["type=registry"]
 }
 
 // develop CI
 group "develop_ci_alpine" {
   targets = ["alpine-develop", "hwaccel-alpine-develop", "hwaccel-develop"]
-  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
   output = ["type=registry"]
 }
 
 group "develop_ci_debian" {
   targets = ["hwaccel-develop"]
-  platforms = ["linux/amd64", "linux/arm64"]
   output = ["type=registry"]
 }
 
@@ -88,6 +84,14 @@ target "_common" {
     }]
 }
 
+target "_alpine_multi" {
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
+}
+
+target "_debian_multi" {
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
 target "_develop" {
   args = {
     STASH_TAG = "development"
@@ -96,7 +100,7 @@ target "_develop" {
 
 // targets
 target "alpine" {
-  inherits = ["_common"]
+  inherits = ["_common", "_alpine_multi"]
   context = "."
   dockerfile = "dockerfile/alpine.Dockerfile"
   tags = [
@@ -112,7 +116,7 @@ target "alpine" {
 }
 
 target "hwaccel-alpine" {
-  inherits = ["_common"]
+  inherits = ["_common", "_alpine_multi"]
   context = "."
   dockerfile = "dockerfile/hwaccel-alpine.Dockerfile"
   tags = [
@@ -124,7 +128,7 @@ target "hwaccel-alpine" {
 }
 
 target "hwaccel" {
-  inherits = ["_common"]
+  inherits = ["_common", "_debian_multi"]
   context = "."
   dockerfile = "dockerfile/hwaccel.Dockerfile"
   tags = [
