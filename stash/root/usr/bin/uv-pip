@@ -1,11 +1,10 @@
 #!/bin/sh
 set -e
 
-# uv-pip: 'pip' to 'uv' shim for feederbox826/stash-s6
-# © 2025 feederbox826
-# License: GPL-3.0-or-later
+# uv-pip: 'pip' to 'uv' shim
+# AGPL-3.0-or-later	© feederbox826
 
-VERSION="0.1"
+VERSION="0.2"
 _HELP="uv-pip: A wrapper for uv pip to act like pip
 
 Usage:
@@ -13,7 +12,10 @@ Usage:
     Installs a package using uv pip install.
 
   uv-pip uninstall <package>
-    Uninstalls a package using uv pip uninstall."
+    Uninstalls a package using uv pip uninstall.
+
+  uv-pip requirements <file>
+    Installs packages from a requirements file using uv pip install -r <file>."
 
 # if no arguments, print usage
 [ $# -eq 0 ] && { echo "$_HELP"; exit 1; }
@@ -29,13 +31,16 @@ log "e" "attempting to install with uv-pip $VERSION"
 
 # Handle only install and uninstall
 cmd="$1"
+# check for UV_TARGET
+[ -z "$UV_TARGET" ] && { log "e" "UV_TARGET not set. Please set it to the target directory."; exit 1; }
+
 shift
 if [ "$cmd" = "install" ] || [ "$cmd" = "uninstall" ]; then
-  # check for UV_TARGET
-  [ -z "$UV_TARGET" ] && { log "e" "UV_TARGET not set. Please set it to the target directory."; exit 1; }
   log "d" "Running uv pip $cmd with target $UV_TARGET"
   uv pip "$cmd" --system --target "$UV_TARGET" "$@"
-  exit 0
+elif [ "$cmd" = "requirements" ]; then
+  log "d" "Running uv pip install from requirements file with target $UV_TARGET"
+  uv pip install --system --target "$UV_TARGET" -r "$1"
 else
   log "e" "Unsupported pip subcommand: $cmd"
   exit 1

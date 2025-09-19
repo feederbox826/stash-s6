@@ -1,10 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/with-contenv bash
 # shellcheck shell=bash
-#
-# Author: feederbox826
-# Path: /opt/log.sh
-# Description: Simple logger script to emulate stash
-# License: AGPL-3.0
+
+# simple logger
+# AGPL-3.0-or-later	© feederbox826
 _COLORS=("37" "36" "33" "31")
 _LEVEL_TEXT=("DEBU" "INFO" "WARN" "ERRO")
 LOGGER_LEVEL=${LOGGER_LEVEL:-1}

@@ -51,7 +51,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
-    /opt/uv-pip \
+    /usr/bin/uv-pip \
     /usr/bin/pip && \
   echo "**** symlink ffmpeg ****" && \
   ln -s \

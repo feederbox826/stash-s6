@@ -1,9 +1,8 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
-#
-# Author: feederbox826
-# Path: /opt/entrypoint.sh
-# Description: Entrypoint script for stash docker container
+
+# entrypoint for feederbox826/stash-s6
+# AGPL-3.0-or-later	© feederbox826
 
 #{{{ variables and setup
 # setup UID/GID
@@ -297,10 +296,7 @@ install_python_deps() {
   # UV_CACHE_DIR = /pip-install/cache
   try_reown_r "$UV_TARGET" && \
     try_reown_r "$UV_CACHE_DIR" && \
-    runas uv pip install \
-      --system \
-      --target "$UV_TARGET" \
-      --requirement "$PYTHON_REQS"
+    runas /usr/bin/uv-pip requirements "$PYTHON_REQS"
 }
 #}}} /🐍
 

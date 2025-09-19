@@ -1,9 +1,8 @@
 #!/bin/sh
 set -e
 
-# uv-py: 'python' to 'uv run' shim for feederbox826/stash-s6
-# © 2025 feederbox826
-# License: GPL-3.0-or-later
+# uv-py: 'python' to 'uv run' shim
+# AGPL-3.0-or-later	© feederbox826
 
 VERSION="0.1.1"
 _HELP="uv-py: A wrapper for uv run to act like python
@@ -30,7 +29,7 @@ log "d" "uv-py $VERSION"
 # Pass on -m pip to uv-pip
 if [ "$1 $2" = "-m pip" ]; then
   shift 2
-  uv-pip "$@"
+  /usr/bin/uv-pip "$@"
 fi
 
 if [ ! -f pyproject.toml ]; then
