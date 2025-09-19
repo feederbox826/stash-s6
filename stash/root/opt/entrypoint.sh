@@ -17,9 +17,7 @@ STASHAPP_STASH_CONFIG="$STASHAPP_STASH_ROOT/config.yml"
 COMPAT_MODE=0
 ROOTLESS=0
 # shellcheck disable=SC1091
-source "/opt/shell-logger.sh"
-export LOGGER_COLOR="always"
-export LOGGER_SHOW_FILE="0"
+source "/opt/log.sh"
 #}}}
 
 # 🎭 run as CURUSR if possible
@@ -432,7 +430,8 @@ User GID:    $CURGRP
 HW Accel:    $HWACCEL"
 if [ $ROOTLESS -eq 1 ]; then
   echo "Rootless:    TRUE"
-elif [ $COMPAT_MODE -eq 1 ]; then
+fi
+if [ $COMPAT_MODE -eq 1 ]; then
   echo "stashapp/stash mode: TRUE"
 fi
 echo '
