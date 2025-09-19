@@ -60,7 +60,6 @@ RUN \
       libvips-tools \
       locales \
       nano \
-      ncdu \
       tzdata \
       wget && \
   echo "**** install non-free drivers and intel compute runtime ****" && \

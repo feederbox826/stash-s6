@@ -31,7 +31,6 @@ RUN \
     ffmpeg \
     python3 \
     nano \
-    ncdu \
     shadow \
     tzdata \
     uv \

@@ -173,3 +173,15 @@ target "hwaccel-develop" {
     "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-develop-${SHORT_BUILD_DATE}"
   ]
 }
+
+# local test
+target "local-test" {
+  context = "."
+  dockerfile = "dockerfile/alpine.Dockerfile"
+   args = {
+    BUILD_DATE = BUILD_DATE,
+    SHORT_BUILD_DATE = SHORT_BUILD_DATE,
+    GITHASH = "local-build"
+  }
+  tags = ["stash-s6:local-test"]
+}
