@@ -40,7 +40,7 @@ RUN \
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
-    /usr/bin/uv-pip \
+    /opt/uv-pip \
     /usr/bin/pip && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
