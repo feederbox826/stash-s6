@@ -443,6 +443,8 @@ install_custom_certs
 # danger if ffmpeg present locally
 check_ffmpeg "$CONFIG_ROOT"
 check_ffmpeg "$STASHAPP_STASH_ROOT"
+# run additional scripts
+[[ $INSTALL_PY_DEPS ]] && /opt/add-py-build.sh "$ROOTLESS"
 # finally start stash
 echo '
 Starting stash...
