@@ -98,6 +98,7 @@ RUN \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
   useradd -u 911 -d /config -s /bin/false -r -g stash -G video stash && \
+  chage -d 0 stash && \
   mkdir -p \
     /config \
     /defaults

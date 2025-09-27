@@ -36,6 +36,11 @@ variable "IMAGE_NAME" {
   default = "stash-s6"
 }
 
+variable "CACHE_IMAGE_NAME" {
+  type = string
+  default = "${IMAGE_NAME}-cache"
+}
+
 variable "SHORT_BUILD_DATE" {
   type = string
   default = formatdate("YYYY-MM-DD", BUILD_DATE)
@@ -58,6 +63,7 @@ variable "CI" {
 
 // common arguments
 target "_common" {
+  context = "."
   attest = [{
       type = "provenance"
       mode = "max"
@@ -69,19 +75,6 @@ target "_common" {
     SHORT_BUILD_DATE = SHORT_BUILD_DATE,
     GITHASH = CI ? GITHASH : "local-build"
   }
-  # caching logic
-  cache-to = CI ? [{
-      type = "gha"
-      mode = "max"
-    }] : [{
-      type = "inline"
-      mode = "max"
-    }]
-  cache-from = CI ? [{
-      type = "gha"
-    }] : [{
-      type = "inline"
-    }]
 }
 
 target "_alpine_multi" {
@@ -101,77 +94,48 @@ target "_develop" {
 // targets
 target "alpine" {
   inherits = ["_common", "_alpine_multi"]
-  context = "."
   dockerfile = "dockerfile/alpine.Dockerfile"
-  tags = [
-    // latest
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:latest",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:latest",
-    // other tags
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:alpine",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:alpine",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-${SHORT_BUILD_DATE}",
-  ]
+  tags = tag("alpine")
+  cache-to = cache_tag("alpine")
+  cache-from = cache_tag("alpine")
 }
 
 target "hwaccel-alpine" {
   inherits = ["_common", "_alpine_multi"]
-  context = "."
   dockerfile = "dockerfile/hwaccel-alpine.Dockerfile"
-  tags = [
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-${SHORT_BUILD_DATE}"
-  ]
+  tags = tag("hwaccel-alpine")
+  cache-to = cache_tag("hwaccel-alpine")
+  cache-from = cache_tag("hwaccel-alpine")
 }
 
 target "hwaccel" {
   inherits = ["_common", "_debian_multi"]
-  context = "."
   dockerfile = "dockerfile/hwaccel.Dockerfile"
-  tags = [
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-${SHORT_BUILD_DATE}"
-  ]
+  tags = tag("hwaccel")
+  cache-to = cache_tag("hwaccel")
+  cache-from = cache_tag("hwaccel")
 }
 
 // develop
 target "alpine-develop" {
   inherits = ["alpine", "_develop"]
-  tags = [
-    // develop tag
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:develop",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:develop",
-    // other tags
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-develop",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-develop",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-develop-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:alpine-develop-${SHORT_BUILD_DATE}"
-  ]
+  tags = tag("alpine-develop")
+  cache-to = cache_tag("alpine-develop")
+  cache-from = cache_tag("alpine-develop")
 }
 
 target "hwaccel-alpine-develop" {
   inherits = ["hwaccel-alpine", "_develop"]
-  tags = [
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-develop",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-develop",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-develop-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine-develop-${SHORT_BUILD_DATE}"
-  ]
+  tags = tag("hwaccel-alpine-develop")
+  cache-to = cache_tag("hwaccel-alpine-develop")
+  cache-from = cache_tag("hwaccel-alpine-develop")
 }
 
 target "hwaccel-develop" {
   inherits = ["hwaccel", "_develop"]
-  tags = [
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-develop",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-develop",
-    "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-develop-${SHORT_BUILD_DATE}",
-    "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-develop-${SHORT_BUILD_DATE}"
-  ]
+  tags = tag("hwaccel-develop")
+  cache-to = cache_tag("hwaccel-develop")
+  cache-from = cache_tag("hwaccel-develop")
 }
 
 # local test
@@ -184,4 +148,39 @@ target "local-test" {
     GITHASH = "local-build"
   }
   tags = ["stash-s6:local-test"]
+  cache-to = cache_tag("alpine")
+  cache-from = cache_tag("alpine")
+}
+
+function "cache_tag" {
+  params = [variant]
+  result = CI ? [{
+    type = "registry",
+    ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}",
+    mode = "max"
+  }] : [{
+    type = "registry",
+    ref = "stash-s6:cache-local",
+    mode = "max"
+  }]
+}
+
+// functions
+function "tag" {
+  params = [variant]
+  result = concat(
+    [
+      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}",
+      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}",
+      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${SHORT_BUILD_DATE}",
+      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${SHORT_BUILD_DATE}"
+    ],
+    variant == "alpine" ? [
+      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:latest",
+      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:latest"
+    ] : variant == "alpine-develop" ? [
+      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:develop",
+      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:develop"
+    ] : []
+  )
 }

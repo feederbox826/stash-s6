@@ -23,20 +23,23 @@ ENV HOME="/config" \
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
-  echo "**** install packages ****" && \
+  echo "**** install base packages ****" && \
   apk add --no-cache --no-progress \
     bash \
-    ca-certificates \
     curl \
-    ffmpeg \
     python3 \
     nano \
     shadow \
-    tzdata \
-    uv \
-    vips-tools \
     wget \
     yq-go
+RUN \
+  echo "**** install packages ****" && \
+  apk add --no-cache --no-progress \
+    ca-certificates \
+    ffmpeg \
+    tzdata \
+    uv \
+    vips-tools
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
@@ -44,7 +47,8 @@ RUN \
     /usr/bin/pip && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
-  useradd -u 911 -d /config -s /bin/sh -r -g stash stash && \
+  useradd -u 911 -d /config -s /bin/bash -r -g stash stash && \
+  chage -d 0 stash && \
   mkdir -p \
     /config \
     /defaults

@@ -23,28 +23,31 @@ ENV HOME="/config" \
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
 COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
-  echo "**** install packages ****" && \
+  echo "**** install base packages ****" && \
   apk add --no-cache --no-progress \
     bash \
-    ca-certificates \
     curl \
-    jellyfin-ffmpeg \
     libva-utils \
     python3 \
     nano \
     shadow \
-    tzdata \
-    uv \
-    vips-tools \
     wget \
     yq-go
+RUN \
+  echo "**** install packages ****" && \
+  apk add --no-cache --no-progress \
+    ca-certificates \
+    jellyfin-ffmpeg \
+    tzdata \
+    uv \
+    vips-tools
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   echo "**** install optional x86 drivers ****" && \
-    apk add --no-cache \
+    apk add --no-cache --no-progress \
       intel-media-driver \
       intel-media-sdk \
       libva-intel-driver && \
-    apk add --no-cache \
+    apk add --no-cache --no-progress \
       --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing \
       onevpl-intel-gpu ; \
   fi
@@ -63,6 +66,7 @@ RUN \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
   useradd -u 911 -d /config -s /bin/sh -r -g stash -G video stash && \
+  chage -d 0 stash && \
   mkdir -p \
     /config \
     /defaults
