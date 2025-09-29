@@ -61,18 +61,4 @@ I want to keep using the `stashapp/stash` image or possibly switch back
 
 ### Migration from `stashapp/stash` or `hotio/stash`
 
-> [!WARNING]
-> Switching back is difficult and requires manual configuration
-
-- Replace `image: stashapp/stash` with your desired image
-- Set the environment variables
-  ```
-  MIGRATE=TRUE
-  ```
-- Add the following volumes alongside your existing mounts. It should look like
-```
-volumes:
-  - /data/old-stash/config:/root/.stash
-  - /data/new-stash/config:/config
-  - /data/new-stash/pip-install:/pip-install
-```
+Please see [docs/migration](docs/migration.md)
