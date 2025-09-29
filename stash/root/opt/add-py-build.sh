@@ -17,15 +17,21 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-# add build-base
+# install dependencies in a virtual package to make removal easier
+# virtual package contains:
+#  - build-case: gcc, make, development tools
+#  - git: for pip installs from git repos
+#  - python3-dev: python headers
+#  - musl-dev: c headers
+#  - linux-headers: kernel headers
 echo "Installing virtual package 'stash-py-build'"
 apk add \
   --no-cache \
-  --virtual stash-py-build \ # virtual package to make removal easier
-  build-base \ # gcc, make, development tools
-  git \ # git for pip installs from git repos
-  python3-dev \ # python headers
-  musl-dev \ # c headers
-  linux-headers # kernel headers
+  --virtual stash-py-build \
+  build-base \
+  git \
+  python3-dev \
+  musl-dev \
+  linux-headers
 
 echo "To remove build tools, run: apk del stash-py-build"
