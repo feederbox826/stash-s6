@@ -62,3 +62,7 @@ I want to keep using the `stashapp/stash` image or possibly switch back
 ### Migration from `stashapp/stash` or `hotio/stash`
 
 Please see [docs/migration](docs/migration.md)
+
+### setuid, rootless. read_only - technical and advanced options
+
+Please see [docs/advanced-docker](docs/advanced-docker.md)
