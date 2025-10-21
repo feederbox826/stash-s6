@@ -32,8 +32,6 @@ services:
 In rare cares or when additional security is desired, stashapp_stash can be run in read_only mode. This prevents any modifications to the filesystem outside of mounted paths. This does break inevitably break a few features. In order to use this, all paths under config **must** be mounted to a volume.
 
 ## Completely Broken:
-- keylase/nvidia-patch
-  - Since the script changes so often, it is grabbed and then the libraries are patched according to the driver version.
 - `CUSTOM_CERT_PATH`
   - update-ca-certificates is ran on-demand, unless you want to manually bundle into the filesystem
 

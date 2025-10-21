@@ -45,7 +45,6 @@ Date suffixes are also available for point-in-time snapshotting.
 `PGID` - Process Group ID  
 `AVGID` - Additional Group ID (usually for ARC GPU)
 
-`SKIP_NVIDIA_PATCH` - skips patching nvidia driver for multi-stream nvenc. see [keylase/nvidia-patch](https://github.com/keylase/nvidia-patch?tab=readme-ov-file#version-table) for supported drivers  
 `TZ` - timezone  
 `CUSTOM_CERT_PATH` - Path to custom root certificates to be added to stash (defaults to `/config/certs`)  
 `INSTALL_PY_DEPS` - Automatically install some python build-tools at startup

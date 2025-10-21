@@ -17,7 +17,6 @@ ENV HOME="/config" \
   UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
   HWACCEL="NONE" \
-  SKIP_NVIDIA_PATCH="true" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash

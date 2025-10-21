@@ -311,35 +311,6 @@ check_ffmpeg() {
     error "💥 ffmpeg/ffprobe is present at $1, this will likely cause issues. Please remove it"
   fi
 }
-# patch multistream NVENC from keylase/nvidia-patch
-patch_nvidia() {
-  if [[ $SKIP_NVIDIA_PATCH ]]; then
-    debug "⏩🖥️ Skipping nvidia patch because of SKIP_NVIDIA_PATCH"
-    return 0
-  elif [ $ROOTLESS -eq 1 ]; then
-    warn "⏩🖥️ Skipping nvidia patch as it requires root"
-    return 0
-  fi
-  debug "🛠️🖥️ Patching nvidia libraries for multi-stream..."
-  wget \
-    --quiet \
-    --timestamping \
-    -O "/usr/local/bin/nv-patch.sh" \
-    "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
-  chmod "+x" "/usr/local/bin/nv-patch.sh"
-  local PATCH_OUTPUT_DIR="/patched-lib"
-  mkdir -p "$PATCH_OUTPUT_DIR"
-  echo "$PATCH_OUTPUT_DIR" > "/etc/ld.so.conf.d/000-patched-lib.conf"
-  PATCH_OUTPUT_DIR=/patched-lib /usr/local/bin/nv-patch.sh -s
-  cd /patched-lib && \
-  for f in * ; do
-    suffix="${f##*.so}"
-    name="$(basename "$f" "$suffix")"
-    [ -h "$name" ] || ln -sf "$f" "$name"
-    [ -h "$name" ] || ln -sf "$f" "$name.1"
-  done
-  ldconfig
-}
 # install custom certificates
 install_custom_certs() {
   CERT_PATH="${CUSTOM_CERT_PATH:-/config/certs}"
@@ -438,7 +409,6 @@ entrypoint.sh
 user_status
 try_migrate
 install_python_deps
-patch_nvidia
 install_custom_certs
 # danger if ffmpeg present locally
 check_ffmpeg "$CONFIG_ROOT"
