@@ -74,7 +74,8 @@ ENV \
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
-  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.description="stashapp/stash container with hwaccel, py and user switching" \
+  org.opencontainers.image.source=https://github.com/feederbox826/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
   org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config
