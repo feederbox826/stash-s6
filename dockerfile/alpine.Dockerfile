@@ -40,10 +40,16 @@ RUN \
     uv \
     vips-tools
 RUN \
-  echo "**** symlink uv-pip ****" && \
+  echo "**** symlinks ****" && \
   ln -s \
-    /opt/uv-pip \
+    /usr/local/bin/uv-pip \
     /usr/bin/pip && \
+  ln -s \
+    /usr/local/bin/uv-pip \
+    /opt/uv-pip && \
+  ln -s \
+    /usr/local/bin/uv-py \
+    /opt/uv-py && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
   useradd -u 911 -d /config -s /bin/bash -r -g stash stash && \
