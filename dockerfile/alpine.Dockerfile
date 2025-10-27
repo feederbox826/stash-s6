@@ -40,10 +40,16 @@ RUN \
     uv \
     vips-tools
 RUN \
-  echo "**** symlink uv-pip ****" && \
+  echo "**** symlinks ****" && \
   ln -s \
-    /opt/uv-pip \
+    /usr/local/bin/uv-pip \
     /usr/bin/pip && \
+  ln -s \
+    /usr/local/bin/uv-pip \
+    /opt/uv-pip && \
+  ln -s \
+    /usr/local/bin/uv-py \
+    /opt/uv-py && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
   useradd -u 911 -d /config -s /bin/bash -r -g stash stash && \
@@ -68,7 +74,8 @@ ENV \
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
-  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.description="stashapp/stash container with hwaccel, py and user switching" \
+  org.opencontainers.image.source=https://github.com/feederbox826/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
   org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config

@@ -296,7 +296,7 @@ install_python_deps() {
   # UV_CACHE_DIR = /pip-install/cache
   try_reown_r "$UV_TARGET" && \
     try_reown_r "$UV_CACHE_DIR" && \
-    runas /opt/uv-pip requirements "$PYTHON_REQS"
+    runas /usr/local/bin/uv-pip requirements "$PYTHON_REQS"
 }
 #}}} /🐍
 
