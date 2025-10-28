@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'dockerfile/**'
+      - 'docker-bake.hcl'
       - 'stash/**'
       - 'VERSION'
   workflow_dispatch:

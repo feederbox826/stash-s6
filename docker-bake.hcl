@@ -157,6 +157,9 @@ function "cache_from" {
   result = [{
     type = "registry",
     ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}"
+  }, {
+    type = "registry",
+    ref = "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}"
   }]
 }
 
