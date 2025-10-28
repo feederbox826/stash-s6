@@ -21,7 +21,7 @@ ENV HOME="/config" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
+COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /usr/bin/dropprs
 RUN \
   echo "**** install base packages ****" && \
   apk add --no-cache --no-progress \
