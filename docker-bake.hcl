@@ -96,46 +96,46 @@ target "alpine" {
   inherits = ["_common", "_alpine_multi"]
   dockerfile = "dockerfile/alpine.Dockerfile"
   tags = tag("alpine")
-  cache-to = cache_tag("alpine")
-  cache-from = cache_tag("alpine")
+  cache-to = cache_to("alpine")
+  cache-from = cache_from("alpine")
 }
 
 target "hwaccel-alpine" {
   inherits = ["_common", "_alpine_multi"]
   dockerfile = "dockerfile/hwaccel-alpine.Dockerfile"
   tags = tag("hwaccel-alpine")
-  cache-to = cache_tag("hwaccel-alpine")
-  cache-from = cache_tag("hwaccel-alpine")
+  cache-to = cache_to("hwaccel-alpine")
+  cache-from = cache_from("hwaccel-alpine")
 }
 
 target "hwaccel" {
   inherits = ["_common", "_debian_multi"]
   dockerfile = "dockerfile/hwaccel.Dockerfile"
   tags = tag("hwaccel")
-  cache-to = cache_tag("hwaccel")
-  cache-from = cache_tag("hwaccel")
+  cache-to = cache_to("hwaccel")
+  cache-from = cache_from("hwaccel")
 }
 
 // develop
 target "alpine-develop" {
   inherits = ["alpine", "_develop"]
   tags = tag("alpine-develop")
-  cache-to = cache_tag("alpine-develop")
-  cache-from = cache_tag("alpine-develop")
+  cache-to = cache_to("alpine-develop")
+  cache-from = cache_from("alpine-develop")
 }
 
 target "hwaccel-alpine-develop" {
   inherits = ["hwaccel-alpine", "_develop"]
   tags = tag("hwaccel-alpine-develop")
-  cache-to = cache_tag("hwaccel-alpine-develop")
-  cache-from = cache_tag("hwaccel-alpine-develop")
+  cache-to = cache_to("hwaccel-alpine-develop")
+  cache-from = cache_from("hwaccel-alpine-develop")
 }
 
 target "hwaccel-develop" {
   inherits = ["hwaccel", "_develop"]
   tags = tag("hwaccel-develop")
-  cache-to = cache_tag("hwaccel-develop")
-  cache-from = cache_tag("hwaccel-develop")
+  cache-to = cache_to("hwaccel-develop")
+  cache-from = cache_from("hwaccel-develop")
 }
 
 # local test
@@ -149,20 +149,25 @@ target "local-test" {
   }
   tags = ["stash-s6:local-test"]
   cache-to = cache_tag("alpine")
-  cache-from = cache_tag("alpine")
+  cache-from = cache_from("alpine")
 }
 
-function "cache_tag" {
+function "cache_from" {
+  params = [variant]
+  result = [{
+    type = "registry",
+    ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}"
+  }]
+}
+
+function "cache_to" {
   params = [variant]
   result = CI ? [{
     type = "registry",
     ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}",
-    mode = "max"
-  }] : [{
-    type = "registry",
-    ref = "stash-s6:cache-local",
-    mode = "max"
-  }]
+    mode = "max",
+    compression = "zstd"
+  }] : []
 }
 
 // functions

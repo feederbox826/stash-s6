@@ -54,8 +54,14 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
-    /opt/uv-pip \
+    /usr/bin/uv-pip \
     /usr/bin/pip && \
+  ln -s \
+    /usr/bin/uv-pip \
+    /opt/uv-pip && \
+  ln -s \
+    /usr/bin/uv-py \
+    /opt/uv-py && \
   echo "**** symlink ffmpeg ****" && \
   ln -s \
     /usr/lib/jellyfin-ffmpeg/ffmpeg \
@@ -87,7 +93,8 @@ ENV \
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
-  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.description="stashapp/stash container with hwaccel, py and user switching" \
+  org.opencontainers.image.source=https://github.com/feederbox826/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
   org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config

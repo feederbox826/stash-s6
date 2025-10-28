@@ -29,7 +29,7 @@ log "d" "uv-py $VERSION"
 # Pass on -m pip to uv-pip
 if [ "$1 $2" = "-m pip" ]; then
   shift 2
-  /opt/uv-pip "$@"
+  /usr/bin/uv-pip "$@"
 fi
 
 if [ ! -f pyproject.toml ]; then

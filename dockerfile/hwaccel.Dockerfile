@@ -90,8 +90,11 @@ RUN \
     /usr/lib/jellyfin-ffmpeg/vainfo \
     /usr/bin/vainfo && \
   ln -s \
-    /opt/uv-pip \
-    /usr/bin/pip && \
+    /usr/bin/uv-pip \
+    /opt/uv-pip && \
+  ln -s \
+    /usr/bin/uv-py \
+    /opt/uv-py && \
   echo "**** generate locale ****" && \
     locale-gen en_US.UTF-8
 RUN \
@@ -120,7 +123,8 @@ ENV \
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
-  org.opencontainers.image.source=https://feederbox.cc/gh/stash-s6 \
+  org.opencontainers.image.description="stashapp/stash container with hwaccel, py and user switching" \
+  org.opencontainers.image.source=https://github.com/feederbox826/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
   org.opencontainers.image.licenses=AGPL-3.0-only
 WORKDIR /config
