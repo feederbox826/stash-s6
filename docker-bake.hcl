@@ -1,17 +1,28 @@
 // release CI
-group "release_ci" {
-  targets = ["alpine", "hwaccel"]
+group "release_ci_alpine" {
+  targets = ["alpine", "hwaccel-alpine"]
   output = ["type=registry"]
 }
+
+group "release_ci_debian" {
+  targets = ["hwaccel"]
+  output = ["type=registry"]
+}
+
 // develop CI
-group "develop_ci" {
-  targets = ["alpine-develop", "hwaccel-develop"]
+group "develop_ci_alpine" {
+  targets = ["alpine-develop", "hwaccel-alpine-develop", "hwaccel-develop"]
+  output = ["type=registry"]
+}
+
+group "develop_ci_debian" {
+  targets = ["hwaccel-develop"]
   output = ["type=registry"]
 }
 
 // targets
 group "default" {
-  targets = ["alpine", "hwaccel"]
+  targets = ["alpine", "hwaccel-alpine", "hwaccel"]
 }
 
 // variables
@@ -53,7 +64,6 @@ variable "CI" {
 // common arguments
 target "_common" {
   context = "."
-  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
   attest = [{
       type = "provenance"
       mode = "max"
@@ -67,6 +77,14 @@ target "_common" {
   }
 }
 
+target "_alpine_multi" {
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v6", "linux/arm/v7"]
+}
+
+target "_debian_multi" {
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
 target "_develop" {
   args = {
     STASH_TAG = "development"
@@ -75,34 +93,49 @@ target "_develop" {
 
 // targets
 target "alpine" {
-  inherits = ["_common"]
+  inherits = ["_common", "_alpine_multi"]
   dockerfile = "dockerfile/alpine.Dockerfile"
   tags = tag("alpine")
-  cache-to = cache_to("alpine")
-  cache-from = cache_from("alpine")
+  cache-to = cache_tag("alpine")
+  cache-from = cache_tag("alpine")
+}
+
+target "hwaccel-alpine" {
+  inherits = ["_common", "_alpine_multi"]
+  dockerfile = "dockerfile/hwaccel-alpine.Dockerfile"
+  tags = tag("hwaccel-alpine")
+  cache-to = cache_tag("hwaccel-alpine")
+  cache-from = cache_tag("hwaccel-alpine")
 }
 
 target "hwaccel" {
-  inherits = ["_common"]
+  inherits = ["_common", "_debian_multi"]
   dockerfile = "dockerfile/hwaccel.Dockerfile"
   tags = tag("hwaccel")
-  cache-to = cache_to("hwaccel")
-  cache-from = cache_from("hwaccel")
+  cache-to = cache_tag("hwaccel")
+  cache-from = cache_tag("hwaccel")
 }
 
 // develop
 target "alpine-develop" {
   inherits = ["alpine", "_develop"]
   tags = tag("alpine-develop")
-  cache-to = cache_to("alpine-develop")
-  cache-from = cache_from("alpine-develop")
+  cache-to = cache_tag("alpine-develop")
+  cache-from = cache_tag("alpine-develop")
+}
+
+target "hwaccel-alpine-develop" {
+  inherits = ["hwaccel-alpine", "_develop"]
+  tags = tag("hwaccel-alpine-develop")
+  cache-to = cache_tag("hwaccel-alpine-develop")
+  cache-from = cache_tag("hwaccel-alpine-develop")
 }
 
 target "hwaccel-develop" {
   inherits = ["hwaccel", "_develop"]
   tags = tag("hwaccel-develop")
-  cache-to = cache_to("hwaccel-develop")
-  cache-from = cache_from("hwaccel-develop")
+  cache-to = cache_tag("hwaccel-develop")
+  cache-from = cache_tag("hwaccel-develop")
 }
 
 # local test
@@ -115,30 +148,24 @@ target "local-test" {
     GITHASH = "local-build"
   }
   tags = ["stash-s6:local-test"]
-  cache-to = cache_to("alpine")
-  cache-from = cache_from("alpine")
+  cache-to = cache_tag("alpine")
+  cache-from = cache_tag("alpine")
 }
 
-function "cache_from" {
-  params = [variant]
-  result = [{
-    type = "registry",
-    ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}"
-  }]
-}
-
-function "cache_to" {
+function "cache_tag" {
   params = [variant]
   result = CI ? [{
     type = "registry",
     ref = "ghcr.io/${OWNER_NAME}/${CACHE_IMAGE_NAME}:cache-${variant}",
-    mode = "max",
-    compression = "zstd"
-  }] : []
+    mode = "max"
+  }] : [{
+    type = "registry",
+    ref = "stash-s6:cache-local",
+    mode = "max"
+  }]
 }
 
 // functions
-// add hwaccel-alpine tag for transition period
 function "tag" {
   params = [variant]
   result = concat(
@@ -154,9 +181,6 @@ function "tag" {
     ] : variant == "alpine-develop" ? [
       "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:develop",
       "docker.io/${OWNER_NAME}/${IMAGE_NAME}:develop"
-    ] : variant == "hwaccel" ? [
-      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine",
-      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:hwaccel-alpine"
     ] : []
   )
 }

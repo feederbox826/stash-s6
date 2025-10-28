@@ -8,7 +8,7 @@
 | nerethos/stash | [`nerethos/stash`](https://hub.docker.com/r/nerethos/stash) | [`ghcr.io/nerethos/stash`](https://github.com/nerethos/docker-stash) | ![Docker Image Size](https://img.shields.io/docker/image-size/nerethos/stash?style=flat-square&label=%20) |
 | nerethos/stash:lite | [`nerethos/stash:lite`](https://hub.docker.com/r/nerethos/stash/tags?name=lite) | [`ghcr.io/nerethos/stash`](https://github.com/nerethos/docker-stash) | ![Docker Image Size](https://img.shields.io/docker/image-size/nerethos/stash/lite?style=flat-square&label=%20) |
 | feederbox826/stash-s6 | [`feederbox826/stash-s6`](https://hub.docker.com/r/feederbox826/stash-s6) | [`ghcr.io/feederbox826/stash-s6`](https://github.com/feederbox826/stash-s6) | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel?style=flat-square&label=%20) |
-| feederbox826/stash-s6:hwaccel | [`feederbox826/stash-s6:hwaccel`](https://hub.docker.com/r/feederbox826/stash-s6/tags?name=hwaccel) | [`ghcr.io/feederbox826/stash-s6:hwaccel`](https://github.com/feederbox826/stash-s6) | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel?style=flat-square&label=%20) |
+| feederbox826/stash-s6:hwaccel-alpine | [`feederbox826/stash-s6:hwaccel-alpine`](https://hub.docker.com/r/feederbox826/stash-s6/tags?name=hwaccel-alpine) | [`ghcr.io/feederbox826/stash-s6:hwaccel-alpine`](https://github.com/feederbox826/stash-s6) | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-alpine?style=flat-square&label=%20) |
 | feederbox826/stash-s6:alpine | [`feederbox826/stash-s6:alpine`](https://hub.docker.com/r/feederbox826/stash-s6/tags?name=alpine) | [`ghcr.io/feederbox826/stash-s6:alpine`](https://github.com/feederbox826/stash-s6) | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/alpine?style=flat-square&label=%20) |
 | stash-cuda (manual) | | https://github.com/stashapp/stash/tree/develop/docker/build/x86_64 | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/nvidia/cuda/12.8.0-base-ubuntu24.04?arch=amd64&style=flat-square&label=%20)+ |
 
@@ -21,7 +21,7 @@
 | hotio/stash | ✅ | arm64 | ✖️ |
 | nerethos/stash | ✅ | v7,arm64 | ✅ venv |
 | nerethos/stash:lite | ✖️ | ✅ | ✅ venv |
-| feederbox826/stash-s6:hwaccel | ✅ | ✅ | ✅ uv |
+| feederbox826/stash-s6 | ✅ | v7,arm64 | ✅ uv |
 | feederbox826/stash-s6:alpine | ✖️ | ✅ | ✅ uv |
 | stash-cuda | NVENC | ✖️ | ✖️ |
 

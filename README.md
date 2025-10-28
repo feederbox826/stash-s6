@@ -22,6 +22,13 @@ no hardware acceleration, built on alpine linux
 ```
 ghcr.io/feederbox826/stash-s6:hwaccel
 ```
+hardware acceleration from [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/), built on debian. (Scheduled to be replaced with v0.29.0 [#46](https://github.com/feederbox826/stash-s6/issues/46))
+
+## `hwaccel-alpine` ![Image size](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-alpine)
+
+```
+ghcr.io/feederbox826/stash-s6:hwaccel-alpine
+```
 hardware acceleration from [jellyfin-ffmpeg](https://jellyfin.org/docs/general/administration/hardware-acceleration/), built on alpine
 
 ## `-develop` variants ![Build Date](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Ffeederbox826%2Fstash-s6%2Factions%2Fworkflows%2F103206424%2Fruns%3Fstatus%3Dcompleted%26per_page%3D1&query=%24.workflow_runs%5B0%5D.run_started_at&label=build%20date)
@@ -29,6 +36,7 @@ hardware acceleration from [jellyfin-ffmpeg](https://jellyfin.org/docs/general/a
 Append `-develop` to the tag to run the development builds of stash
 - `develop` / `alpine-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/alpine-develop)
 - `hwaccel-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-develop)
+- `hwaccel-alpine-develop` ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/feederbox826/stash-s6/hwaccel-alpine-develop)
 
 Date suffixes are also available for point-in-time snapshotting.
 

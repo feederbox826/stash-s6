@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://repo.jellyfin.org/debian
+Suites: bookworm
+Components: main
+Signed-By: /etc/apt/keyrings/jellyfin.gpg

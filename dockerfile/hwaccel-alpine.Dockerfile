@@ -5,6 +5,7 @@ ARG \
 FROM $UPSTREAM_STASH AS stash
 
 FROM docker.io/library/alpine:3.22 AS final
+ARG TARGETPLATFORM
 # OS environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
@@ -16,16 +17,17 @@ ENV HOME="/config" \
   UV_CACHE_DIR="/pip-install/cache" \
   UV_BREAK_SYSTEM_PACKAGES=1 \
   # hardware acceleration env
-  HWACCEL="NONE" \
+  HWACCEL="Jellyfin-ffmpeg" \
   # Logging
   LOGGER_LEVEL="1"
 COPY --from=stash --chmod=755 /usr/bin/stash /app/stash
-COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /usr/bin/dropprs
+COPY --from=ghcr.io/feederbox826/dropprs:latest /dropprs /bin/dropprs
 RUN \
   echo "**** install base packages ****" && \
   apk add --no-cache --no-progress \
     bash \
     curl \
+    libva-utils \
     python3 \
     nano \
     shadow \
@@ -35,18 +37,35 @@ RUN \
   echo "**** install packages ****" && \
   apk add --no-cache --no-progress \
     ca-certificates \
-    ffmpeg \
+    jellyfin-ffmpeg \
     tzdata \
     uv \
     vips-tools
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+  echo "**** install optional x86 drivers ****" && \
+    apk add --no-cache --no-progress \
+      intel-media-driver \
+      intel-media-sdk \
+      libva-intel-driver && \
+    apk add --no-cache --no-progress \
+      --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing \
+      onevpl-intel-gpu ; \
+  fi
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
     /opt/uv-pip \
     /usr/bin/pip && \
+  echo "**** symlink ffmpeg ****" && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffmpeg \
+    /usr/bin/ffmpeg && \
+  ln -s \
+    /usr/lib/jellyfin-ffmpeg/ffprobe \
+    /usr/bin/ffprobe && \
   echo "**** create stash user and make our folders ****" && \
   groupadd -g 911 stash && \
-  useradd -u 911 -d /config -s /bin/bash -r -g stash stash && \
+  useradd -u 911 -d /config -s /bin/sh -r -g stash -G video stash && \
   chage -d 0 stash && \
   mkdir -p \
     /config \
@@ -55,14 +74,14 @@ RUN \
 COPY stash/root/ /
 VOLUME /pip-install
 
-# dynamic labels
+# labels
 ARG \
   BUILD_DATE \
   SHORT_BUILD_DATE \
   GITHASH \
   OFFICIAL_BUILD="false"
 ENV \
-  STASH_S6_VARIANT="alpine" \
+  STASH_S6_VARIANT="hwaccel-alpine" \
   STASH_S6_BUILD_DATE=$SHORT_BUILD_DATE \
   STASH_S6_GITHASH=$GITHASH
 LABEL \

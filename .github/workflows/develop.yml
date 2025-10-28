@@ -53,7 +53,8 @@ jobs:
         with:
           push: true
           targets: |
-            develop_ci
+            develop_ci_alpine
+            develop_ci_debian
         env:
           GITHASH: ${{ steps.meta.outputs.GITHASH }}
           BUILD_DATE: ${{ steps.meta.outputs.TIMESTAMP }}
