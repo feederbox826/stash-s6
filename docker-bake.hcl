@@ -148,7 +148,7 @@ target "local-test" {
     GITHASH = "local-build"
   }
   tags = ["stash-s6:local-test"]
-  cache-to = cache_tag("alpine")
+  cache-to = cache_to("alpine")
   cache-from = cache_from("alpine")
 }
 
