@@ -15,6 +15,8 @@ log() {
   # output to stderr if >= WARN
   local out=$(($1>=2?2:1))
   printf "\e[%sm%s\e[0m[%s] %s\n" "${_COLORS[$1]}" "${_LEVEL_TEXT[$1]}" "$date_text" "$2" >&"$out"
+  # write to local file for debugging
+  echo "[${_LEVEL_TEXT[$1]}][$date_text] $2" >> /config/stash-s6.log
 }
 
 debug () { log 0 "$*"; }
