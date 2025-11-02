@@ -409,6 +409,8 @@ cat /opt/branding
 # print version info
 echo "    $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)"
 cat /opt/donate
+# clean log
+truncate /config/stash-s6.log --size 0
 # print UID/GID
 echo "
 ───────────────────────────────────────
