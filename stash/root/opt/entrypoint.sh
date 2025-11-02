@@ -320,6 +320,25 @@ install_custom_certs() {
     update-ca-certificates
   fi
 }
+# AVGID tester
+avgid_test() {
+  # skip if no /dev/dri mounted
+  [ -d "/dev/dri" ] || return 0
+  # if we can access it already, skip
+  runas test -r "/dev/dri/renderD128" && return 0
+  # get GID of /dev/dri
+  NEW_AVGID=$(stat -c "%g" /dev/dri/renderD128)
+  if [ "$NEW_AVGID" != "${AVGID:-}" ]; then
+    # if flag, replace automatically
+    if [ "$AUTO_AVGID" = "TRUE" ] || [ "$AUTO_AVGID" = "true" ]; then
+      info "🖥️ updating AVGID to $NEW_AVGID to access /dev/dri/renderD128"
+      AVGID="$NEW_AVGID"
+    else
+      error "🖥️ cannot access /dev/dri/renderD128 with current AVGID: $AVGID"
+      error "💻 please set AVGID to $NEW_AVGID to access hardware acceleration"
+    fi
+  fi
+}
 # status of UID and GID changes
 user_status() {
   # COMPAT_MODE
@@ -343,6 +362,7 @@ user_status() {
       info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
       if [ -n "$AVGID" ]; then
         info "🎭🖥️ Additional GID from AVGID: $AVGID"
+        avgid_test
       fi
       check_common_perms
     fi

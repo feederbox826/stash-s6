@@ -43,8 +43,9 @@ Date suffixes are also available for point-in-time snapshotting.
 ## environment variables
 `PUID` - Process User ID  
 `PGID` - Process Group ID  
-`AVGID` - Additional Group ID (usually for ARC GPU)
+`AVGID` - Additional Group ID (usually for QSV)  
 
+`AUTO_AVGID` - allow automatic AVGID detection and replacement  
 `TZ` - timezone  
 `CUSTOM_CERT_PATH` - Path to custom root certificates to be added to stash (defaults to `/config/certs`)  
 `INSTALL_PY_DEPS` - Automatically install some python build-tools at startup

@@ -12,6 +12,7 @@ sudo apt install -y \
 - make sure you did not set the `LIBVA_DRIVER_NAME_JELLYFIN` or `LIBVA_DRIVER_NAME` to i915
 - reboot, reboot, reboot
 - if there is something akin to permission denied
+  - set `AUTO_AVGID=true` to automatically correct AVGID if it's incorrect.
   - safe ☮️: `getent group render | cut -d: -f3` to get the group ID of "render" or "video"
     - Add it to the `group_add` block in `docker-compose`
     - Add it to `AVGID` if using `PUID/PGID`
