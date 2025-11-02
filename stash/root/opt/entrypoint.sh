@@ -68,7 +68,7 @@ try_reown_r() {
   # if permission issues and reown fails, warn
   if ! check_dir_perms "$chkdir" && ! reown_r "$chkdir"; then
     error "⚠️ $chkdir is not accessible by stash"
-    error "💻 Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
+    error "🖥️ Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
     return 1
   fi
 }
@@ -78,7 +78,7 @@ try_reown() {
   # if permission issues and reown fails, warn
   if ! check_file_perms "$chkfile" && ! reown "$chkfile"; then
     error "⚠️ $chkfile is not accessible by stash"
-    error "💻 Please run 'chown -$ $CURUSR:$CURGRP $chkfile' on the host to fix this"
+    error "🖥️ Please run 'chown -$ $CURUSR:$CURGRP $chkfile' on the host to fix this"
     return 1
   fi
 }
@@ -320,8 +320,10 @@ install_custom_certs() {
     update-ca-certificates
   fi
 }
-# AVGID tester
+# 🎞️ AVGID tester
 avgid_test() {
+  # skip if HWACCEL is NONE
+  [[ "$HWACCEL" == "NONE" ]] && return 0
   # skip if no /dev/dri mounted
   [ -d "/dev/dri" ] || return 0
   # if we can access it already, skip
@@ -331,11 +333,11 @@ avgid_test() {
   if [ "$NEW_AVGID" != "${AVGID:-}" ]; then
     # if flag, replace automatically
     if [ "$AUTO_AVGID" = "TRUE" ] || [ "$AUTO_AVGID" = "true" ]; then
-      info "🖥️ updating AVGID to $NEW_AVGID to access /dev/dri/renderD128"
+      info "🎭🎞️ updating AVGID to $NEW_AVGID to access /dev/dri/renderD128"
       AVGID="$NEW_AVGID"
     else
-      error "🖥️ cannot access /dev/dri/renderD128 with current AVGID: $AVGID"
-      error "💻 please set AVGID to $NEW_AVGID to access hardware acceleration"
+      error "🎭🎞️ cannot access /dev/dri/renderD128 with current AVGID: $AVGID"
+      error "🎭🎞️ please set AVGID to $NEW_AVGID to access hardware acceleration"
     fi
   fi
 }
@@ -355,13 +357,13 @@ user_status() {
       info "⏩🎭 Running as docker user, migration and PUID/PGID not possible"
       if ! check_common_perms; then
         error "⛔ Running as rootless, but common directories are not writeable"
-        error "💻 Please follow the preceding CHOWN instructions to resolve this"
+        error "🖥️ Please follow the preceding CHOWN instructions to resolve this"
       fi
     # with root, running as PUID/PGID
     else
       info "🎭 Running as $CURUSR:$CURGRP from PUID/PGID"
       if [ -n "$AVGID" ]; then
-        info "🎭🖥️ Additional GID from AVGID: $AVGID"
+        info "🎭🎞️ Additional GID from AVGID: $AVGID"
         avgid_test
       fi
       check_common_perms
