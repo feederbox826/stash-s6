@@ -320,7 +320,7 @@ install_custom_certs() {
     update-ca-certificates
   fi
 }
-# 🎞️ AVGID tester
+# 🎭🎞️ AVGID tester
 avgid_test() {
   # skip if HWACCEL is NONE
   [[ "$HWACCEL" == "NONE" ]] && return 0
@@ -409,8 +409,6 @@ cat /opt/branding
 # print version info
 echo "    $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)"
 cat /opt/donate
-# clean log
-truncate -s 0 /config/stash-s6.log
 # print UID/GID
 echo "
 ───────────────────────────────────────
@@ -430,6 +428,11 @@ echo '
 entrypoint.sh
 
 '
+# clean log
+truncate -s 0 /config/stash-s6.log
+# print to file
+echo "stash-s6 logfile | $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)" > /config/stash-s6.log
+echo "UID:$CURUSR GID:$CURGRP ROOTLESS:$ROOTLESS HWACCEL:$HWACCEL COMPAT_MODE:$COMPAT_MODE" >> /config/stash-s6.log
 user_status
 try_migrate
 install_python_deps
