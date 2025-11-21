@@ -59,10 +59,12 @@ I want to keep using the `stashapp/stash` image or possibly switch back
 - Replace `image: stashapp/stash` with your desired image
 - You will see a message `Running in stashapp/stash compatibility mode...`
 
-### Migration from `stashapp/stash` or `hotio/stash`
-
-Please see [docs/migration](docs/migration.md)
-
-### setuid, rootless. read_only - technical and advanced options
-
-Please see [docs/advanced-docker](docs/advanced-docker.md)
+# docs
+- migrate from `stashapp/stash` or `hotio/stash`: [docs/migrate](docs/migrate.md)
+- hardware acceleration: [docs/hwaccel](docs/hwaccel/)
+  - Intel (QSV): [docs/hwaccel/intel](docs/hwaccel/intel.md)
+  - NVIDIA (CUDA): [docs/hwaccel/nvidia](docs/hwaccel/nvidia.md)
+- advanced
+  - docker `read_only`: [docs/advanced/read_only](docs/advanced/read_only.md)
+  - rootless docker: [docs/advanced/rootless](docs/advanced/rootless.md)
+  - `uv-py`: [docs/advanced/uv-py](docs/advanced/uv-py.md)

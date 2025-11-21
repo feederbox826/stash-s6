@@ -1,6 +1,6 @@
 # uv-py
 
-[uv-py](../stash/root/usr/bin/uv-py) is a script meant to wrap around python, which automatically installs dependencies
+[uv-py](../../stash/root/usr/bin/uv-py) is a script meant to wrap around python, which automatically installs dependencies
 
 It supports
 - requirements.txt
