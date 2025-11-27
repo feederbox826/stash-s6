@@ -89,7 +89,8 @@ ARG \
 ENV \
   STASH_S6_VARIANT="hwaccel-alpine" \
   STASH_S6_BUILD_DATE=$SHORT_BUILD_DATE \
-  STASH_S6_GITHASH=$GITHASH
+  STASH_S6_GITHASH=$GITHASH \
+  STASH_HW_TEST_TIMEOUT=10
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
