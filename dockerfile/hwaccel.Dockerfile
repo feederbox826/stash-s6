@@ -67,8 +67,7 @@ RUN \
       apt-get install -y \
         --no-install-recommends \
         i965-va-driver-shaders \
-        intel-media-va-driver-non-free \
-        intel-opencl-icd; \
+        intel-media-va-driver-non-free; \
     fi && \
   echo "**** cleanup ****" && \
     apt-get autoremove -y && \
