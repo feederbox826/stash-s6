@@ -4,7 +4,7 @@ ARG \
   UPSTREAM_STASH="docker.io/stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM docker.io/library/debian AS jellyfin-setup
+FROM docker.io/library/debian:trixie AS jellyfin-setup
 COPY ci/jellyfin.sources /etc/apt/sources.list.d/jellyfin.sources
 ADD https://repo.jellyfin.org/jellyfin_team.gpg.key /ci/jellyfin_team.gpg.key
 RUN \
@@ -18,7 +18,7 @@ RUN \
       /etc/apt/keyrings && \
     gpg --dearmor -o /etc/apt/keyrings/jellyfin.gpg /ci/jellyfin_team.gpg.key
 
-FROM docker.io/library/python:3.13-slim-bookworm AS final
+FROM docker.io/library/python:3.13-slim-trixie AS final
 # arguments
 ARG \
   DEBIAN_FRONTEND="noninteractive"

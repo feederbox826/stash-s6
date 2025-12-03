@@ -4,7 +4,7 @@ ARG \
   UPSTREAM_STASH="docker.io/stashapp/stash:${STASH_TAG}"
 FROM $UPSTREAM_STASH AS stash
 
-FROM docker.io/library/alpine:3.22 AS final
+FROM docker.io/library/alpine:3.23 AS final
 # OS environment variables
 ENV HOME="/config" \
   TZ="Etc/UTC" \
