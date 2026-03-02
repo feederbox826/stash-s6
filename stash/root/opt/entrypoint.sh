@@ -21,11 +21,14 @@ source "/opt/log.sh"
 
 # 🎭 run as CURUSR if possible
 runas() {
-   if [[ $ROOTLESS -eq 1 ]] || [[ $(id -u) -eq 0 ]]; then
+  if [[ $ROOTLESS -eq 1 ]]; then
     "$@"
   else
+    # Build supplementary groups: always include CURGRP, plus AVGID if set
+    local SUPPGRPS="$CURGRP"
+    [[ -n "$AVGID" ]] && SUPPGRPS="$SUPPGRPS,$AVGID"
     # shellcheck disable=SC2068
-    dropprs "$CURUSR:$CURGRP:$AVGID" $@
+    dropprs "$CURUSR:$CURGRP:$SUPPGRPS" $@
   fi
 }
 
@@ -40,8 +43,8 @@ reown_r() {
   # if DNE, assume and create directory
   [ ! -e "$1" ] && mkdir -p "$1"
   # change owner and permissions for owner
-  chown -R "$CURUSR" "$1" && \
-    chmod -R "u=rwx" "$1"
+  chown -R "$CURUSR" "$1"
+  chmod -R "u=rwx" "$1" 2>/dev/null || true
 }
 # non-recursive chown as CURUSR
 reown() {
@@ -51,8 +54,8 @@ reown() {
   fi
   info "🔑 fixing permissions on $1"
   # change owner and permissions for owner
-  chown "$CURUSR" "$1" && \
-    chmod "u=rwx" "$1"
+  chown "$CURUSR" "$1"
+  chmod "u=rwx" "$1" 2>/dev/null || true
 }
 # check that directory is writeable
 check_dir_perms() {
