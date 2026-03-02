@@ -7,6 +7,12 @@ _COLORS=("37" "36" "33" "31")
 _LEVEL_TEXT=("DEBU" "INFO" "WARN" "ERRO")
 LOGGER_LEVEL=${LOGGER_LEVEL:-1}
 
+OUTPUT_FILE="$CONFIG_ROOT/stash-s6.log"
+touch "$OUTPUT_FILE" &>/dev/null || {
+  echo "⚠️ Cannot write to $OUTPUT_FILE, file logging disabled"
+  OUTPUT_FILE="/dev/null"
+}
+
 log() {
   # if level < LOGGER_LEVEL, ignore
   [ "$1" -lt "$LOGGER_LEVEL" ] && return
@@ -16,7 +22,7 @@ log() {
   local out=$(($1>=2?2:1))
   printf "\e[%sm%s\e[0m[%s] %s\n" "${_COLORS[$1]}" "${_LEVEL_TEXT[$1]}" "$date_text" "$2" >&"$out"
   # write to local file for debugging
-  echo "[${_LEVEL_TEXT[$1]}][$date_text] $2" >> /config/stash-s6.log
+  echo "[${_LEVEL_TEXT[$1]}][$date_text] $2" >> "$OUTPUT_FILE"
 }
 
 debug () { log 0 "$*"; }

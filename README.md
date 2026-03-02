@@ -48,7 +48,8 @@ Date suffixes are also available for point-in-time snapshotting.
 `AUTO_AVGID` - allow automatic AVGID detection and replacement  
 `TZ` - timezone  
 `CUSTOM_CERT_PATH` - Path to custom root certificates to be added to stash (defaults to `/config/certs`)  
-`INSTALL_PY_DEPS` - Automatically install some python build-tools at startup
+`INSTALL_PY_DEPS` - Automatically install some python build-tools at startup  
+`IGNORE_BAD_PERMS` - Allow continuing with bad permissions instead of exiting.  
 
 ## migration-specific environment variables
 `MIGRATE` - automatic migration from `stashapp/stash` or `hotio/stash`

@@ -21,7 +21,7 @@ source "/opt/log.sh"
 
 # 🎭 run as CURUSR if possible
 runas() {
-   if [[ $ROOTLESS -eq 1 ]] || [[ $(id -u) -eq 0 ]]; then
+   if [[ $ROOTLESS -eq 1 ]] || [[ $PUID -eq 0 ]]; then
     "$@"
   else
     # shellcheck disable=SC2068
@@ -69,7 +69,12 @@ try_reown_r() {
   if ! check_dir_perms "$chkdir" && ! reown_r "$chkdir"; then
     error "⚠️ $chkdir is not accessible by stash"
     error "🖥️ Please run 'chown -R $CURUSR:$CURGRP $chkdir' on the host to fix this"
-    return 1
+    if [[ $IGNORE_BAD_PERMS -eq 1 ]]; then
+      error "❗ IGNORE_BAD_PERMS is set, ignoring bad permissions on $chkdir."
+      return 0
+    else
+      return 1
+    fi
   fi
 }
 # try to access as user and reown if necessary
@@ -79,7 +84,12 @@ try_reown() {
   if ! check_file_perms "$chkfile" && ! reown "$chkfile"; then
     error "⚠️ $chkfile is not accessible by stash"
     error "🖥️ Please run 'chown -$ $CURUSR:$CURGRP $chkfile' on the host to fix this"
-    return 1
+    if [[ $IGNORE_BAD_PERMS -eq 1 ]]; then
+      error "❗ IGNORE_BAD_PERMS is set, ignoring bad permissions on $chkfile."
+      return 0
+    else
+      return 1
+    fi
   fi
 }
 #}}} /🔑
@@ -274,7 +284,7 @@ find_reqs() {
 # dedupe requirements.txt
 dedupe_reqs() {
   awk '!seen[$0]++' "$PYTHON_REQS" > "$PYTHON_REQS.tmp"
-  mv "$PYTHON_REQS.tmp" "$PYTHON_REQS"
+  mv -f "$PYTHON_REQS.tmp" "$PYTHON_REQS"
 }
 # install python dependencies
 install_python_deps() {
@@ -431,8 +441,8 @@ entrypoint.sh
 # clean log
 truncate -s 0 /config/stash-s6.log
 # print to file
-echo "stash-s6 logfile | $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)" > /config/stash-s6.log
-echo "UID:$CURUSR GID:$CURGRP ROOTLESS:$ROOTLESS HWACCEL:$HWACCEL COMPAT_MODE:$COMPAT_MODE" >> /config/stash-s6.log
+echo "stash-s6 logfile | $STASH_S6_VARIANT - $STASH_S6_BUILD_DATE ($STASH_S6_GITHASH)" > "$CONFIG_ROOT"/stash-s6.log
+echo "UID:$CURUSR GID:$CURGRP ROOTLESS:$ROOTLESS HWACCEL:$HWACCEL COMPAT_MODE:$COMPAT_MODE" >> "$CONFIG_ROOT"/stash-s6.log
 user_status
 try_migrate
 install_python_deps
