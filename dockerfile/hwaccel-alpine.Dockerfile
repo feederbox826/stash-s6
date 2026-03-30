@@ -40,7 +40,8 @@ RUN \
     jellyfin-ffmpeg \
     tzdata \
     uv \
-    vips-tools
+    vips-tools\
+    vips-heif
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   echo "**** install optional x86 drivers ****" && \
     apk add --no-cache --no-progress \

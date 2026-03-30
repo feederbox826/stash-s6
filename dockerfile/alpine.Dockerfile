@@ -38,7 +38,8 @@ RUN \
     ffmpeg \
     tzdata \
     uv \
-    vips-tools
+    vips-tools \
+    vips-heif
 RUN \
   echo "**** symlink uv-pip ****" && \
   ln -s \
