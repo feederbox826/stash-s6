@@ -253,9 +253,14 @@ search_dir_reqs() {
     warn "🐍 $target_dir not found, skipping requirement search"
     return 0
   fi
-  find "$target_dir" -type f -name "requirements.txt" -print0 | while IFS= read -r -d '' file
+  find "$target_dir" -type f -name "*.yml" -print0 | while IFS= read -r -d '' ymlfile
   do
-    parse_reqs "$file"
+    local plugindir
+    plugindir="$(dirname "$ymlfile")"
+    local reqfile="$plugindir/requirements.txt"
+    if [ -f "$reqfile" ]; then
+      parse_reqs "$reqfile"
+    fi
   done
 }
 # parse requirements
