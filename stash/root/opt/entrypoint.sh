@@ -253,7 +253,7 @@ search_dir_reqs() {
     warn "🐍 $target_dir not found, skipping requirement search"
     return 0
   fi
-  find "$target_dir" -type f -name "*.yml" -print0 | while IFS= read -r -d '' ymlfile
+  find "$target_dir" -type f -name "*.yml" -maxdepth 3 -print0 | while IFS= read -r -d '' ymlfile
   do
     local plugindir
     plugindir="$(dirname "$ymlfile")"
