@@ -46,9 +46,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
   echo "**** install optional x86 drivers ****" && \
     apk add --no-cache --no-progress \
       --repository https://dl-cdn.alpinelinux.org/alpine/edge/community \
-      libva-intel-driver && \
-    apk add --no-cache --no-progress \
-      --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing \
+      libva-intel-driver \
       intel-media-driver \
       onevpl-intel-gpu ; \
   fi
