@@ -67,7 +67,10 @@ ARG \
   BUILD_DATE \
   SHORT_BUILD_DATE \
   GITHASH \
-  OFFICIAL_BUILD="false"
+  OFFICIAL_BUILD="false" \
+  UPSTREAM_NAME \
+  UPSTREAM_DIGEST \
+  STASH_VERSION
 ENV \
   STASH_S6_VARIANT="alpine" \
   STASH_S6_BUILD_DATE=$SHORT_BUILD_DATE \
@@ -76,6 +79,9 @@ ENV \
 LABEL \
   org.opencontainers.image.created=$BUILD_DATE \
   org.opencontainers.image.revision=$GITHASH \
+  org.opencontainers.image.version=$STASH_VERSION \
+  org.opencontainers.image.base.name=$UPSTREAM_NAME \
+  org.opencontainers.image.base.digest=$UPSTREAM_DIGEST \
   org.opencontainers.image.description="stashapp/stash container with hwaccel, py and user switching" \
   org.opencontainers.image.source=https://github.com/feederbox826/stash-s6 \
   org.opencontainers.image.vendor=feederbox826 \
