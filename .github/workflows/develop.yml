@@ -12,7 +12,8 @@ on:
   repository_dispatch:
     types: [upstream_update]
   schedule:
-    - cron: '0 0 */7 * *'
+    # weekly on saturday: `*/7` is a day-of-month step, not "every 7 days" (29 -> 1 is 3 days)
+    - cron: '0 0 * * 6'
 
 permissions:
   contents: read
@@ -27,9 +28,11 @@ jobs:
       - id: meta
         name: set meta environment variables
         run: |
-          echo "EPOCH=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
-          echo "TIMESTAMP=$(git log -1 --pretty=%cI)" >> $GITHUB_OUTPUT
-          echo "GITHASH=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+          echo "EPOCH=$(git log -1 --pretty=%ct)" >> "$GITHUB_ENV"
+          # real build time: the last commit date made every image claim the same
+          # "created" value and produced misleading -date tags
+          echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "GITHASH=$(git rev-parse --short ${{ github.sha }})" >> "$GITHUB_OUTPUT"
       # set up qemu and buildx
       - uses: docker/setup-qemu-action@v3
         with:
@@ -49,6 +52,32 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      # pin the upstream stash build: `development` is a floating tag, and a bake that
+      # starts before upstream republishes ships a stale binary as if it were current
+      - id: upstream
+        name: resolve upstream stash digest
+        run: |
+          set -euo pipefail
+          TOKEN=$(curl -fsS "https://auth.docker.io/token?service=registry.docker.io&scope=repository:stashapp/stash:pull" | jq -r .token)
+          DIGEST=$(curl -fsSI \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+            "https://registry-1.docker.io/v2/stashapp/stash/manifests/development" \
+            | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}' | tr -d '\r')
+          if [ -z "${DIGEST}" ]; then
+            echo "::error::could not resolve the digest of stashapp/stash:development"
+            exit 1
+          fi
+          NAME="docker.io/stashapp/stash:development"
+          VERSION=$(docker run --rm --entrypoint /usr/bin/stash "docker.io/stashapp/stash@${DIGEST}" --version | awk '{print $1}')
+          [ -n "${VERSION}" ] || { echo "::error::could not read the stash version from ${NAME}@${DIGEST}"; exit 1; }
+          echo "reference=docker.io/stashapp/stash@${DIGEST}" >> "$GITHUB_OUTPUT"
+          {
+            echo "name=${NAME}"
+            echo "digest=${DIGEST}"
+            echo "version=${VERSION}"
+          } >> "$GITHUB_OUTPUT"
+          echo "pinned ${NAME}@${DIGEST} (stash ${VERSION})"
       # bake
       - uses: docker/bake-action@v6
         with:
@@ -58,5 +87,29 @@ jobs:
             develop_ci_debian
         env:
           GITHASH: ${{ steps.meta.outputs.GITHASH }}
-          BUILD_DATE: ${{ steps.meta.outputs.TIMESTAMP }}
+          BUILD_DATE: ${{ steps.meta.outputs.BUILD_DATE }}
           SOURCE_DATE_EPOCH: ${{ env.EPOCH }}
+          UPSTREAM_STASH: ${{ steps.upstream.outputs.reference }}
+          UPSTREAM_NAME: ${{ steps.upstream.outputs.name }}
+          UPSTREAM_DIGEST: ${{ steps.upstream.outputs.digest }}
+          STASH_VERSION: ${{ steps.upstream.outputs.version }}
+      # a run that packages a superseded upstream build must not pass silently
+      - name: fail if upstream moved during the build
+        run: |
+          set -euo pipefail
+          TOKEN=$(curl -fsS "https://auth.docker.io/token?service=registry.docker.io&scope=repository:stashapp/stash:pull" | jq -r .token)
+          NOW=$(curl -fsSI \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+            "https://registry-1.docker.io/v2/stashapp/stash/manifests/development" \
+            | awk -F': ' 'tolower($1)=="docker-content-digest"{print $2}' | tr -d '\r')
+          PINNED="${{ steps.upstream.outputs.digest }}"
+          if [ -z "${NOW}" ]; then
+            echo "::warning::could not re-resolve stashapp/stash:development; skipping the race check"
+            exit 0
+          fi
+          if [ "${NOW}" != "${PINNED}" ]; then
+            echo "::error::stashapp/stash:development moved during this build (${PINNED} -> ${NOW}); the published image contains a superseded upstream build"
+            exit 1
+          fi
+          echo "upstream unchanged during the build: ${PINNED}"

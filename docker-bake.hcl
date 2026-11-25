@@ -61,6 +61,30 @@ variable "CI" {
   default = false
 }
 
+// upstream stash build this image packages. CI pins it to a digest so a bake cannot pick
+// up an upstream image published mid-build; left empty, the develop targets keep following
+// the floating `development` tag for local builds.
+variable "UPSTREAM_STASH" {
+  type = string
+  default = ""
+}
+
+variable "UPSTREAM_NAME" {
+  type = string
+  default = ""
+}
+
+variable "UPSTREAM_DIGEST" {
+  type = string
+  default = ""
+}
+
+// stash version read from the pinned upstream image, used for the version tag and label
+variable "STASH_VERSION" {
+  type = string
+  default = ""
+}
+
 // common arguments
 target "_common" {
   context = "."
@@ -88,6 +112,12 @@ target "_debian_multi" {
 target "_develop" {
   args = {
     STASH_TAG = "development"
+    # a digest-qualified UPSTREAM_STASH wins in the Dockerfile's `FROM`; the plain tag is
+    # only the fallback for local builds
+    UPSTREAM_STASH  = UPSTREAM_STASH != "" ? UPSTREAM_STASH : "docker.io/stashapp/stash:development"
+    UPSTREAM_NAME   = UPSTREAM_NAME != "" ? UPSTREAM_NAME : "docker.io/stashapp/stash:development"
+    UPSTREAM_DIGEST = UPSTREAM_DIGEST
+    STASH_VERSION   = STASH_VERSION
   }
 }
 
@@ -183,6 +213,10 @@ function "tag" {
       "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${SHORT_BUILD_DATE}",
       "docker.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${SHORT_BUILD_DATE}"
     ],
+    STASH_VERSION != "" ? [
+      "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${STASH_VERSION}",
+      "docker.io/${OWNER_NAME}/${IMAGE_NAME}:${variant}-${STASH_VERSION}"
+    ] : [],
     variant == "alpine" ? [
       "ghcr.io/${OWNER_NAME}/${IMAGE_NAME}:latest",
       "docker.io/${OWNER_NAME}/${IMAGE_NAME}:latest"
